@@ -1,4 +1,6 @@
-"C:\Program Files\Java\jdk1.6.0_01\bin\jar" cvf inspired.war . 
+del inspired.war
+
+call ant war >build.txt
 
 rd "C:\Program Files\Openfire\plugins\inspired" /q /s
 del "C:\Program Files\Openfire\plugins\inspired.war"

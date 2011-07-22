@@ -1,10 +1,12 @@
 Buildfile: build.xml
 
 compile:
-    [javac] Compiling 1 source file to C:\Projects\inspired\WebServer
+    [javac] Compiling 4 source files to C:\Projects\inspired\WebServer
+    [javac] Note: C:\Projects\inspired\WebServer\com\ifsoft\inspired\ManageVoiceBridge.java uses unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
 
 jar:
       [jar] Building jar: C:\Projects\inspired\WebServer\inspired.jar
 
 BUILD SUCCESSFUL
-Total time: 1 second
+Total time: 3 seconds
