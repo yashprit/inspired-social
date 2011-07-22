@@ -1,0 +1,9 @@
+Buildfile: build.xml
+
+compile:
+
+jar:
+      [jar] Building jar: C:\Projects\inspired\PHP2Java\php2java.jar
+
+BUILD SUCCESSFUL
+Total time: 0 seconds

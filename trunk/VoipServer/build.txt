@@ -1,0 +1,10 @@
+Buildfile: build.xml
+
+compile:
+    [javac] Compiling 1 source file to C:\Projects\inspired\VoipServer
+
+jar:
+      [jar] Building jar: C:\Projects\inspired\VoipServer\voip.jar
+
+BUILD SUCCESSFUL
+Total time: 16 seconds

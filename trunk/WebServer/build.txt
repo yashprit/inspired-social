@@ -1,0 +1,10 @@
+Buildfile: build.xml
+
+compile:
+    [javac] Compiling 1 source file to C:\Projects\inspired\WebServer
+
+jar:
+      [jar] Building jar: C:\Projects\inspired\WebServer\inspired.jar
+
+BUILD SUCCESSFUL
+Total time: 1 second
