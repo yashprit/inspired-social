@@ -90,14 +90,14 @@ public class DrupalRule extends RewriteRule {
 
 		if (requestURI.indexOf("/inspired/video/") > -1) return null;
 
-		if (requestURI.indexOf("\\inspired\\video/") > -1) return null;
+		if (requestURI.indexOf("\\inspired\\video\\") > -1) return null;
 
 		// No rewrite if real path cannot be obtained, or if request URI points to a
 		// physical file or directory
 
 		String realPath = sc.getRealPath(requestURI);
 
-		if (realPath == null) return null;
+		if (realPath == null) return new DrupalMatch();
 
 		int pos = realPath.indexOf("\\inspired\\inspired");
 
@@ -115,7 +115,7 @@ public class DrupalRule extends RewriteRule {
 
 		File f = new File(realPath);
 
-		System.out.println("matches = " + requestURI + " " + realPath + " " + f.isFile() + " " + f.isDirectory());
+		System.out.println("matches check " + requestURI + " " + realPath + " " + f.isFile() + " " + f.isDirectory());
 
 		if (f.isFile() || f.isDirectory() || f.isHidden()) return null;
 
