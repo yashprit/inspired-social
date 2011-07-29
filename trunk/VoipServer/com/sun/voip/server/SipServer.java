@@ -352,8 +352,6 @@ public class SipServer implements SipListener {
 		    duplicateInvite(request);
 		    return;
 			}
-
-
              sipListener.processRequest(requestEvent);
 		     return;
 
@@ -370,48 +368,49 @@ public class SipServer implements SipListener {
 	    /*
 	     * An INVITE for an incoming call goes to the IncomingCallHandler.
 	     */
-	    if (request.getMethod().equals(Request.INVITE)) {
+	    if (request.getMethod().equals(Request.INVITE))
+	    {
 
-		if (SipIncomingCallAgent.addSipCallId(sipCallId) == false) {
-		    FromHeader fromHeader = (FromHeader)
-			request.getHeader(FromHeader.NAME);
+			if (SipIncomingCallAgent.addSipCallId(sipCallId) == false) {
+				FromHeader fromHeader = (FromHeader)
+				request.getHeader(FromHeader.NAME);
 
-        	    ToHeader toHeader = (ToHeader)
-			request.getHeader(ToHeader.NAME);
+					ToHeader toHeader = (ToHeader)
+				request.getHeader(ToHeader.NAME);
 
-        	    String from = fromHeader.getAddress().toString();
-        	    String to = toHeader.getAddress().toString();
+					String from = fromHeader.getAddress().toString();
+					String to = toHeader.getAddress().toString();
 
-		    Logger.writeFile("SipServer:  duplicate call with sipCallId " + sipCallId + " from " + from + " to " + to);
+				Logger.writeFile("SipServer:  duplicate call with sipCallId " + sipCallId + " from " + from + " to " + to);
 
-		    return;
-		}
+				return;
+			}
 
-		CallParticipant cp = new CallParticipant();
+			CallParticipant cp = new CallParticipant();
 
-		String s = SipUtil.getCallIdFromSdp(request);
+			String s = SipUtil.getCallIdFromSdp(request);
 
-		if (s != null) {
-		    if (Logger.logLevel >= Logger.LOG_MOREINFO) {
-			Logger.println("Using callId from SDP in INVITE: "
-			    + s);
-		    }
-		    cp.setCallId(s);
-		}
+			if (s != null) {
+				if (Logger.logLevel >= Logger.LOG_MOREINFO) {
+				Logger.println("Using callId from SDP in INVITE: "
+					+ s);
+				}
+		    	cp.setCallId(s);
+			}
 
-	  	s = SipUtil.getConferenceIdFromSdp(request);
+	  		s = SipUtil.getConferenceIdFromSdp(request);
 
-		if (s != null) {
-		    String[] tokens = s.split(":");
+			if (s != null) {
+				String[] tokens = s.split(":");
 
-		    cp.setConferenceId(tokens[0].trim());
+				cp.setConferenceId(tokens[0].trim());
 
-		    if (tokens.length > 1) {
-                        cp.setMediaPreference(tokens[1]);
-                    }
+				if (tokens.length > 1) {
+							cp.setMediaPreference(tokens[1]);
+						}
 
-		    if (tokens.length > 2) {
-			cp.setConferenceDisplayName(tokens[2]);
+				if (tokens.length > 2) {
+				cp.setConferenceDisplayName(tokens[2]);
 		    }
 		}
 
@@ -425,7 +424,6 @@ public class SipServer implements SipListener {
 		cp.setPhoneNumber(SipUtil.getFromPhoneNumber(requestEvent));
 		cp.setToPhoneNumber(SipUtil.getToPhoneNumber(requestEvent));
 
-
 		new IncomingCallHandler(cp, requestEvent);
 		return;
 	    }
@@ -435,6 +433,8 @@ public class SipServer implements SipListener {
              * we should send back a 500 Internal Server Error
              */
 	    Logger.exception("processRequest", e);
+
+	    Logger.writeFile("SipServer:  processRequest error " + e);
         }
     }
 

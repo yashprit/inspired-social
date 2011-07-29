@@ -5,7 +5,6 @@
     <name>Inspired</name>
     <description>Inspired Plugin for Openfire</description>
     <author>Dele Olajide</author>
-    <version>0.0.0.1</version>
-    <minServerVersion>3.6.0</minServerVersion> 
-    
+    <version>0.0.0.2</version>
+    <minServerVersion>3.6.0</minServerVersion>     
 </plugin>

@@ -12,7 +12,7 @@
 
 	function closeWindow()
 	{
-
+		top.presenceMini('', '', '', '')
 	}
 
 	function setupWindow()
@@ -26,6 +26,8 @@
 			onReady: function()
 			{
 			  jQuery("#demo-btn").attr("disabled", false).val("Call");
+
+			  top.presenceMini('', '', '', 'sip:' + this.sessionId)
 			}
 		});
 

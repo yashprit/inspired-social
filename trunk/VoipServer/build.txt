@@ -1,67 +1,10 @@
 Buildfile: build.xml
 
 compile:
-    [javac] Compiling 57 source files to C:\Projects\inspired\VoipServer
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipUtil.java:108: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac] 	ourSipPort = sipProvider.getListeningPoint().getPort();
-    [javac] 	                        ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipUtil.java:545: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac]             (sipProvider.getListeningPoint().getTransport());
-    [javac]                         ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipUtil.java:571: warning: [deprecation] createCSeqHeader(int,java.lang.String) in javax.sip.header.HeaderFactory has been deprecated
-    [javac]         cSeqHeader = headerFactory.createCSeqHeader(1, Request.INVITE);
-    [javac]                                   ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:154: warning: [deprecation] getSequenceNumber() in javax.sip.header.CSeqHeader has been deprecated
-    [javac]             	if (cseq.getSequenceNumber() < 2) {
-    [javac]             	        ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:235: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac] 		sipProvider.getListeningPoint().getTransport());
-    [javac] 		           ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:237: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac]             throw new IOException(sipProvider.getListeningPoint().getTransport()
-    [javac]                                              ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:247: warning: [deprecation] createCSeqHeader(int,java.lang.String) in javax.sip.header.HeaderFactory has been deprecated
-    [javac]             cSeqHeader = headerFactory.createCSeqHeader(1, Request.REGISTER);
-    [javac]                                       ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:388: warning: [deprecation] getSequenceNumber() in javax.sip.header.CSeqHeader has been deprecated
-    [javac]             cSeqHeader.setSequenceNumber(cSeqHeader.getSequenceNumber()+1);
-    [javac]                                                    ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:388: warning: [deprecation] setSequenceNumber(int) in javax.sip.header.CSeqHeader has been deprecated
-    [javac]             cSeqHeader.setSequenceNumber(cSeqHeader.getSequenceNumber()+1);
-    [javac]                       ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:429: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac]             fromURI.setTransportParam(sipProvider.getListeningPoint().getTransport());
-    [javac]                                                  ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:431: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac]             fromURI.setPort(sipProvider.getListeningPoint().getPort());
-    [javac]                                        ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:460: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac]         ListeningPoint lp = sipProvider.getListeningPoint();
-    [javac]                                        ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:514: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac] 		sipProvider.getListeningPoint().getTransport());
-    [javac] 		           ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:515: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
-    [javac] 	    contactURI.setPort(sipProvider.getListeningPoint().getPort());
-    [javac] 	                                  ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipServer.java:184: warning: [deprecation] createListeningPoint(int,java.lang.String) in javax.sip.SipStack has been deprecated
-    [javac]             lp = sipStack.createListeningPoint(sipPort, "tcp");
-    [javac]                          ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipServer.java:190: warning: [deprecation] createListeningPoint(int,java.lang.String) in javax.sip.SipStack has been deprecated
-    [javac]             lp = sipStack.createListeningPoint(sipPort, "udp");
-    [javac]                          ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipServer.java:754: warning: [deprecation] getSequenceNumber() in javax.sip.header.CSeqHeader has been deprecated
-    [javac]             cSeq.setSequenceNumber(cSeq.getSequenceNumber() + 1);
-    [javac]                                        ^
-    [javac] C:\Projects\inspired\VoipServer\com\sun\voip\server\SipServer.java:754: warning: [deprecation] setSequenceNumber(int) in javax.sip.header.CSeqHeader has been deprecated
-    [javac]             cSeq.setSequenceNumber(cSeq.getSequenceNumber() + 1);
-    [javac]                 ^
-    [javac] Note: Some input files use unchecked or unsafe operations.
-    [javac] Note: Recompile with -Xlint:unchecked for details.
-    [javac] 18 warnings
+    [javac] Compiling 1 source file to C:\Projects\inspired\VoipServer
 
 jar:
       [jar] Building jar: C:\Projects\inspired\VoipServer\voip.jar
 
 BUILD SUCCESSFUL
-Total time: 14 seconds
+Total time: 10 seconds

@@ -523,6 +523,9 @@ function handlePresenceMini(pr) {
 	
 	// Change the show presence of this buddy
 	jQuery(friend + ' span.jm_presence, ' + chat + ' span.jm_presence').attr('class', 'jm_presence jm_images jm_' + show);
+
+	// Change the status of this buddy
+	jQuery(friend).attr('title', pr.getStatus());
 	
 	// Update the presence counter
 	updateRosterMini();
@@ -1304,8 +1307,11 @@ function sendRedfireMsg(xid, msg)
 
 
 // Manages and creates a chat
-function chatMini(type, xid, nick, hash, pwd, show_pane) {
+
+function chatMini(type, xid, nick, hash, pwd, show_pane) 
+{
 	var current = '#jappix_mini #chat-' + hash;
+	var friend = '#jappix_mini a#friend-' + hash;
 	
 	// Not yet added?
 	if(!exists(current)) {
@@ -1367,6 +1373,13 @@ function chatMini(type, xid, nick, hash, pwd, show_pane) {
 			html += '<a class="jm_one-action jm_close jm_images" title="' + _e("Close") + '" href="#"></a>';
 
 		var phonConf = "";
+		var status = jQuery(friend).attr('title');
+		var phoneCall = status ? status.indexOf('sip:') == 0 : false;
+
+		if (type != 'groupchat' && phoneCall)
+		{
+		 	phonConf = '<td><a title="Phone Call" href="javascript:doPhono(&quot;' + status + '&quot;)"><img height="16" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/telephone.jpg"/></a></td>'			
+		}
 		
 		if (type == 'groupchat' && groupchat_exists)
 		{
@@ -1603,7 +1616,7 @@ function addBuddyMini(xid, hash, nick, groupchat) {
 	}
 	
 	// Append this buddy content
-	var code = '<a class="jm_friend jm_offline" id="friend-' + hash + '" data-xid="' + escape(xid) + '" data-nick="' + escape(nick) +  '" data-hash="' + hash + '" href="#"><span class="jm_presence jm_images jm_unavailable"></span>' + nick.htmlEnc() + '</a>';
+	var code = '<a title="Available" class="jm_friend jm_offline" id="friend-' + hash + '" data-xid="' + escape(xid) + '" data-nick="' + escape(nick) +  '" data-hash="' + hash + '" href="#"><span class="jm_presence jm_images jm_unavailable"></span>' + nick.htmlEnc() + '</a>';
 	
 	if(groupchat)
 		jQuery(path).append(code);

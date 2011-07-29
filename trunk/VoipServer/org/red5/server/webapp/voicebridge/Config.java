@@ -75,7 +75,7 @@ public class Config implements MUCEventListener {
 				}
 			}
 
-			//processRegistrations();
+			processRegistrations();
 
 		} catch (Throwable t) {
 			t.printStackTrace();

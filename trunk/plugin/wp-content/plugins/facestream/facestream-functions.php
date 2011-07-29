@@ -400,7 +400,7 @@ function facestream_facebookIt($content) {
 add_action( 'wp', 'facestream_lightbox', 9 );
 
 function facestream_lightbox(){
-    wp_enqueue_script( 'thickbox' );
+    // (not working BAO) wp_enqueue_script( 'thickbox' );
     wp_enqueue_style( 'thickbox' );
 }
 
@@ -1153,13 +1153,6 @@ function facestream_settings() {
     <input type="submit" class="button-primary" value="<?php echo __('Save Changes') ?>" />
     </p>
 </form>
-
-<h2><?php echo __( 'Donate', 'facestream_lang' );?></h2>
-
-<?php echo __( 'Do do like this plugin? Please donate, so i can stay improving this plugin and give support.', 'facestream_lang' );?>
-<br/><br/>
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=TKBY4JM6WDSD2" target="_blank"><img src="https://www.paypal.com/en_US/i/btn/btn_donate_LG.gif"></a>
-<br/><br/>
 
 </div>
 <?php }

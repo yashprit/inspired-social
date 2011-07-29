@@ -76,8 +76,8 @@ public class Application implements CallEventListener  {
 			site.setName(domainName);
 			site.setPrivateHost(domainName);
 			site.setPublicHost(domainName);
-			site.setDefaultProxy("");
-			site.setDefaultExten("");
+			site.setDefaultProxy(null);
+			site.setDefaultExten("default");
 
 			config = Config.getInstance();
 			config.initialise(site);
