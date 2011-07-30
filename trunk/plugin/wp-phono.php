@@ -26,9 +26,46 @@
 			onReady: function()
 			{
 			  jQuery("#demo-btn").attr("disabled", false).val("Call");
+			  top.presenceMini('', '', '', 'sip:' + this.sessionId);
+			},
 
-			  top.presenceMini('', '', '', 'sip:' + this.sessionId)
+			onUnready: function()
+			{
+			     jQuery("#demo-btn").val("Unavailable");
+  			},
+
+			phone:
+			{
+				ringTone: "http://s.phono.com/ringtones/ringback-uk.mp3",
+				headset: false,
+
+				onIncomingCall: function(event)
+				{
+				  	jQuery("#demo-status").html("Incoming Call: " + event.call.id);
+				  	jQuery("#demo-btn").val("Answer");
+
+				  	call = event.call;
+
+					Phono.events.bind(call,
+					{
+						   onHangup: function(event)
+						   {
+								hangupCall();
+						   },
+
+						   onError: function(event)
+						   {
+							 jQuery("#demo-status").html("Phone error: " + e.reason);
+						   }
+					});
+				},
+
+				onError: function(event)
+				{
+				  jQuery("#demo-status").html("Phone error: " + e.reason);
+				}
 			}
+
 		});
 
 		jQuery('#demo-btn').bind(
@@ -50,23 +87,24 @@
 							jQuery("#demo-status").html("Ringing");
 						  },
 
-						  headset: true,
+						  headset: false,
 
 						  onAnswer: function()
 						  {
-							jQuery("#demo-status").html("Answered");
-							jQuery("#demo-btn").val("Hangup");
-							jQuery('#call-controls').show();
+							answerCall();
 						  },
 
 						  onHangup: function()
 						  {
-							jQuery("#demo-btn").attr("disabled", false).val("Call");
-							jQuery("#demo-status").html("Hangup");
-							jQuery('#call-controls').hide();
+							hangupCall();
 						  }
 						});
 					}
+
+				} else if (jQuery(this).val() == "Answer") {
+
+					call.answer();
+					answerCall();
 
 				} else {
 
@@ -75,6 +113,22 @@
 				}
 			}
 		);
+	}
+
+	function answerCall()
+	{
+		jQuery("#demo-status").html("Answered");
+		jQuery("#demo-btn").val("Hangup");
+		jQuery('#call-controls').show();
+	}
+
+	function hangupCall()
+	{
+		jQuery("#demo-btn").attr("disabled", false).val("Call");
+		jQuery("#demo-status").html("Hangup");
+		jQuery('#call-controls').hide();
+
+		call = null;
 	}
 
 </script>
