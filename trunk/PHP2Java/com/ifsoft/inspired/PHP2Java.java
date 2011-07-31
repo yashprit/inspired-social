@@ -31,6 +31,22 @@ public class PHP2Java extends AbstractQuercusModule
 		return "Hello, " + name;
 	}
 
+	public synchronized void sendEmail(String toAddress, String subject, String body, String htmlBody)
+	{
+	   try {
+		   String domainName = JiveGlobals.getProperty("xmpp.domain", XMPPServer.getInstance().getServerInfo().getHostname());
+
+		   Log.info( "sendEmail " + toAddress + " " + subject + "\n " + body + "\n " + htmlBody);
+
+		   EmailService.getInstance().sendMessage(null, toAddress, "Inspired Social", "no_reply@" + domainName, subject, body, htmlBody);
+	   }
+	   catch (Exception e) {
+		   Log.error(e.toString());
+	   }
+
+	}
+
+
 	public synchronized void createGroupChat(String groupId)
 	{
 		String roomName = getSQLField("SELECT name FROM wp_bp_groups WHERE id='" + groupId + "'", "name");

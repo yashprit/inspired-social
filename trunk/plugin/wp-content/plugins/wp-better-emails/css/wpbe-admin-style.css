@@ -1,0 +1,57 @@
+#wpbe_options_tabs {
+overflow: hidden;
+height: 100%;
+margin: 20px 0;
+}
+#wpbe_options_tabs .wpbe_tabs_titles {
+float: left;
+width: 97%;
+height: 32px;
+margin: 0 0 20px 0;
+padding: 0 0 0 15px;
+border-bottom: solid 1px #ccc;
+}
+#wpbe_options_tabs .wpbe_tabs_titles li {
+float: left;
+height: 31px;
+line-height: 31px;
+padding: 0;
+margin: 0 3px 0 0;
+border: solid 1px #ccc;
+background: #fff;
+-moz-border-radius: 4px 4px 0 0;
+-webkit-border-radius: 4px 4px 0 0;
+border-radius: 4px 4px 0 0;
+}
+#wpbe_options_tabs .wpbe_tabs_titles a {
+color: #ccc;
+text-decoration: none;
+font-size: 14px;
+display: block;
+padding: 0 20px;
+border-bottom: none;
+}
+#wpbe_options_tabs ul li.ui-state-active {
+background: #f9f9f9;
+border-bottom: 1px solid #f9f9f9;
+}
+#wpbe_options_tabs .ui-state-active a {
+color: #333;
+}
+#wpbe_options_tabs .ui-state-active a:hover,
+#wpbe_options_tabs a:hover {
+color: #D54E21;
+}
+.wpbe_tab_content {
+padding: 0 20px;
+}
+.markItUpPreviewFrame {
+border: solid 1px #ddd;
+}
+#wpbe_preview_email {
+width: 250px;
+vertical-align: middle;
+}
+#wpbe_options_form #ajax-loading {
+vertical-align: middle;
+}

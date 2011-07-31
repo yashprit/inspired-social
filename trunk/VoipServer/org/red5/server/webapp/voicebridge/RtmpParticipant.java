@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import com.milgra.server.*;
 
-import java.nio.IntBuffer;
+import java.nio.*;
 import com.sun.voip.server.MemberReceiver;
 import org.red5.codecs.asao.CodecImpl;
 
@@ -19,9 +19,21 @@ public class RtmpParticipant extends ThirdParty {
     private String playName;
     private int kt = 0;
     private short kt2 = 0;
-
+	private boolean sentMetadata = false;
    	private float[] senderEncoderMap = new float[64];
    	private float[] recieverEncoderMap = new float[64];
+
+	private final byte[] fakeMetadata = new byte[] {
+		0x02, 0x00, 0x0a, 0x6f, 0x6e, 0x4d, 0x65, 0x74, 0x61, 0x44, 0x61, 0x74, 0x61, 0x08, 0x00, 0x00,
+		0x00, 0x06, 0x00, 0x08, 0x64, 0x75, 0x72, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x00, 0x40, 0x31, (byte)0xaf,
+		0x5c, 0x28, (byte)0xf5, (byte)0xc2, (byte)0x8f, 0x00, 0x0f, 0x61, 0x75, 0x64, 0x69, 0x6f, 0x73, 0x61, 0x6d, 0x70,
+		0x6c, 0x65, 0x72, 0x61, 0x74, 0x65, 0x00, 0x40, (byte)0xe5, (byte)0x88, (byte)0x80, 0x00, 0x00, 0x00, 0x00, 0x00,
+		0x0f, 0x61, 0x75, 0x64, 0x69, 0x6f, 0x73, 0x61, 0x6d, 0x70, 0x6c, 0x65, 0x73, 0x69, 0x7a, 0x65,
+		0x00, 0x40, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x73, 0x74, 0x65, 0x72, 0x65,
+		0x6f, 0x01, 0x00, 0x00, 0x0c, 0x61, 0x75, 0x64, 0x69, 0x6f, 0x63, 0x6f, 0x64, 0x65, 0x63, 0x69,
+		0x64, 0x00, 0x40, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x66, 0x69, 0x6c, 0x65,
+		(byte)0xc8, 0x73, 0x69, 0x7a, 0x65, 0x00, 0x40, (byte)0xf3, (byte)0xf5, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00
+	};
 
     private static final int NELLYMOSER_CODEC_ID = 82;
     private static final int L16_AUDIO_LENGTH = 256;
@@ -38,7 +50,7 @@ public class RtmpParticipant extends ThirdParty {
     private int[] tempNellyBuffer = new int[L16_AUDIO_LENGTH];
     private final byte[] nellyBytes = new byte[NELLY_AUDIO_LENGTH];
 
-	private long startTime = System.currentTimeMillis();
+	private long startTime = 0;
 
 	private StreamRouter router;
 	private StreamPlayer player;
@@ -86,12 +98,20 @@ public class RtmpParticipant extends ThirdParty {
 
 			kt = 0;
 			kt2 = 0;
+        	sentMetadata = false;
+        	startTime = 0;
 
 			recieverEncoderMap = new float[64];
 			senderEncoderMap = new float[64];
 
+       		l16AudioSender.clear();
+       		l16AudioRecv.clear();
+
 			viewBufferSender = l16AudioSender.asReadOnlyBuffer();
+			viewBufferSender.clear();
+
 			viewBufferRecv = l16AudioRecv.asReadOnlyBuffer();
+			viewBufferRecv.clear();
 
 			try {
 
@@ -115,6 +135,9 @@ public class RtmpParticipant extends ThirdParty {
 
 
     public void stopStream() {
+
+		kt = 0;
+		kt2 = 0;
 
         System.out.println( "RtmpParticipant stopStream" );
 
@@ -143,7 +166,11 @@ public class RtmpParticipant extends ThirdParty {
 
 	public void pushAudio(int[] pcmBuffer)
 	{
-		int timeStamp = 0;
+		if ( kt < 10 ) {
+			System.out.println( "++++ RtmpParticipant.pushAudio() - dataRecieved -> length = " + pcmBuffer.length);
+		}
+
+		kt++;
 
 		try {
 			l16AudioSender.put(pcmBuffer);
@@ -161,6 +188,8 @@ public class RtmpParticipant extends ThirdParty {
 				// Convert it into Nelly
 
 				CodecImpl.encode(senderEncoderMap, tempNellyBuffer, nellyBytes);
+
+                //byte[] aux = ResampleUtils.resample((float) ( 8.0 / 11.025 ), tempNellyBuffer );
 
 				// Having done all of that, we now see if we need to send the audio or drop it.
 				// We have to encode to build the encoderMap so that data from previous audio packet
@@ -182,23 +211,14 @@ public class RtmpParticipant extends ThirdParty {
 */
 				if (sendPacket) {
 
-					if (kt == 0)
+					if (startTime == 0)
 					{
 						startTime = System.currentTimeMillis();
-						timeStamp = 0;
-
-					} else {
-
-						timeStamp = (int)(System.currentTimeMillis() - startTime);
 					}
 
-					publish(NELLY_AUDIO_LENGTH, nellyBytes, timeStamp, NELLYMOSER_CODEC_ID);
+					publish(NELLY_AUDIO_LENGTH, nellyBytes, NELLYMOSER_CODEC_ID);
 
-					if ( kt < 10 ) {
-						System.out.println( "++++ RtmpParticipant.pushAudio() - dataToSend -> length = " + nellyBytes.length);
-					}
-
-					kt++;
+					//publish(aux.length, aux,  6);
 				}
 			}
 
@@ -207,8 +227,8 @@ public class RtmpParticipant extends ThirdParty {
             loggererror( "RtmpParticipant pushAudio exception " + e );
 		}
 
-        if (l16AudioSender.position() == l16AudioSender.capacity()) {
-        	// We've processed 8 Ulaw packets (5 Nelly packets), reset the buffers.
+        if (l16AudioSender.position() >= l16AudioSender.capacity()) {
+        	// We've processed 8 L16 packets (5 Nelly packets), reset the buffers.
         	l16AudioSender.clear();
         	viewBufferSender.clear();
         }
@@ -249,11 +269,22 @@ public class RtmpParticipant extends ThirdParty {
     //
     // ------------------------------------------------------------------------
 
-    private void publish(int len, byte[] audio, int ts, int codec)
+    private void publish(int len, byte[] audio, int codec)
     {
+		int ts = (int)(System.currentTimeMillis() - startTime);
+
+		sendFakeMetadata(ts);
+
 		byte[] bytes = new byte[len + 1];
 		bytes[0] = (byte) codec;
 		System.arraycopy(audio, 0, bytes, 1, len);
+
+		//ByteBuffer bytesWriteTemp = ByteBuffer.allocate(len + 1);
+		//ByteBuffer bytesReadTemp = bytesWriteTemp.asReadOnlyBuffer();
+
+		//bytesWriteTemp.put((byte) codec);
+		//bytesWriteTemp.put(audio);
+		//bytesReadTemp.get(bytes);
 
 		RtmpPacket packet = new RtmpPacket();
 		packet.bodyType = 0x08;
@@ -261,8 +292,30 @@ public class RtmpParticipant extends ThirdParty {
 		packet.flvChannel = 0;
 		packet.flvStamp = ts;
 		packet.body = bytes;
-		router.take(packet);
 
+		router.take(packet);
+	}
+
+
+	private void sendFakeMetadata(int timestamp)
+	{
+		if (!sentMetadata)
+		{
+			/*
+			 * Flash Player 10.1 requires us to send metadata for it to play audio.
+			 */
+
+			RtmpPacket packet = new RtmpPacket();
+			packet.bodyType = 0x12;
+			packet.rtmpChannel = 0x05;
+			packet.flvChannel = 0;
+			packet.flvStamp = timestamp;
+			packet.body = fakeMetadata;
+
+			router.take(packet);
+
+			sentMetadata = true;
+		}
 	}
 
     private void loggerdebug( String s ) {
@@ -276,10 +329,20 @@ public class RtmpParticipant extends ThirdParty {
     }
 
 
-	private void dispatchEvent(byte[] asaoInput)
+	public void dispatchEvent(byte[] asaoIn)
 	{
 		int[] tempL16Buffer = new int[L16_AUDIO_LENGTH];
 		int[] l16Buffer = new int[ULAW_AUDIO_LENGTH];
+
+		byte[] asaoInput = new byte[asaoIn.length - 1];
+		System.arraycopy(asaoIn, 1, asaoInput, 0, asaoIn.length - 1);
+
+		//ByteBuffer asaoWriteTemp = ByteBuffer.allocate(asaoIn.length);
+		//ByteBuffer asaoReadTemp = asaoWriteTemp.asReadOnlyBuffer();
+
+		//asaoWriteTemp.put(asaoIn);
+		//asaoReadTemp.position(1);
+		//asaoReadTemp.get(asaoInput);
 
 		CodecImpl.decode(recieverEncoderMap, asaoInput, tempL16Buffer);
 

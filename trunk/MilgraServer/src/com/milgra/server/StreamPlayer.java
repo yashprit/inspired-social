@@ -280,9 +280,10 @@ public class StreamPlayer extends OStream
 							packet.flvChannel = flvChannel;
 							packet.rtmpChannel = audioChannel;
 
-							buffer.add( packet );
-
-							if (thirdParty != null) thirdParty.push(packet.body);
+							if (thirdParty != null)
+								thirdParty.push(packet.body);
+							else
+								buffer.add( packet );
 
 						}
 
@@ -321,7 +322,10 @@ public class StreamPlayer extends OStream
 								packet.flvChannel = flvChannel;
 								packet.rtmpChannel = videoChannel;
 
-								buffer.add( packet );
+								if (thirdParty != null)
+									thirdParty.push(packet.body);
+								else
+									buffer.add( packet );
 
 							}
 

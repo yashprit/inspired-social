@@ -268,6 +268,7 @@ if ( !function_exists( 'wp_mail' ) ) :
  * @param string|array $attachments Optional. Files to attach.
  * @return bool Whether the email contents were sent successfully.
  */
+
 function wp_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
 	// Compact the input, apply the filters, and extract them back out
 	extract( apply_filters( 'wp_mail', compact( 'to', 'subject', 'message', 'headers', 'attachments' ) ) );
@@ -396,12 +397,12 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 	$phpmailer->FromName = apply_filters( 'wp_mail_from_name', $from_name  );
 
 	// Set destination addresses
-	if ( !is_array( $to ) )
-		$to = explode( ',', $to );
+	//if ( !is_array( $to ) )
+	//	$to = explode( ',', $to );
 
-	foreach ( (array) $to as $recipient ) {
-		$phpmailer->AddAddress( trim( $recipient ) );
-	}
+	//foreach ( (array) $to as $recipient ) {
+	//	$phpmailer->AddAddress( trim( $recipient ) );
+	//}
 
 	// Set mail's subject and body
 	$phpmailer->Subject = $subject;
@@ -462,9 +463,12 @@ function wp_mail( $to, $subject, $message, $headers = '', $attachments = array()
 	do_action_ref_array( 'phpmailer_init', array( &$phpmailer ) );
 
 	// Send!
-	$result = @$phpmailer->Send();
+	//$result = @$phpmailer->Send();
 
-	return $result;
+	//return $result;
+
+	sendEmail($to, $subject, $message, $phpmailer->Body);
+	return true;
 }
 endif;
 

@@ -307,6 +307,17 @@ public class MemberSender {
 					callHandler.getMember().adjustVolume(dataToSend, outputVolume);
 				}
 
+				try {
+					if (outSampleRateConverter != null) {
+						dataToSend = outSampleRateConverter.resample(dataToSend);
+					}
+
+				} catch (IOException e) {
+					Logger.println("Call " + cp + " can't resample data to send! " + e.getMessage());
+					callHandler.cancelRequest("Call " + cp + " can't resample data to send! " + e.getMessage());
+					return false;
+				}
+
 				getRtmpParticipant().pushAudio(dataToSend);
 				return true;
 			}
