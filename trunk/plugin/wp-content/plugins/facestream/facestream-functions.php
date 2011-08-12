@@ -417,10 +417,17 @@ function facestream_runCron(){
     $date_diff   = $now-$last_update;
 
     $min = get_site_option('facestream_cronrun');
-    if($min==""){$min = 10;}
+    if($min=="")
+    {
+    	$min = 10;
+    	$cron_run = 1;
 
-    //may we run the cron?
-    if ($date_diff >= $min){ $cron_run = 1; }
+    } else {
+
+	    //may we run the cron?
+	    if ($date_diff >= $min){ $cron_run = 1; }
+    }
+
 
     if($cron_run == 1){
         // get all usermeta with facebook authorisation

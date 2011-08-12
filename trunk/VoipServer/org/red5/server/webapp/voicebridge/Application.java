@@ -94,6 +94,7 @@ public class Application implements CallEventListener  {
 			System.setProperty("com.sun.voip.server.BRIDGE_LOG", "bridge.log");
 			System.setProperty("com.sun.voip.server.LOGLEVEL", "99");
 			System.setProperty("com.sun.voip.server.PUBLIC_IP_ADDRESS", config.getPublicHost());
+			System.setProperty("gov.nist.jainsip.stack.enableUDP", "5060");
 
 			properties.setProperty("javax.sip.STACK_NAME", "JAIN SIP 1.1");
 			properties.setProperty("javax.sip.RETRANSMISSION_FILTER", "on");

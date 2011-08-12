@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="InspiredPlugin" default="jar">
 	<description>Inspired Plugin Build</description>
-	<property name="working.dir" value="C:\Projects\inspired\plugin" />
+	<property name="working.dir" value="C:\Projects\InspiredProject\inspired\plugin" />
 
 	<target name="war">
 		<jar destfile="${working.dir}\inspired.war">
