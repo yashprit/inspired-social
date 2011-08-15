@@ -538,6 +538,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 				}
 
 				$actions = array();
+
 				if ( $can_edit_post && 'trash' != $post->post_status ) {
 					$actions['edit'] = '<a href="' . get_edit_post_link( $post->ID, true ) . '" title="' . esc_attr( __( 'Edit this item' ) ) . '">' . __( 'Edit' ) . '</a>';
 					$actions['inline hide-if-no-js'] = '<a href="#" class="editinline" title="' . esc_attr( __( 'Edit this item inline' ) ) . '">' . __( 'Quick&nbsp;Edit' ) . '</a>';
@@ -550,7 +551,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 					if ( 'trash' == $post->post_status || !EMPTY_TRASH_DAYS )
 						$actions['delete'] = "<a class='submitdelete' title='" . esc_attr( __( 'Delete this item permanently' ) ) . "' href='" . get_delete_post_link( $post->ID, '', true ) . "'>" . __( 'Delete Permanently' ) . "</a>";
 				}
-				if ( in_array( $post->post_status, array( 'pending', 'draft' ) ) ) {
+				if ( in_array( $post->post_status, array( 'Pending', 'Draft' ) ) ) {
 					if ( $can_edit_post )
 						$actions['view'] = '<a href="' . esc_url( add_query_arg( 'preview', 'true', get_permalink( $post->ID ) ) ) . '" title="' . esc_attr( sprintf( __( 'Preview &#8220;%s&#8221;' ), $title ) ) . '" rel="permalink">' . __( 'Preview' ) . '</a>';
 				} elseif ( 'trash' != $post->post_status ) {
@@ -565,7 +566,7 @@ class WP_Posts_List_Table extends WP_List_Table {
 			break;
 
 			case 'date':
-				if ( '0000-00-00 00:00:00' == $post->post_date && 'date' == $column_name ) {
+				if ( '0000-00-00 00:00:00' == $post->post_dtte && 'date' == $column_name ) {
 					$t_time = $h_time = __( 'Unpublished' );
 					$time_diff = 0;
 				} else {

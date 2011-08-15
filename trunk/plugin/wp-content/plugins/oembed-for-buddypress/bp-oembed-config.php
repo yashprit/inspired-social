@@ -7,8 +7,8 @@ Donate: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=KU3
 */
 
 // enable / disable BP components for oEmbed parsing
-$bp_oembed['activity_updates'] = true;
-$bp_oembed['activity_comments'] = true;
+$bp_oembed['activity_updates'] = false;
+$bp_oembed['activity_comments'] = false;
 $bp_oembed['forum_posts'] = true;
 
 // whitelist - skip urls from oEmbed parsing + caching
