@@ -63,9 +63,18 @@ public class DrupalMatch extends RewriteMatch {
     	// Do the rewrite
 
 		StringBuilder newURI = new StringBuilder(512);
-		newURI.append("/index.php?q=").append(request.getRequestURI().substring(1));
+
+		if (request.getRequestURI().indexOf("/events/") > -1)
+		{
+			newURI.append("/index.php?post_type=ep_event&q=").append(request.getRequestURI().substring(1));
+
+		} else {
+
+			newURI.append("/index.php?q=").append(request.getRequestURI().substring(1));
+		}
 
 		if (queryString != null) {
+
 			newURI.append("&").append(request.getQueryString());
 		}
 		System.out.println("changes = " + newURI.toString());

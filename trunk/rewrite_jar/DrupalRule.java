@@ -80,6 +80,8 @@ public class DrupalRule extends RewriteRule {
 	public RewriteMatch matches(HttpServletRequest request, HttpServletResponse response) {
 		String requestURI = request.getRequestURI();
 
+		System.out.println("matches url " + requestURI);
+
 		if (requestURI == null) return null;
 
 		if (requestURI.equals("/")) return null;
@@ -89,6 +91,14 @@ public class DrupalRule extends RewriteRule {
 		if (requestURI.indexOf("screenshare?stream=") > -1) return null;
 
 		if (requestURI.indexOf("/inspired/video/") > -1) return null;
+
+		if (requestURI.indexOf("/inspired/chat/") > -1) return null;
+
+		if (requestURI.indexOf("/inspired/wp-admin/") > -1) return null;
+
+		if (requestURI.indexOf("/inspired/wp-content/") > -1) return null;
+
+		if (requestURI.indexOf("/inspired/wp-includes/") > -1) return null;
 
 		if (requestURI.indexOf("\\inspired\\video\\") > -1) return null;
 
@@ -115,7 +125,7 @@ public class DrupalRule extends RewriteRule {
 
 		File f = new File(realPath);
 
-		System.out.println("matches check " + requestURI + " " + realPath + " " + f.isFile() + " " + f.isDirectory());
+		System.out.println("matches file " + requestURI + " " + realPath + " " + f.isFile() + " " + f.isDirectory());
 
 		if (f.isFile() || f.isDirectory() || f.isHidden()) return null;
 

@@ -516,8 +516,8 @@ function update_option( $option, $newvalue ) {
 	$newvalue = apply_filters( 'pre_update_option_' . $option, $newvalue, $oldvalue );
 
 	// If the new and old values are the same, no need to update.
-	if ( $newvalue === $oldvalue )
-		return false;
+	//if ( $newvalue === $oldvalue )
+	//	return false;
 
 	if ( false === $oldvalue )
 		return add_option( $option, $newvalue );

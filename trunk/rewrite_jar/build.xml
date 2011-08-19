@@ -26,7 +26,7 @@
 			<!-- Include this application's compiled classes -->
 			<pathelement location="${app.bin}"/>
 			<!-- Include other external JAR's -->
-			<fileset dir="C:\Projects\inspired\plugin\WEB-INF\lib">
+			<fileset dir="C:\Projects\InspiredProject\inspired\plugin\WEB-INF\lib">
 				<include name="urlrewrite-4.0.0.jar"/>
 			</fileset>
 			<fileset dir="C:\Program Files\Openfire\lib">

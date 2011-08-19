@@ -31,6 +31,21 @@ public class PHP2Java extends AbstractQuercusModule
 		return "Hello, " + name;
 	}
 
+	public void of_logInfo(String text)
+	{
+		Log.info(text);
+	}
+
+	public void of_logError(String text)
+	{
+		Log.error(text);
+	}
+
+	public void of_logWarn(String text)
+	{
+		Log.warn(text);
+	}
+
 	public synchronized void sendEmail(String toAddress, String subject, String body, String htmlBody)
 	{
 	   try {

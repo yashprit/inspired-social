@@ -1,10 +1,10 @@
 Buildfile: build.xml
 
 compile:
-    [javac] Compiling 1 source file to C:\Projects\inspired\PHP2Java
+    [javac] Compiling 1 source file to C:\Projects\InspiredProject\inspired\PHP2Java
 
 jar:
-      [jar] Building jar: C:\Projects\inspired\PHP2Java\php2java.jar
+      [jar] Building jar: C:\Projects\InspiredProject\inspired\PHP2Java\php2java.jar
 
 BUILD SUCCESSFUL
-Total time: 3 seconds
+Total time: 5 seconds
