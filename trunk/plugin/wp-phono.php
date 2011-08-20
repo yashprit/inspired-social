@@ -18,6 +18,7 @@
 	function setupWindow()
 	{
 		jQuery('#call-controls').hide();
+		top.showControls(60)
 
 		phono = jQuery.phono(
 		{
@@ -41,7 +42,9 @@
 
 				onIncomingCall: function(event)
 				{
-				  	jQuery("#demo-status").html("Incoming Call: " + event.call.id);
+					top.showRosterMini();
+
+				  	jQuery("#demo-status").html("Incoming Call");		// event.call.id
 				  	jQuery("#demo-btn").val("Answer");
 
 				  	call = event.call;
@@ -74,32 +77,7 @@
 			{
 				if(jQuery(this).val() == "Call")
 				{
-					if(jQuery("#demo-number").val().length)
-					{
-						jQuery("#demo-btn").val("Calling...");
-
-						var number=jQuery("#demo-number").val();
-
-						call = phono.phone.dial(number,
-						{
-						  onRing: function()
-						  {
-							jQuery("#demo-status").html("Ringing");
-						  },
-
-						  headset: false,
-
-						  onAnswer: function()
-						  {
-							answerCall();
-						  },
-
-						  onHangup: function()
-						  {
-							hangupCall();
-						  }
-						});
-					}
+					makeCall();
 
 				} else if (jQuery(this).val() == "Answer") {
 
@@ -115,11 +93,45 @@
 		);
 	}
 
+	function makeCall()
+	{
+		top.showRosterMini();
+
+		if(jQuery("#demo-number").val().length)
+		{
+			jQuery("#demo-btn").val("Calling...");
+
+			var number=jQuery("#demo-number").val();
+
+			call = phono.phone.dial(number,
+			{
+			  onRing: function()
+			  {
+				jQuery("#demo-status").html("Ringing");
+			  },
+
+			  headset: false,
+
+			  onAnswer: function()
+			  {
+				answerCall();
+			  },
+
+			  onHangup: function()
+			  {
+				hangupCall();
+			  }
+			});
+		}
+	}
+
+
 	function answerCall()
 	{
 		jQuery("#demo-status").html("Answered");
 		jQuery("#demo-btn").val("Hangup");
 		jQuery('#call-controls').show();
+		top.showControls(170);
 	}
 
 	function hangupCall()
@@ -127,22 +139,22 @@
 		jQuery("#demo-btn").attr("disabled", false).val("Call");
 		jQuery("#demo-status").html("Hangup");
 		jQuery('#call-controls').hide();
+		top.showControls(60);
 
 		call = null;
+		number=jQuery("#demo-number").val("")
+		top.hideRosterMini();
 	}
 
 </script>
 </head>
 <body onload="setupWindow()" onunload="closeWindow()">
-<div class="col-box center-col-box"><center>
+<div class="col-box center-col-box">
 	<div class="content demo-box">
-		<h2>Phone Call</h2>
-		<p>
-			<input type="text" size="30" id="demo-number" value="<?php echo $_GET['dest'] ? $_GET['dest'] : ""; ?>"/>
-		</p>
-		<p>
-			<input type="button" id="demo-btn" disabled="true" value="Loading..."/>
-			<div id='call-controls' style='padding:5px;'>
+			<input type="text" size="15" id="demo-number" value="<?php echo $_GET['dest'] ? $_GET['dest'] : ""; ?>"/><br/>
+			<input type="button" id="demo-btn" disabled="true" value="Loading..."/>&nbsp;<span id="demo-status"></span>
+
+			<div id='call-controls' style='padding:3px;'>
 				<table width="110px">
 					<tr>
 						<td><input type='button' onclick="call.digit('1');" value='1' /></td>
@@ -166,8 +178,7 @@
 					</tr>
 				</table>
 			</div>
-			<div id="demo-status"></div>
-		</p>
-</center></div>
+	</div>
+</div>
 </body>
 </html>

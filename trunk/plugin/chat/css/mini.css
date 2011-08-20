@@ -319,6 +319,13 @@ Last revision: 24/06/11
 	overflow: auto;
 }
 
+#jappix_mini div.jm_roster div.jm_phone {
+	width: 225px;
+	padding: 5px 0;
+	overflow: hidden;
+}
+
+
 #jappix_mini div.jm_roster div.jm_grouped {
 	margin: 2px 0;
 }

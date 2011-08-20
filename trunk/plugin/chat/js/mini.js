@@ -794,10 +794,10 @@ function createMini(domain, user, password) {
 				'<div class="jm_starter">' + 
 					'<div class="jm_roster">' + 
 						'<div class="jm_actions">' + 
-							'<a href="javascript:doPhono(&quot;&quot;)" title="Make Telephone Call" style="color:white;">Phone Call</a>' + 
+							'<a href="javascript:disconnectMini();" style="color:white;">Inspired Social</a>' + 
 							'<a class="jm_one-action jm_join jm_images" title="' + _e("Join a chat") + '" href="#"></a>' + 
 						'</div>' + 
-						
+						'<div class="jm_phone"><iframe id="red5phone" frameborder="0" src="wp-phono.php"></iframe></div>' + 						
 						'<div class="jm_buddies"></div>' + 
 					'</div>' + 
 					

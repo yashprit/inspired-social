@@ -39,7 +39,17 @@
 				disconnectMini();
 
 				MINI_GROUPCHATS = groups;
-				launchMini(true, false, window.location.hostname, username, password);
+				MINI_ANIMATE = true;
+
+				if (MINI_GROUPCHATS.length != groups.length)
+				{
+					launchMini(true, false, window.location.hostname, username, password);
+
+				} else {
+
+					launchMini(true, false, window.location.hostname, username, password);
+				}
+
 			}
 		}
 
@@ -47,7 +57,8 @@
 
 	function doPhono(destination)
 	{
-		openURL("wp-phono.php?dest=" + destination, "phono");
+		document.getElementById("red5phone").contentWindow.document.getElementById("demo-number").value = destination;
+		document.getElementById("red5phone").contentWindow.makeCall();
 	}
 
 
@@ -189,8 +200,16 @@
 
 		jQuery('#wordpress').css('height', myHeight + 'px');
 		jQuery('#wordpress').css('width',  myWidth +  'px');
-
 	}
+
+	function showControls(height)
+	{
+		jQuery('#jappix_mini div.jm_roster div.jm_phone').css('height', height + "px");
+		jQuery('#red5phone').css('height', height - 2 + "px");
+		jQuery('#red5phone').css('width', "225px");
+	}
+
+
 </script>
 </head>
 <body topmargin="0" leftmargin="0" onload="setupWindow()" onunload="disconnectMini()" style="border-width:0px; overflow: hidden;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px">

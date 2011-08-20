@@ -43,8 +43,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 }
 body {
 	line-height: 1;
-	font: 16px/24px 'Lucida Grande', Verdana, Arial, sans-serif;
-	background:#EFEFEF url("../images/page-body-bg.png");
+	font: 10px 'Lucida Grande', Verdana, Arial, sans-serif;
 	color:#121212;
 	line-height:1.45em;
 }
@@ -664,17 +663,17 @@ table {
 	text-decoration:none;
 }
 #demo-number{
-	background:#EFEFEF;
-	width:250px;
+	background:#FFFFFF;
+	width:148px;
 	padding:6px 4px;
-	font-size:14px;
-	border:3px solid #666;
+	font-size:12px;
+	border:1px solid #666;
 }
 #demo-btn{
 	background:#000;
 	-webkit-border-radius:10px;
 	-moz-border-radius:10px;
-	font:18px "Museo Slab Sans 900", Helvetica, Arial, sans-serif;
+	font:12px "Museo Slab Sans 900", Helvetica, Arial, sans-serif;
 	color:#FFF;
 	border:none;
 	padding:5px 15px;
