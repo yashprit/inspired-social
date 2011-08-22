@@ -18,7 +18,7 @@
 	function setupWindow()
 	{
 		jQuery('#call-controls').hide();
-		top.showControls(60)
+		top.showControls(70)
 
 		phono = jQuery.phono(
 		{
@@ -43,8 +43,9 @@
 				onIncomingCall: function(event)
 				{
 					top.showRosterMini();
+					top.incomingCall(event.call.id);
 
-				  	jQuery("#demo-status").html("Incoming Call");		// event.call.id
+				  	jQuery("#demo-status").html("Incoming Call");
 				  	jQuery("#demo-btn").val("Answer");
 
 				  	call = event.call;
@@ -131,7 +132,7 @@
 		jQuery("#demo-status").html("Answered");
 		jQuery("#demo-btn").val("Hangup");
 		jQuery('#call-controls').show();
-		top.showControls(170);
+		top.showControls(180);
 	}
 
 	function hangupCall()
@@ -139,7 +140,7 @@
 		jQuery("#demo-btn").attr("disabled", false).val("Call");
 		jQuery("#demo-status").html("Hangup");
 		jQuery('#call-controls').hide();
-		top.showControls(60);
+		top.showControls(70);
 
 		call = null;
 		number=jQuery("#demo-number").val("")
@@ -151,10 +152,11 @@
 <body onload="setupWindow()" onunload="closeWindow()">
 <div class="col-box center-col-box">
 	<div class="content demo-box">
-			<input type="text" size="15" id="demo-number" value="<?php echo $_GET['dest'] ? $_GET['dest'] : ""; ?>"/><br/>
-			<input type="button" id="demo-btn" disabled="true" value="Loading..."/>&nbsp;<span id="demo-status"></span>
+	   <table>
+			<tr><td><input type="text" size="15" id="demo-number" value="<?php echo $_GET['dest'] ? $_GET['dest'] : ""; ?>"/></td></tr>
+			<tr><td><input type="button" id="demo-btn" disabled="true" value="Loading..."/>&nbsp;<span id="demo-status"></span></td></tr>
 
-			<div id='call-controls' style='padding:3px;'>
+			<tr><td><div id='call-controls' style='padding:3px;'>
 				<table width="110px">
 					<tr>
 						<td><input type='button' onclick="call.digit('1');" value='1' /></td>
@@ -177,7 +179,9 @@
 						<td><input type='button' onclick="call.digit('#');" value='#' /></td>
 					</tr>
 				</table>
-			</div>
+			</div></td></tr>
+			<tr><td><hr></td></tr>
+		</table>
 	</div>
 </div>
 </body>

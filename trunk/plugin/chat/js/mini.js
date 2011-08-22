@@ -525,7 +525,16 @@ function handlePresenceMini(pr) {
 	jQuery(friend + ' span.jm_presence, ' + chat + ' span.jm_presence').attr('class', 'jm_presence jm_images jm_' + show);
 
 	// Change the status of this buddy
-	jQuery(friend).attr('title', pr.getStatus());
+	
+	var status = pr.getStatus();
+	
+	jQuery(friend).attr('title', status);
+	
+	if (status && status.indexOf('sip:') == 0)
+	{
+		var id = getXIDNick(status.substring(4));
+		setDB('jappix-mini', id, from);
+	}
 	
 	// Update the presence counter
 	updateRosterMini();

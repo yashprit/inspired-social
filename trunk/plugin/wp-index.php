@@ -55,10 +55,23 @@
 
 	}
 
+	function showControls(height)
+	{
+		jQuery('#jappix_mini div.jm_roster div.jm_phone').css('height', height + "px");
+		jQuery('#red5phone').css('height', height - 2 + "px");
+		jQuery('#red5phone').css('width', "225px");
+	}
+
+
 	function doPhono(destination)
 	{
 		document.getElementById("red5phone").contentWindow.document.getElementById("demo-number").value = destination;
 		document.getElementById("red5phone").contentWindow.makeCall();
+	}
+
+	function incomingCall(callId)
+	{
+
 	}
 
 
@@ -200,13 +213,6 @@
 
 		jQuery('#wordpress').css('height', myHeight + 'px');
 		jQuery('#wordpress').css('width',  myWidth +  'px');
-	}
-
-	function showControls(height)
-	{
-		jQuery('#jappix_mini div.jm_roster div.jm_phone').css('height', height + "px");
-		jQuery('#red5phone').css('height', height - 2 + "px");
-		jQuery('#red5phone').css('width', "225px");
 	}
 
 
