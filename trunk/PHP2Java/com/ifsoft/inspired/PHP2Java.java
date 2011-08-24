@@ -352,6 +352,43 @@ public class PHP2Java extends AbstractQuercusModule
 		return listValue;
 	}
 
+	public String getOpenfireUsers()
+	{
+		String sql = "SELECT * FROM ofuser;";
+		Connection con = null;
+		PreparedStatement psmt = null;
+		ResultSet rs = null;
+		String listValue = "";
+
+		try {
+			con = DbConnectionManager.getConnection();
+			psmt = con.prepareStatement(sql);
+			rs = psmt.executeQuery();
+			boolean first = true;
+
+			while (rs.next()) {
+
+				String username = rs.getString("username");
+				String name = rs.getString("name");
+				String email = rs.getString("email");
+
+				if (first)
+				{
+					listValue = username + "," + name + "," + email;
+					first = false;
+
+				} else listValue = listValue + "|" + username + "," + name + "," + email;
+			}
+
+		} catch (Exception e) {
+			Log.error("getSQLList exception " + e);
+
+		} finally {
+			DbConnectionManager.closeConnection(rs, psmt, con);
+		}
+
+		return listValue;
+	}
 
 	public void messageOtherRoomMembers(String myName, String roomJID, String msg)
 	{

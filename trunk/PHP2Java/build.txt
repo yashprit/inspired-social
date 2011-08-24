@@ -7,4 +7,4 @@ jar:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\PHP2Java\php2java.jar
 
 BUILD SUCCESSFUL
-Total time: 5 seconds
+Total time: 4 seconds
