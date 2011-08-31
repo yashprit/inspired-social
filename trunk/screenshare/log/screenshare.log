@@ -1,0 +1,15 @@
+2011-08-31 15:50:43,359 [pool-1-thread-1] INFO  o.r.screen.ScreenClientHandler - channel opened: [id: 0x00cffc79] OPEN
+2011-08-31 15:50:43,480 [New I/O client worker #1-1] INFO  o.r.s.ScreenClientHandshakeHandler - connected, starting handshake
+2011-08-31 15:50:43,490 [New I/O client worker #1-1] INFO  com.flazr.rtmp.RtmpHandshake - using client version 00000000
+2011-08-31 15:50:43,500 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - handshake complete, sending 'connect'
+2011-08-31 15:50:43,510 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - sending command (expecting result): [0 COMMAND_AMF0 c3 #0 t0 (0) s0] name: connect, transactionId: 1, object: {app=xmpp, flashVer=WIN 9,0,124,2, tcUrl=rtmp://btg199251:1935/xmpp, fpad=false, audioCodecs=1639.0, videoCodecs=252.0, objectEncoding=0.0, capabilities=15.0, videoFunction=1.0}, args: null
+2011-08-31 15:50:43,600 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - server command: _result
+2011-08-31 15:50:43,600 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - result for method call: connect
+2011-08-31 15:50:43,610 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - sending command (expecting result): [0 COMMAND_AMF0 c3 #0 t0 (0) s0] name: createStream, transactionId: 2, object: null, args: []
+2011-08-31 15:50:43,680 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - server command: _result
+2011-08-31 15:50:43,680 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - result for method call: createStream
+2011-08-31 15:50:44,401 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - server command: onStatus
+2011-08-31 15:50:44,401 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - onStatus code: NetStream.Publish.Start
+2011-08-31 15:50:52,102 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - ack from server: [1 BYTES_READ c2 #0 t0 (0) s8] 0
+2011-08-31 15:51:00,324 [New I/O client worker #1-1] INFO  o.r.screen.ScreenClientHandler - ack from server: [1 BYTES_READ c2 #0 t0 (0) s8] 0
+2011-08-31 15:51:09,046 [AWT-EventQueue-0] INFO  o.r.screen.ScreenClientHandler - channel closed: [id: 0x00cffc79, /192.168.1.88:1266 => btg199251/192.168.1.88:1935] CLOSED

@@ -34,6 +34,8 @@ public class JnlpServlet extends HttpServlet {
 			String port = request.getParameter("port");
 			String screenCodec = request.getParameter("codec");
 			String frameRate = request.getParameter("frameRate");
+			String maxWidth = request.getParameter("maxWidth");
+			String maxHeight = request.getParameter("maxHeight");
 
 			if (stream == null) {
 				stream = "screen_share";
@@ -55,6 +57,13 @@ public class JnlpServlet extends HttpServlet {
 				frameRate = "15";
 			}
 
+			if (maxWidth == null) {
+				maxWidth = "1024";
+			}
+
+			if (maxHeight == null) {
+				maxHeight = "768";
+			}
 
 			out.println("<?xml version='1.0' encoding='utf-8'?>");
 			out.println("<jnlp spec='1.0+' codebase='http://" + request.getServerName() + ":" + request.getServerPort() + "/inspired/video'> ");
@@ -80,6 +89,8 @@ public class JnlpServlet extends HttpServlet {
 			out.println("		<argument>" + stream + "</argument> ");
 			out.println("		<argument>" + screenCodec + "</argument> ");
 			out.println("		<argument>" + frameRate + "</argument> ");
+			out.println("		<argument>" + maxWidth + "</argument> ");
+			out.println("		<argument>" + maxHeight + "</argument> ");
 			out.println("	</application-desc> ");
 			out.println("</jnlp>");
 			        }
