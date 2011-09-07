@@ -169,6 +169,7 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 	this.member = member;
 	this.cp = cp;
 	this.datagramChannel = datagramChannel;
+	this.timePreviousPacketReceived = 0;
 
 	synchronized (memberNumberLock) {
 	    myMemberNumber = memberNumber++;
@@ -1308,6 +1309,8 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
     public void handleRTMPMedia(int[] data, short sequenceNumber)
     {
 		timeCurrentPacketReceived = System.currentTimeMillis();
+		if (timePreviousPacketReceived == 0) timePreviousPacketReceived = timeCurrentPacketReceived;
+
 		int elapsedTime = (int) (timeCurrentPacketReceived - timePreviousPacketReceived);
 
 		synchronized (jitterManager) {

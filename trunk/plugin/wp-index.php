@@ -215,7 +215,10 @@
 		jQuery('#wordpress').css('width',  myWidth +  'px');
 	}
 
-
+	function reload()
+	{
+		document.getElementById("red5frame").contentWindow.location.reload();
+	}
 </script>
 </head>
 <body topmargin="0" leftmargin="0" onload="setupWindow()" onunload="disconnectMini()" style="border-width:0px; overflow: hidden;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px">
@@ -223,7 +226,7 @@
 
 <div id="window" style="display:none">
 	<div id="windowTop">
-		<div id="windowTopContent">Inspired</div>
+		<div id="windowTopContent"><span onclick='reload()'>Inspired</span></div>
 		<img src="chat/img/window/window_min.jpg" id="windowMin" />
 		<img src="chat/img/window/window_max.jpg" id="windowMax" />
 		<img src="chat/img/window/window_close.jpg" id="windowClose" />

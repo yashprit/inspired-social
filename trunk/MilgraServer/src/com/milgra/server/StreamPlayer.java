@@ -281,7 +281,7 @@ public class StreamPlayer extends OStream
 							packet.rtmpChannel = audioChannel;
 
 							if (thirdParty != null)
-								thirdParty.push(packet.body);
+								thirdParty.push(packetX.body);
 							else
 								buffer.add( packet );
 
@@ -364,11 +364,9 @@ public class StreamPlayer extends OStream
 
 	public void givePackets ( ArrayList < RtmpPacket > inputX )
 	{
-
-		//System.out.println( System.currentTimeMillis() + " " + name + " StreamPlayer.givePackets " + buffer.size( ) );
-
 		if ( !paused )
 		{
+			//System.out.println( System.currentTimeMillis() + " " + name + " StreamPlayer.givePackets " + buffer.size( ) );
 
 			synchronized ( buffer )
 			{

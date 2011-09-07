@@ -446,7 +446,6 @@ public class StreamReader extends OProcess
 
 	public void sendStart ( )
 	{
-
 		System.out.println( System.currentTimeMillis( ) + " StreamReader.sendStart " );
 
 		// reset stream

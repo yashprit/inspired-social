@@ -100,7 +100,7 @@ public class StreamRouter extends OStream
 		controller = controllerX;
 
 		paused = true;
-		clientId = controller == null ? 0 : ( int ) controller.client.id;
+		clientId = controller == null ? 1 : ( int ) controller.client.id;
 
 		record = mode.equals( "record" );
 		append = mode.equals( "append" );
@@ -211,12 +211,28 @@ public class StreamRouter extends OStream
 
 		synchronized ( subscribers )
 		{
-
 			plus.add( subscriberX );
 			change = true;
-
 		}
 
+	}
+
+	public void publishNotify()
+	{
+		for ( OStream subscriber : subscribers )
+		{
+			subscriber.take( RtmpFactory.publishNotify( subscriber.getId(), name ) );
+			subscriber.take( RtmpFactory.dataStart());
+			//subscriber.take( RtmpFactory.emptyFrame(0x08, 0));
+		}
+	}
+
+	public void unPublishNotify()
+	{
+		for ( OStream subscriber : subscribers )
+		{
+			subscriber.take( RtmpFactory.unPublishNotify( subscriber.getId(), name ) );
+		}
 	}
 
 	/**
@@ -226,17 +242,13 @@ public class StreamRouter extends OStream
 
 	public void unsubscribe ( OStream subscriberX )
 	{
-
 		System.out.println( System.currentTimeMillis( ) + " " + id + " StreamRouter.unsubscribe " + subscriberX );
 
 		synchronized ( subscribers )
 		{
-
 			minus.add( subscriberX );
 			change = true;
-
 		}
-
 	}
 
 	/**
@@ -246,12 +258,10 @@ public class StreamRouter extends OStream
 
 	public void take ( RtmpPacket packetX )
 	{
-
 		//System.out.println( System.currentTimeMillis( ) + " " + name + " StreamRouter.take " + packetX );
 
 		if ( !paused )
 		{
-
 			// if there is a change in subscribers
 
 			if ( change )

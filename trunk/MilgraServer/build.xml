@@ -1,4 +1,4 @@
-<project name="drupalrewrite" default="jar" basedir=".">
+<project name="milgra" default="jar" basedir=".">
 
 	<!-- Application variables -->
 	<property name="app.jar" value="milgra.jar"/>

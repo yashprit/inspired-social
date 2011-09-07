@@ -74,8 +74,11 @@ public class Application implements CallEventListener  {
 			Site site = new Site();
 			site.setSiteID(SequenceManager.nextID(site));
 			site.setName(domainName);
-			site.setPrivateHost(domainName);
-			site.setPublicHost(domainName);
+
+			InetAddress inetAddress = InetAddress.getByName(domainName);
+
+			site.setPrivateHost(inetAddress.getHostAddress());
+			site.setPublicHost(inetAddress.getHostAddress());
 			site.setDefaultProxy(null);
 			site.setDefaultExten("default");
 

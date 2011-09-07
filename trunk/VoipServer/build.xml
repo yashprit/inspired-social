@@ -2,10 +2,10 @@
 <project name="VoiceBridgePlugin" default="jar">
 	<description>VoiceBridge Plugin Build</description>
 	<property name="openfire.home" value="D:\Work\Projects\2010.04.21-iTrader\Workspace\openfire_3_6_4\target\openfire" />
-	<property name="voicebridgePlugin.dir" value="C:\Projects\inspired\VoipServer" />
+	<property name="voicebridgePlugin.dir" value="C:\Projects\InspiredProject\inspired\VoipServer" />
 
 	<path id="build.classpath">
-		<fileset dir="C:\Projects\inspired\plugin\lib" includes="*.jar"/>
+		<fileset dir="C:\Projects\InspiredProject\inspired\plugin\lib" includes="*.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="openfire.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="servlet.jar"/>
 	</path>

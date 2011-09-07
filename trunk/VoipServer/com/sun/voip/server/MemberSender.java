@@ -317,7 +317,6 @@ public class MemberSender {
 					callHandler.cancelRequest("Call " + cp + " can't resample data to send! " + e.getMessage());
 					return false;
 				}
-
 				getRtmpParticipant().pushAudio(dataToSend);
 				return true;
 			}
