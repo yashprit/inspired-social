@@ -324,9 +324,10 @@ public class StreamPlayer extends OStream
 
 								if (thirdParty != null)
 									thirdParty.push(packet.body);
-								else
-									buffer.add( packet );
 
+								else {
+									buffer.add( packet );
+								}
 							}
 
 						}

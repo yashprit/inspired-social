@@ -737,7 +737,7 @@ class WP_Widget_RSS extends WP_Widget {
 		$url = esc_url(strip_tags($url));
 		$icon = includes_url('images/rss.png');
 		if ( $title )
-			$title = "<a class='rsswidget' href='$url' title='" . esc_attr__( 'Syndicate this content' ) ."'><img style='border:0' width='14' height='14' src='$icon' alt='RSS' /></a> <a class='rsswidget' href='$link' title='$desc'>$title</a>";
+			$title = "<a class='rsswidget' href='$url' title='" . esc_attr__( 'Syndicate this content' ) ."'><img style='border:0' width='14' height='14' src='$icon' alt='RSS' /></a> <a target='_blank' class='rsswidget' href='$link' title='$desc'>$title</a>";
 
 		echo $before_widget;
 		if ( $title )
@@ -855,7 +855,7 @@ function wp_widget_rss_output( $rss, $args = array() ) {
 		if ( $link == '' ) {
 			echo "<li>$title{$date}{$summary}{$author}</li>";
 		} else {
-			echo "<li><a class='rsswidget' href='$link' title='$desc'>$title</a>{$date}{$summary}{$author}</li>";
+			echo "<li><a target='_blank' class='rsswidget' href='$link' title='$desc'>$title</a>{$date}{$summary}{$author}</li>";
 		}
 	}
 	echo '</ul>';

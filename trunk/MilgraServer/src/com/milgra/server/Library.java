@@ -54,7 +54,7 @@ public class Library
 	public static int IOTHREAD = 1;
 	public static int IOBUFFER = 8096;
 	public static int NSBUFFER = 2000;
-	public static int STEPTIME = 10;
+	public static int STEPTIME = 15;
 	public static int BANDTIME = 1000;
 	public static int AVEXTIME = 1000;
 	public static int PINGTIME = 15000;

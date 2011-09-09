@@ -312,7 +312,7 @@ public class MemberSender {
 						dataToSend = outSampleRateConverter.resample(dataToSend);
 					}
 
-				} catch (IOException e) {
+				} catch (Exception e) {
 					Logger.println("Call " + cp + " can't resample data to send! " + e.getMessage());
 					callHandler.cancelRequest("Call " + cp + " can't resample data to send! " + e.getMessage());
 					return false;

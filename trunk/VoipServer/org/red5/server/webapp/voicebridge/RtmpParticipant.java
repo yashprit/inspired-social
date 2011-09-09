@@ -149,7 +149,7 @@ public class RtmpParticipant extends ThirdParty {
 	{
 		if (router == null || player == null || pcmBuffer.length < 160) return;
 
-		if (kt % 2 == 1)
+		if (kt % 2 == 0) 			// drop odd packet, too many
 		{
 			if ( kt < 10 )
 			{
@@ -172,7 +172,7 @@ public class RtmpParticipant extends ThirdParty {
 
 				AudioConversion.linearToUlaw(pcmBuffer, packet.body, 1);
 
-				router.take(packet);	// drop odd packet, too many
+				router.take(packet);
 
 			} catch (Exception e) {
 
@@ -194,14 +194,13 @@ public class RtmpParticipant extends ThirdParty {
         System.err.println( "[ERROR] " + s );
     }
 
-   	public int[] normalize(int[] audio)
+   	private int[] normalize(int[] audio)
    	{
-	    int peak = 0;
-
+	    // Scan for max peak value here
+	    float peak = 0;
 		for (int n = 0; n < audio.length; n++)
 		{
-			int val = audio[n];
-
+			int val = Math.abs(audio[n]);
 			if (val > peak)
 			{
 				peak = val;
@@ -211,8 +210,8 @@ public class RtmpParticipant extends ThirdParty {
 		// Peak is now the loudest point, calculate ratio
 		float r1 = 32768 / peak;
 
-		// Don't increase by over 500% to prevent loud background noise, and normalize to 80%
-		float ratio = Math.min(r1, 5) * .80f;
+		// Don't increase by over 500% to prevent loud background noise, and normalize to 75%
+		float ratio = Math.min(r1, 5) * .75f;
 
 		for (int n = 0; n < audio.length; n++)
 		{
@@ -221,4 +220,5 @@ public class RtmpParticipant extends ThirdParty {
 
 		return audio;
    	}
+
 }

@@ -129,11 +129,15 @@ function update_nag() {
 	if ( ! isset( $cur->response ) || $cur->response != 'upgrade' )
 		return false;
 
+/* BAO No wordpress upgrade
+
 	if ( current_user_can('update_core') ) {
 		$msg = sprintf( __('<a href="http://codex.wordpress.org/Version_%1$s">WordPress %1$s</a> is available! <a href="%2$s">Please update now</a>.'), $cur->current, network_admin_url( 'update-core.php' ) );
 	} else {
 		$msg = sprintf( __('<a href="http://codex.wordpress.org/Version_%1$s">WordPress %1$s</a> is available! Please notify the site administrator.'), $cur->current );
 	}
+*/
+
 	echo "<div class='update-nag'>$msg</div>";
 }
 add_action( 'admin_notices', 'update_nag', 3 );
@@ -196,6 +200,8 @@ function wp_plugin_update_row( $file, $plugin_data ) {
 
 	$wp_list_table = _get_list_table('WP_Plugins_List_Table');
 
+/* BAO No plugin update
+
 	if ( is_network_admin() || !is_multisite() ) {
 		echo '<tr class="plugin-update-tr"><td colspan="' . $wp_list_table->get_column_count() . '" class="plugin-update colspanchange"><div class="update-message">';
 		if ( ! current_user_can('update_plugins') )
@@ -205,7 +211,7 @@ function wp_plugin_update_row( $file, $plugin_data ) {
 		else
 			printf( __('There is a new version of %1$s available. <a href="%2$s" class="thickbox" title="%3$s">View version %4$s details</a> or <a href="%5$s">update automatically</a>.'), $plugin_name, esc_url($details_url), esc_attr($plugin_name), $r->new_version, wp_nonce_url( self_admin_url('update.php?action=upgrade-plugin&plugin=') . $file, 'upgrade-plugin_' . $file) );
 	}
-
+*/
 	do_action( "in_plugin_update_message-$file", $plugin_data, $r );
 
 	echo '</div></td></tr>';
