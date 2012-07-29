@@ -1,0 +1,50 @@
+Buildfile: build.xml
+
+compile:
+    [javac] Compiling 1 source file to C:\Projects\InspiredProject\inspired\WebServer
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:62: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "["+ NAME + "] initialize " + NAME + " plugin resources");
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:72: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.info("starting Milenia Grafter RTMP Server");
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:75: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.info("starting VOIP Server");
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:81: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.info("starting Openlink Component");
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:89: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.info("Setting WordPress as new auth Provider");
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:98: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.info("Setting WordPress as user Provider");
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:110: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.info("Setting WordPress as group Provider");
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:126: warning: [deprecation] error(java.lang.String,java.lang.Throwable) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("Error initializing " + NAME + " Plugin", e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:132: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "["+ NAME + "] destroy " + NAME + " plugin resources");
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:135: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.info("stopping Milenia Grafter RTMP Server");
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:138: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.info("stopping VOIP Server");
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:141: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.info("stopping Openlink Component");
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\WebServer\com\ifsoft\inspired\InspiredPlugin.java:146: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("["+ NAME + "] destroyPlugin exception " + e);
+    [javac] 			   ^
+    [javac] 13 warnings
+
+jar:
+      [jar] Building jar: C:\Projects\InspiredProject\inspired\WebServer\inspired.jar
+
+BUILD SUCCESSFUL
+Total time: 4 seconds

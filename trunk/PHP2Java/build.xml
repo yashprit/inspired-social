@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="working" default="jar">
+	<description>VoiceBridge Plugin Build</description>
+	<property name="openfire.home" value="D:\Work\Projects\2010.04.21-iTrader\Workspace\openfire_3_6_4\target\openfire" />
+	<property name="working.dir" value="C:\Projects\InspiredProject\inspired\PHP2Java" />
+
+	<path id="build.classpath">
+		<fileset dir="C:\Projects\InspiredProject\inspired\plugin\WEB-INF\lib" includes="*.jar"/>
+		<fileset dir="${openfire.home}\lib" includes="openfire.jar"/>
+		<fileset dir="${openfire.home}\lib" includes="servlet.jar"/>
+		
+	</path>
+		
+	<target name="compile">
+		<javac debug="true" deprecation="true" srcdir="${working.dir}" destdir="${working.dir}">
+			<classpath refid="build.classpath"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${working.dir}\php2java.jar">
+			<fileset dir="${working.dir}">
+				<include name="**" />
+			</fileset>
+		</jar>
+	</target>
+	
+</project>
+
