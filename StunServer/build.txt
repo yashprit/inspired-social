@@ -1,0 +1,25 @@
+Buildfile: build.xml
+
+compile:
+    [javac] Compiling 43 source files to C:\Projects\InspiredProject\inspired\StunServer
+    [javac] C:\Projects\InspiredProject\inspired\StunServer\com\sun\stun\StunServerImpl.java:98: warning: [deprecation] stop() in java.lang.Thread has been deprecated
+    [javac] 	stunUdpListenerRTP.stop();
+    [javac] 	                  ^
+    [javac] C:\Projects\InspiredProject\inspired\StunServer\com\sun\stun\StunServerImpl.java:99: warning: [deprecation] stop() in java.lang.Thread has been deprecated
+    [javac] 	stunTcpListenerRTP.stop();
+    [javac] 	                  ^
+    [javac] C:\Projects\InspiredProject\inspired\StunServer\com\sun\stun\StunServerImpl.java:100: warning: [deprecation] stop() in java.lang.Thread has been deprecated
+    [javac] 	stunUdpListenerRTCP.stop();
+    [javac] 	                   ^
+    [javac] C:\Projects\InspiredProject\inspired\StunServer\com\sun\stun\StunServerImpl.java:101: warning: [deprecation] stop() in java.lang.Thread has been deprecated
+    [javac] 	stunTcpListenerRTCP.stop();
+    [javac] 	                   ^
+    [javac] Note: Some input files use unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 4 warnings
+
+jar:
+      [jar] Building jar: C:\Projects\InspiredProject\inspired\StunServer\stun.jar
+
+BUILD SUCCESSFUL
+Total time: 3 seconds
