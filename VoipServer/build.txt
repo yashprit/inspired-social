@@ -1,9 +1,12 @@
 Buildfile: build.xml
 
 compile:
+    [javac] Compiling 1 source file to C:\Projects\InspiredProject\inspired\VoipServer
+    [javac] Note: C:\Projects\InspiredProject\inspired\VoipServer\com\ifsoft\cti\OpenlinkComponent.java uses unchecked or unsafe operations.
+    [javac] Note: Recompile with -Xlint:unchecked for details.
 
 jar:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\VoipServer\voip.jar
 
 BUILD SUCCESSFUL
-Total time: 9 seconds
+Total time: 11 seconds

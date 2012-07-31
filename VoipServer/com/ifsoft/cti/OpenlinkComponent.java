@@ -564,7 +564,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 							cp.setCallId(sid);
 							cp.setProtocol(protocol);
 							cp.setPhoneNumber(from.toString());
-							cp.setConferenceId(conference);
+							cp.setConferenceId(from.getNode());
+							cp.setConferenceDisplayName(conference);
 
 							cp.setFromPhoneNumber(rtmpUrl);
 							cp.setRtmpSendStream(playName);			// remote play name
@@ -587,7 +588,9 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 							cp.setCallId(sid);
 							cp.setPhoneNumber(fromJID);
 							cp.setProtocol("JINGLE");
-							cp.setConferenceId(conference);
+							cp.setConferenceId(from.getNode());
+							cp.setConferenceDisplayName(conference);
+
 							cp.setSsrc(ssrc);
 							cp.setPassword(password);
 							cp.setUsername(username);
@@ -687,7 +690,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 	{
 		String sid = cp.getCallId();
 		String to = cp.getPhoneNumber();
-		String conference = cp.getConferenceId();
+		String conference = cp.getConferenceDisplayName();
 
 		IQ iq = new IQ(IQ.Type.set);
 		iq.setFrom(conference + "@" + getComponentJID());
@@ -728,7 +731,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
    	{
 		String sid = cp.getCallId();
 		JID to = new JID(cp.getPhoneNumber());
-		String conference = cp.getConferenceId();
+		String conference = cp.getConferenceDisplayName();
 
 		IQ iq = new IQ(IQ.Type.set);
 		iq.setFrom(conference + "@" + getComponentJID());
@@ -790,7 +793,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 	{
 		String protocol 	= cp.getProtocol();
 		String sid 			= cp.getCallId();
-		String conference 	= cp.getConferenceId();
+		String conference 	= cp.getConferenceDisplayName();
 		String playName 	= cp.getRtmpSendStream();
 		String publishName 	= cp.getRtmpRecieveStream();
 		String rtmpUrl 		= cp.getFromPhoneNumber();
@@ -822,7 +825,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 		boolean secondleg = false;
 
-		actionList.add(new String[]{"SetConference", sid, conference});
+		actionList.add(new String[]{"SetConference", sid, cp.getConferenceId()});
 
 		if ("JINGLE".equals(protocol))					// Only SIP leg media needs to established. Jingle leg already established
 		{
