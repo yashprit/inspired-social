@@ -1,0 +1,169 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TDLC Birthdays\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2011-10-12 08:51+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Tom Granger <tom@t0m.fr>\n"
+"Language-Team: T0m <tom@t0m.fr>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: /media/Stuff/Web/tdlc-birthdays/\n"
+"Plural-Forms: s\n"
+"X-Poedit-Language: French\n"
+"X-Poedit-Country: FRANCE\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: trunk\n"
+
+#: trunk/tdlc-birthdays.php:92
+msgid "You should make some friends to see their birthday here!"
+msgstr "Vous devriez vous faire quelques amis pour voir leur anniversaire ici !"
+
+#: trunk/tdlc-birthdays.php:95
+msgid "You must be logged in to see the birthday of your friends."
+msgstr "Vous devez vous connecter pour voir les anniversaires de vos amis."
+
+#: trunk/tdlc-birthdays.php:112
+msgid "You should follow people to see their birthday here!"
+msgstr "Vous devriez suivre quelques personnes pour voir leur anniversaire ici !"
+
+#: trunk/tdlc-birthdays.php:115
+msgid "Followers plugin should be enabled to see the birthday of followed people"
+msgstr "Le plugin Followers devrait être activé pour voir les anniversaires des personnes que vous suivez"
+
+#: trunk/tdlc-birthdays.php:118
+msgid "You must be logged in to see the birthday of the people you follow."
+msgstr "Vous devez vous connecter pour voir les anniversaires des personnes que vous suivez."
+
+#: trunk/tdlc-birthdays.php:166
+msgid "No birthday today..."
+msgstr "Pas d'anniversaire aujourd'hui..."
+
+#: trunk/tdlc-birthdays.php:169
+msgid "No birthdays today or tomorrow..."
+msgstr "Pas d'anniversaire aujourd'hui ni demain..."
+
+#: trunk/tdlc-birthdays.php:172
+#, php-format
+msgid "No birthdays in the next %d days..."
+msgstr "Pas d'anniversaire dans les %d prochains jours..."
+
+#: trunk/tdlc-birthdays.php:186
+msgid "Add your birthdate to your profile"
+msgstr "Ajouter votre date de naissance"
+
+#: trunk/tdlc-birthdays.php:202
+msgid "<strong>Happy birthday to "
+msgstr "<strong>Joyeux anniversaire à "
+
+#: trunk/tdlc-birthdays.php:204
+msgid "!</strong>"
+msgstr "!</strong>"
+
+#: trunk/tdlc-birthdays.php:206
+msgid " who turned "
+msgstr " qui a "
+
+#: trunk/tdlc-birthdays.php:206
+msgid " today!</strong>"
+msgstr " ans aujourd'hui!</strong>"
+
+#: trunk/tdlc-birthdays.php:218
+msgid "Upcoming birthdays:"
+msgstr "Prochains anniversaires:"
+
+#: trunk/tdlc-birthdays.php:228
+#, php-format
+msgid " (%1$d/%2$d)"
+msgstr " (%2$d/%1$d)"
+
+#: trunk/tdlc-birthdays.php:230
+#, php-format
+msgid " (%1$d/%2$d, %3$d years old)"
+msgstr " (%2$d/%1$d, %3$d ans)"
+
+#: trunk/tdlc-birthdays.php:270
+msgid "Please configure mandatory settings in the control panel."
+msgstr "Veuillez configurer les paramètres obligatoires dans le panneau d'administration des widgets."
+
+#: trunk/tdlc-birthdays.php:327
+msgid "Widget Title: "
+msgstr "Titre du widget:"
+
+#: trunk/tdlc-birthdays.php:332
+msgid "Birthday field ID or exact Name: "
+msgstr "ID ou Nom exact du champ anniversaire:"
+
+#: trunk/tdlc-birthdays.php:335
+msgid "<small>Create a <strong>datebox</strong> in Buddypress Profile Configuration to store the birthday dates and paste its ID or Name here.</small>"
+msgstr "<small>Créez un champ de type <strong>datebox</strong> dans la Configuration du profil Buddypress pour stocker les anniversaires, et collez ici son ID ou son nom exact.</small>"
+
+#: trunk/tdlc-birthdays.php:338
+msgid "Display birthdays of :"
+msgstr "Afficher les anniversaires de :<br />"
+
+#: trunk/tdlc-birthdays.php:343
+msgid " everyone "
+msgstr " tout le monde "
+
+#: trunk/tdlc-birthdays.php:349
+msgid " friends only "
+msgstr " seulement les amis "
+
+#: trunk/tdlc-birthdays.php:355
+msgid " followed people only "
+msgstr " seulement les gens suivis"
+
+#: trunk/tdlc-birthdays.php:361
+msgid " friends and followed people "
+msgstr " amis et gens suivis"
+
+#: trunk/tdlc-birthdays.php:365
+msgid "<small>For 'friends only', the user must be registered, connected and have some friends!</small>"
+msgstr "<small>En mode 'seulement les amis', l'utilisateur doit être enregistré, connecté, et avoir des amis pour voir quelque chose!</small>"
+
+#: trunk/tdlc-birthdays.php:368
+msgid "<small>For 'followed people' you must install Andy Peatling's <a href=\"http://wordpress.org/extend/plugins/buddypress-followers/\">Followers plugin</a></small>"
+msgstr "<small>Pour les 'gens suivis' vous devez installer le <a href=\"http://wordpress.org/extend/plugins/buddypress-followers/\">plugin Followers</a> d'Andy Peatling</small>"
+
+#: trunk/tdlc-birthdays.php:370
+msgid "<small>For 'followed people', the user must be registered, connected and follow people!</small>"
+msgstr "<small>En mode 'gens suivis', l'utilisateur doit être enregistré, connecté, et 'suivre' des gens pour voir quelque chose!</small>"
+
+#: trunk/tdlc-birthdays.php:374
+msgid "Display birthdays happening in the next: "
+msgstr "Afficher les anniversaires arrivant dans les:"
+
+#: trunk/tdlc-birthdays.php:375
+msgid " days."
+msgstr " prochains jours."
+
+#: trunk/tdlc-birthdays.php:376
+msgid "<small>Set to 0 if you don't want to display upcoming birthdays.</small>"
+msgstr "<small>Mettez 0 si vous ne voulez pas afficher les prochains anniversaires.</small>"
+
+#: trunk/tdlc-birthdays.php:379
+msgid "Hide ages"
+msgstr "Masquer les âges"
+
+#: trunk/tdlc-birthdays.php:381
+msgid "<small>Check this if you don't want the widget to tell how old people are!</small>"
+msgstr "<small>Cochez ceci si vous ne voulez pas que le widget indique l'âge des gens!</small>"
+
+#: trunk/tdlc-birthdays.php:384
+msgid "Show profile link"
+msgstr "Proposer de compléter le profil"
+
+#: trunk/tdlc-birthdays.php:386
+msgid "<small>Check this if you want the widget to display an \"add your birdthdate\" link if current user's birthdate is missing from their profile.</small>"
+msgstr "<small>Cochez ceci si vous voulez que le widget affiche un lien \"ajouter votre date de naissance\" lorsque l'utilisateur ne l'a pas encore fait.</small>"
+
+#: trunk/tdlc-birthdays.php:395
+msgid "Birthdays"
+msgstr "Anniversaires"
+
+#~ msgid " years old"
+#~ msgstr " ans"

@@ -1,0 +1,127 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TDLC Birthdays\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-03 20:53+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Sousuke <sousuke.ro@gmail.com>\n"
+"Language-Team: Sousuke (AsiaLovers.pl) <sousuke.ro@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: /media/Stuff/Web/tdlc-birthdays/\n"
+"X-Poedit-Language: Polish\n"
+"X-Poedit-Country: POLAND\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: trunk\n"
+
+#: trunk/tdlc-birthdays.php:87
+msgid "You should make some friends to see their birthday here!"
+msgstr "Zdobądź przyjaciół, by móc zobaczyć ich zbliżające się urodziny!"
+
+#: trunk/tdlc-birthdays.php:90
+msgid "You must be logged in to see the birthday of your friends."
+msgstr "Musisz się zalogować, aby zobaczyć urodziny swoich przyjaciół"
+
+#: trunk/tdlc-birthdays.php:119
+msgid "No birthday today..."
+msgstr "Nikt nie ma dziś urodzin..."
+
+#: trunk/tdlc-birthdays.php:122
+msgid "No birthdays today or tomorrow..."
+msgstr "Nikt nie ma dziś lub jutro urodzin..."
+
+#: trunk/tdlc-birthdays.php:125
+#, php-format
+msgid "No birthdays in the next %d days..."
+msgstr "Nikt nie ma urodzin w ciągu najbliższych %d dni..."
+
+#: trunk/tdlc-birthdays.php:148
+msgid "<strong>Happy birthday to "
+msgstr "<strong>Wszystkiego najlepszego dla "
+
+#: trunk/tdlc-birthdays.php:150
+msgid "!</strong>"
+msgstr "!</strong>"
+
+#: trunk/tdlc-birthdays.php:152
+msgid " who turned "
+msgstr "który obchodzi"
+
+#: trunk/tdlc-birthdays.php:152
+msgid " today!</strong>"
+msgstr "dziś!</strong>"
+
+#: trunk/tdlc-birthdays.php:165
+msgid "Upcoming birthdays:"
+msgstr "Nadchodzące urodziny:"
+
+#: trunk/tdlc-birthdays.php:175
+#, php-format
+msgid " (%1$d/%2$d)"
+msgstr " (%1$d.%2$d)"
+
+#: trunk/tdlc-birthdays.php:177
+#, php-format
+msgid " (%1$d/%2$d, %3$d years old)"
+msgstr " (%2$d.%1$d, %3$d lat)"
+
+#: trunk/tdlc-birthdays.php:211
+msgid "Please configure mandatory settings in the control panel."
+msgstr "Proszę skonfigurować najważniejsze ustawienia w panelu kontrolnym."
+
+#: trunk/tdlc-birthdays.php:252
+msgid "Widget Title: "
+msgstr "Tytuł widgetu:"
+
+#: trunk/tdlc-birthdays.php:256
+msgid "Birthday field ID or exact Name: "
+msgstr "ID pola z datą urodzin lub jego Nazwa:"
+
+#: trunk/tdlc-birthdays.php:258
+msgid "<small>Create a <strong>datebox</strong> in Buddypress Profile Configuration to store the birthday dates and paste its ID or Name here.</small>"
+msgstr "<small>Stwórz <strong>datebox</strong> w Panelu Konfiguracyjnym Buddypressa, który będzie przechowywał daty urodzin i wklej tutaj jego ID lub Nazwę.</small>"
+
+#: trunk/tdlc-birthdays.php:261
+msgid "Display birthdays of :"
+msgstr "Wyświetl urodziny:"
+
+#: trunk/tdlc-birthdays.php:264
+msgid " everyone "
+msgstr "wszystkim"
+
+#: trunk/tdlc-birthdays.php:268
+msgid " friends only "
+msgstr "tylko przyjaciołom"
+
+#: trunk/tdlc-birthdays.php:270
+msgid "<small>For 'friends only', the user must be registered, connected and have some friends!</small>"
+msgstr "<small>Tylko 'dla przyjaciół', użytkownik musi być zarejestrowany, zalogowany i mieć przyjaciół!</small>"
+
+#: trunk/tdlc-birthdays.php:273
+msgid "Display birthdays happening in the next: "
+msgstr "Pokazuj urodziny w ciągu najbliższych:"
+
+#: trunk/tdlc-birthdays.php:274
+msgid " days."
+msgstr "dni."
+
+#: trunk/tdlc-birthdays.php:275
+msgid "<small>Set to 0 if you don't want to display upcoming birthdays.</small>"
+msgstr "<small>Ustaw 0 jeśli nie chcesz wyświetlić nadchodzących urodzin.</small>"
+
+#: trunk/tdlc-birthdays.php:278
+msgid "Hide ages"
+msgstr "Ukryj wiek"
+
+#: trunk/tdlc-birthdays.php:280
+msgid "<small>Check this if you don't want the widget to tell how old people are!</small>"
+msgstr "<small>Zaznacz to, jeśli nie chcesz by widget pokazywał ile użytkownicy mają lat!</small>"
+
+#: trunk/tdlc-birthdays.php:289
+msgid "Birthdays"
+msgstr "Urodziny"
+
+#~ msgid " years old"
+#~ msgstr " ans"
