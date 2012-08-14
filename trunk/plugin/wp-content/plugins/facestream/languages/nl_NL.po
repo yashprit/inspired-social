@@ -1,0 +1,310 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: facestream\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-22 16:39+0100\n"
+"PO-Revision-Date: 2010-03-22 16:51+0100\n"
+"Last-Translator: peter <peter@mediasense.nl>\n"
+"Language-Team: blackphantom <blackphantom25@gmail.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-KeywordsList: _;gettext;gettext_noop;__\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: D:\\facestream\\trunk\n"
+
+#: D:\facestream\trunk/facestream.php:70
+msgid "Show Facebook"
+msgstr "Toon Facebook"
+
+#: D:\facestream\trunk/facestream.php:99
+#: D:\facestream\trunk/facestream.php:101
+#: D:\facestream\trunk/facestream.php:138
+#: D:\facestream\trunk/facestream.php:140
+#: D:\facestream\trunk/facestream.php:176
+#: D:\facestream\trunk/facestream.php:178
+msgid "To facebook"
+msgstr "Naar facebook"
+
+#: D:\facestream\trunk/facestream.php:106
+#: D:\facestream\trunk/facestream.php:145
+#: D:\facestream\trunk/facestream.php:183
+msgid "Want to send this message to facebook to? Check your "
+msgstr "Dit bericht ook op facebook? Controlleer je"
+
+#: D:\facestream\trunk/facestream.php:106
+#: D:\facestream\trunk/facestream.php:145
+#: D:\facestream\trunk/facestream.php:183
+msgid "facestream settings"
+msgstr "facestream instellingen"
+
+#: D:\facestream\trunk/facestream.php:298
+msgid "Just responded to:"
+msgstr "Gereageerd op:"
+
+#: D:\facestream\trunk/facestream.php:675
+msgid "posted a"
+msgstr "heeft gepost"
+
+#: D:\facestream\trunk/facestream.php:675
+msgid "facebook "
+msgstr "facebook"
+
+#: D:\facestream\trunk/facestream.php:728
+#: D:\facestream\trunk/facestream.php:919
+#: D:\facestream\trunk/facestream.php:965
+msgid "Facestream"
+msgstr "Facestream"
+
+#: D:\facestream\trunk/facestream.php:750
+msgid "Settings saved"
+msgstr "Instellingen bewaard"
+
+#: D:\facestream\trunk/facestream.php:775
+msgid "Facestream setting"
+msgstr "Facestream instellingen"
+
+#: D:\facestream\trunk/facestream.php:777
+#: D:\facestream\trunk/facestream.php:899
+msgid "Permission"
+msgstr "Toegang"
+
+#: D:\facestream\trunk/facestream.php:777
+msgid "You already gave permission."
+msgstr "Je hebt al toegang gegeven"
+
+#: D:\facestream\trunk/facestream.php:777
+msgid "To disallow click the button below and choose \"Deny\""
+msgstr "Om te weigeren klik op de knop en kies \"Deny\""
+
+#: D:\facestream\trunk/facestream.php:781
+#: D:\facestream\trunk/facestream.php:903
+msgid "Authorize with facebook"
+msgstr "Toegang geven op facebook"
+
+#: D:\facestream\trunk/facestream.php:787
+msgid "Options"
+msgstr "Opties"
+
+#: D:\facestream\trunk/facestream.php:788
+#: D:\facestream\trunk/facestream.php:1012
+#: D:\facestream\trunk/facestream.php:1031
+#: D:\facestream\trunk/facestream.php:1039
+#: D:\facestream\trunk/facestream.php:1049
+#: D:\facestream\trunk/facestream.php:1058
+#: D:\facestream\trunk/facestream.php:1068
+#: D:\facestream\trunk/facestream.php:1078
+msgid "Yes"
+msgstr "Ja"
+
+#: D:\facestream\trunk/facestream.php:789
+#: D:\facestream\trunk/facestream.php:1013
+#: D:\facestream\trunk/facestream.php:1032
+#: D:\facestream\trunk/facestream.php:1040
+#: D:\facestream\trunk/facestream.php:1050
+#: D:\facestream\trunk/facestream.php:1059
+#: D:\facestream\trunk/facestream.php:1069
+#: D:\facestream\trunk/facestream.php:1079
+msgid "No"
+msgstr "Nee"
+
+#: D:\facestream\trunk/facestream.php:796
+msgid "Always check checkbox \"To facebook\""
+msgstr "Altijd checkbox \"Naar facebook\" aanvinken"
+
+#: D:\facestream\trunk/facestream.php:803
+msgid "Synchronize facebook items to my activity"
+msgstr "Synchroniseer facebook items naar mijn activiteiten"
+
+#: D:\facestream\trunk/facestream.php:812
+msgid "Synchronize updates to my activity"
+msgstr "Synchroniseer updates naar mijn activiteiten"
+
+#: D:\facestream\trunk/facestream.php:823
+msgid "Synchronize links to my activity"
+msgstr "Synchroniseer links naar mijn activiteiten"
+
+#: D:\facestream\trunk/facestream.php:832
+msgid "Synchronize photo's to my activity"
+msgstr "Synchroniseer foto's naar mijn activiteiten"
+
+#: D:\facestream\trunk/facestream.php:841
+msgid "Synchronize video's to my activity"
+msgstr "Synchroniseer video's naar mijn activiteiten"
+
+#: D:\facestream\trunk/facestream.php:855
+msgid "Add my profile link after my facebook item"
+msgstr "Voeg mijn profiel link toe aan elk facebook item"
+
+#: D:\facestream\trunk/facestream.php:864
+msgid "Filters"
+msgstr "Filters"
+
+#: D:\facestream\trunk/facestream.php:865
+msgid "With filter you can decide what will be imported and what not. "
+msgstr "Met filters kan je bepalen wat wel en wat niet geimporteerd wordt."
+
+#: D:\facestream\trunk/facestream.php:866
+msgid "By adding words in the \"Good\" filter only items with those words in it will be imported."
+msgstr "Door woorden toe te voegen aan de \"Goed\" filter worden enkel items met deze woorden geimporteerd."
+
+#: D:\facestream\trunk/facestream.php:867
+msgid "By adding words in the \"Bad\" filter items with those words won't be imported."
+msgstr "Door woorden toe te voegen aan de \"Slecht\" filter worden items met deze woorden niet geimporteerd."
+
+#: D:\facestream\trunk/facestream.php:873
+msgid "Filters (items to activity)"
+msgstr "Filters (items naar activity)"
+
+#: D:\facestream\trunk/facestream.php:880
+msgid "Good filter (comma seperated)"
+msgstr "Goed filter (komma gescheiden)"
+
+#: D:\facestream\trunk/facestream.php:886
+msgid "Bad filter (comma seperated)"
+msgstr "Slecht filter (komma gescheiden)"
+
+#: D:\facestream\trunk/facestream.php:893
+msgid "Save settings"
+msgstr "Bewaar instellingen"
+
+#: D:\facestream\trunk/facestream.php:899
+msgid "You can setup your facestream over here."
+msgstr "Je kan je facestream hier instellen."
+
+#: D:\facestream\trunk/facestream.php:900
+msgid "Before u can see al settings please authorize on facebook, to do so click on the link below."
+msgstr "Voordat je alle instellingen kan zien moet je eerst toegang geven op facebook, om dat te doen moet je op de onderstaande knop drukken."
+
+#: D:\facestream\trunk/facestream.php:935
+msgid "Facestream plugin settings"
+msgstr "Facestream plugin instellingen"
+
+#: D:\facestream\trunk/facestream.php:959
+msgid "Settings saved."
+msgstr "Instellingen bewaard"
+
+#: D:\facestream\trunk/facestream.php:972
+msgid "Facebook API"
+msgstr "Facebook API"
+
+#: D:\facestream\trunk/facestream.php:974
+msgid "For the plugin to work you need to get an API key from facebook."
+msgstr "Om de plugin te laten werken heb je een API key nodig van facebook."
+
+#: D:\facestream\trunk/facestream.php:975
+msgid "To get one follow the next steps:"
+msgstr "Om er 1 te krijgen volgt de volgende stappen:"
+
+#: D:\facestream\trunk/facestream.php:976
+msgid "&nbsp;&nbsp;&nbsp;1. Go to "
+msgstr "&nbsp;&nbsp;&nbsp;1. Ga naar"
+
+#: D:\facestream\trunk/facestream.php:976
+msgid " and login with your facebook account."
+msgstr "en login met je facebook account."
+
+#: D:\facestream\trunk/facestream.php:977
+msgid "&nbsp;&nbsp;&nbsp;2. Create a new app "
+msgstr "&nbsp;&nbsp;&nbsp;2. Maak een nieuwe applicatie"
+
+#: D:\facestream\trunk/facestream.php:978
+msgid "&nbsp;&nbsp;&nbsp;3. Fill in the API key and application secret below."
+msgstr "&nbsp;&nbsp;&nbsp;3. Vul de API key en application secret in."
+
+#: D:\facestream\trunk/facestream.php:983
+msgid "API key:"
+msgstr "API key:"
+
+#: D:\facestream\trunk/facestream.php:988
+msgid "Application secret secret key:"
+msgstr "Applicatie secret key:"
+
+#: D:\facestream\trunk/facestream.php:994
+msgid "Filters (optional)"
+msgstr "Filters (optioneel)"
+
+#: D:\facestream\trunk/facestream.php:995
+msgid "Filters preventing to get a really messy activity streams."
+msgstr "Filter voorkomen een rommelige activiteiten stream."
+
+#: D:\facestream\trunk/facestream.php:996
+msgid "Example: You have an social network which focus is on soccer, you don't want all facebook items of your users showing up that hasn't to do anything with soccer."
+msgstr "Voorbeeld: Je hebt een social netwerk over voetbal, je wilt niet alle facebook items tonen die niets met voetbal te maken hebben."
+
+#: D:\facestream\trunk/facestream.php:997
+msgid "you can set the filter to \"soccer\", now only facebook items with \"soccer\" will be shown of the users\"."
+msgstr "je kan de filter zetten op \"voetbal\", nu worden er alleen items met \"voetbal\" getoond."
+
+#: D:\facestream\trunk/facestream.php:998
+msgid "By comma seperating words you can set-up multiple filters."
+msgstr "Door komma gescheiden woorden te plaatsen kan je meedere filters instellen."
+
+#: D:\facestream\trunk/facestream.php:998
+msgid "No filter = all items."
+msgstr "Geen filter  = alle items"
+
+#: D:\facestream\trunk/facestream.php:999
+msgid "The explicit words filter blocks messages with those words in it."
+msgstr "De slechte woorden filter blokkeerd items met deze woorden erin."
+
+#: D:\facestream\trunk/facestream.php:1005
+msgid "Filters (comma seperated)"
+msgstr "Filters (komma gescheiden)"
+
+#: D:\facestream\trunk/facestream.php:1010
+msgid "Show filters."
+msgstr "Toon filters."
+
+#: D:\facestream\trunk/facestream.php:1018
+msgid "Explicit words (comma seperated)"
+msgstr "Slechte woorden (komma gescheiden)"
+
+#: D:\facestream\trunk/facestream.php:1024
+msgid "User options"
+msgstr "Gebruikers opties"
+
+#: D:\facestream\trunk/facestream.php:1029
+msgid "Show \"Want send this message to facebook to?...\" message on user page."
+msgstr "Toon \"Dit bericht ook op facebook...\" bericht op gebruikers pagina's."
+
+#: D:\facestream\trunk/facestream.php:1037
+msgid "Allow users to sync to buddypress."
+msgstr "Toestaan voor gebruikers om te importeren"
+
+#: D:\facestream\trunk/facestream.php:1047
+msgid "Allow users to sync updates to buddypress."
+msgstr "Toestaan voor gebruikers om updates te importeren"
+
+#: D:\facestream\trunk/facestream.php:1056
+msgid "Allow users to sync links to buddypress."
+msgstr "Toestaan voor gebruikers om links te importeren"
+
+#: D:\facestream\trunk/facestream.php:1066
+msgid "Allow users to sync photo's to buddypress."
+msgstr "Toestaan voor gebruikers om foto's te importeren"
+
+#: D:\facestream\trunk/facestream.php:1076
+msgid "Allow users to sync video's to buddypress."
+msgstr "Toestaan voor gebruikers om video's te importeren"
+
+#: D:\facestream\trunk/facestream.php:1085
+msgid "Max facebook items import per user, per day (empty = unlimited)."
+msgstr "Max facebook items die geimporteerd worden per gebruiker, per dag (leeg = ongelimiteerd)"
+
+#: D:\facestream\trunk/facestream.php:1096
+msgid "Save Changes"
+msgstr "Bewaar wijzigingen"
+
+#: D:\facestream\trunk/facestream.php:1100
+msgid "Donate"
+msgstr "Doneer"
+
+#: D:\facestream\trunk/facestream.php:1102
+msgid "Do do like this plugin? Please donate, so i can stay improving this plugin and give support."
+msgstr "Vind je deze plugin goed? Donneer alsjeblieft!"
+
+#: D:\facestream\trunk/facestream.php:1248
+msgid "Every 5 minutes"
+msgstr "Elke 5 minuten"
+

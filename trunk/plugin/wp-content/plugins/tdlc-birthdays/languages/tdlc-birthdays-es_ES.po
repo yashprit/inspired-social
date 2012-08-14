@@ -1,0 +1,128 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TDLC Birthdays\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-03 20:53+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Tom Granger <tom@t0m.fr>\n"
+"Language-Team: Webschmied <editor@webschmied.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: /media/Stuff/Web/tdlc-birthdays/\n"
+"X-Poedit-Language: German\n"
+"X-Poedit-Country: GERMANY\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-SearchPath-0: trunk\n"
+
+#: trunk/tdlc-birthdays.php:87
+msgid "You should make some friends to see their birthday here!"
+msgstr "¡Debes hacer alguns amigos para ver sus cumpleaños aqui!"
+
+#: trunk/tdlc-birthdays.php:90
+msgid "You must be logged in to see the birthday of your friends."
+msgstr "Debes estar loggeado para ver los cumpleaños de tus amigos."
+
+#: trunk/tdlc-birthdays.php:119
+msgid "No birthday today..."
+msgstr "Sin cumpleaños hoy..."
+
+#: trunk/tdlc-birthdays.php:122
+msgid "No birthdays today or tomorrow..."
+msgstr "Sin cumpleaños hoy ó mañana..."
+
+#: trunk/tdlc-birthdays.php:125
+#, php-format
+msgid "No birthdays in the next %d days..."
+msgstr "Sin cumpleaños en los próximos %d días..."
+
+#: trunk/tdlc-birthdays.php:148
+msgid "<strong>Happy birthday to "
+msgstr "<strong>Feliz cumpleaños a "
+
+#: trunk/tdlc-birthdays.php:150
+msgid "!</strong>"
+msgstr "!</strong>"
+
+#: trunk/tdlc-birthdays.php:152
+msgid " who turned "
+msgstr " quien cumplió "
+
+#: trunk/tdlc-birthdays.php:152
+msgid " today!</strong>"
+msgstr " hoy!</strong>"
+
+#: trunk/tdlc-birthdays.php:165
+msgid "Upcoming birthdays:"
+msgstr "Próximos cumpleaños:"
+
+#: trunk/tdlc-birthdays.php:175
+#, php-format
+msgid " (%1$d/%2$d)"
+msgstr " (%2$d/%1$d)"
+
+#: trunk/tdlc-birthdays.php:177
+#, php-format
+msgid " (%1$d/%2$d, %3$d years old)"
+msgstr " (%2$d/%1$d, %3$d años)"
+
+#: trunk/tdlc-birthdays.php:211
+msgid "Please configure mandatory settings in the control panel."
+msgstr "Por favor configure los parámetros en el panel de control."
+
+#: trunk/tdlc-birthdays.php:252
+msgid "Widget Title: "
+msgstr "Título del Widget:"
+
+#: trunk/tdlc-birthdays.php:256
+msgid "Birthday field ID or exact Name: "
+msgstr "ID del campo de Cumpleaños ó Nombre Exacto:"
+
+#: trunk/tdlc-birthdays.php:258
+msgid "<small>Create a <strong>datebox</strong> in Buddypress Profile Configuration to store the birthday dates and paste its ID or Name here.</small>"
+msgstr "<small>Crea un campo de <strong>Fecha</strong> en la Configuración Campos de Perfil de Buddypress para guardar las fechas de cumpleaños y copia su nombre ó ID aquí.</small>"
+
+#: trunk/tdlc-birthdays.php:261
+msgid "Display birthdays of :"
+msgstr "Mostrar cumpleaños de:"
+
+#: trunk/tdlc-birthdays.php:264
+msgid " everyone "
+msgstr "todos"
+
+#: trunk/tdlc-birthdays.php:268
+msgid " friends only "
+msgstr "sólo amigos"
+
+#: trunk/tdlc-birthdays.php:270
+msgid "<small>For 'friends only', the user must be registered, connected and have some friends!</small>"
+msgstr "<small>Para 'sólo amigos', el usuario debe estar registrado, conectado y tener algun amigo</small>"
+
+#: trunk/tdlc-birthdays.php:273
+msgid "Display birthdays happening in the next: "
+msgstr "Mostrar los cumpleaños que sucederán en los próximos: "
+
+#: trunk/tdlc-birthdays.php:274
+msgid " days."
+msgstr "días."
+
+#: trunk/tdlc-birthdays.php:275
+msgid "<small>Set to 0 if you don't want to display upcoming birthdays.</small>"
+msgstr "<small>Deja en 0 si no quieres mostrar los cumpleaños que vienen.</small>"
+
+#: trunk/tdlc-birthdays.php:278
+msgid "Hide ages"
+msgstr "Esconder edad"
+
+#: trunk/tdlc-birthdays.php:280
+msgid "<small>Check this if you don't want the widget to tell how old people are!</small>"
+msgstr "<small>Selecciona aqui si no quieres que este widget diga lo viejo que estás.</small>"
+
+#: trunk/tdlc-birthdays.php:289
+msgid "Birthdays"
+msgstr "Cumpleaños"
+
+#~ msgid " years old"
+#~ msgstr " ans"
+

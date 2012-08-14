@@ -1,0 +1,129 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TDLC Birthdays\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-03 20:52+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: BNG NET <webmaster@bng.net>\n"
+"Language-Team: BNG NET <webmaster@bng.net>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Language: Japanese\n"
+"X-Poedit-Country: JAPAN\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: ..\n"
+
+#: ../tdlc-birthdays.php:87
+msgid "You should make some friends to see their birthday here!"
+msgstr "友人の誕生日を表示しますので、最初に友人を作ってください。"
+
+#: ../tdlc-birthdays.php:90
+msgid "You must be logged in to see the birthday of your friends."
+msgstr "ログインしないと、友人の誕生日は見られません。"
+
+#: ../tdlc-birthdays.php:119
+msgid "No birthday today..."
+msgstr "本日誕生日の人はいません..."
+
+#: ../tdlc-birthdays.php:122
+msgid "No birthdays today or tomorrow..."
+msgstr "本日または明日が誕生日の人はいません..."
+
+#: ../tdlc-birthdays.php:125
+#, php-format
+msgid "No birthdays in the next %d days..."
+msgstr "次の%d日間に誕生日を迎える人はいません..."
+
+#: ../tdlc-birthdays.php:148
+msgid "<strong>Happy birthday to "
+msgstr " <strong>お誕生日おめでとう。"
+
+#: ../tdlc-birthdays.php:150
+msgid "!</strong>"
+msgstr " さん！</strong>"
+
+#: ../tdlc-birthdays.php:152
+msgid " who turned "
+msgstr "さんは今日、"
+
+#: ../tdlc-birthdays.php:152
+msgid " today!</strong>"
+msgstr "歳を迎えました！</strong>"
+
+#: ../tdlc-birthdays.php:165
+msgid "Upcoming birthdays:"
+msgstr "これから誕生日を迎える人: "
+
+#: ../tdlc-birthdays.php:175
+#, php-format
+msgid " (%1$d/%2$d)"
+msgstr "<br /> (%1$d/%2$d)"
+
+#: ../tdlc-birthdays.php:177
+#, php-format
+msgid " (%1$d/%2$d, %3$d years old)"
+msgstr "<br /> (%1$d/%2$d - %3$d歳)"
+
+#: ../tdlc-birthdays.php:211
+msgid "Please configure mandatory settings in the control panel."
+msgstr "コントロールパネルで必須項目を設定してください。"
+
+#: ../tdlc-birthdays.php:252
+msgid "Widget Title: "
+msgstr "ウィジェットタイトル:"
+
+#: ../tdlc-birthdays.php:256
+msgid "Birthday field ID or exact Name: "
+msgstr "誕生日項目のIDまたは正確な名称:"
+
+#: ../tdlc-birthdays.php:258
+msgid "<small>Create a <strong>datebox</strong> in Buddypress Profile Configuration to store the birthday dates and paste its ID or Name here.</small>"
+msgstr "<small>誕生日を保存するために<strong>日付選択肢</strong>をBuddyPressのプロフィール欄設置で作成し、そのIDまたは名称をここにペーストしてください。</small>"
+
+#: ../tdlc-birthdays.php:261
+msgid "Display birthdays of :"
+msgstr "誕生日を表示する範囲:"
+
+#: ../tdlc-birthdays.php:264
+msgid " everyone "
+msgstr "全員"
+
+#: ../tdlc-birthdays.php:268
+msgid " friends only "
+msgstr "友達のみ"
+
+#: ../tdlc-birthdays.php:270
+msgid "<small>For 'friends only', the user must be registered, connected and have some friends!</small>"
+msgstr "<small>'友達のみ'を選択した場合、友達がいなければ表示されません。</small>"
+
+#: ../tdlc-birthdays.php:273
+msgid "Display birthdays happening in the next: "
+msgstr "次の条件に当てはまる誕生日を表示:"
+
+#: ../tdlc-birthdays.php:274
+msgid " days."
+msgstr "日。"
+
+#: ../tdlc-birthdays.php:275
+msgid "<small>Set to 0 if you don't want to display upcoming birthdays.</small>"
+msgstr "<small>本日の誕生日だけを表示したい場合は、'0' にしてください。</small>"
+
+#: ../tdlc-birthdays.php:278
+msgid "Hide ages"
+msgstr "年齢を隠す"
+
+#: ../tdlc-birthdays.php:280
+msgid "<small>Check this if you don't want the widget to tell how old people are!</small>"
+msgstr "<small>ここをチェックすれば、ウィジェットに年齢は表示されません！</small>"
+
+#: ../tdlc-birthdays.php:289
+msgid "Birthdays"
+msgstr "誕生日"
+
+#~ msgid " years old"
+#~ msgstr " ans"

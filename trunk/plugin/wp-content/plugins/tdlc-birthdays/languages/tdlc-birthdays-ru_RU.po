@@ -1,0 +1,130 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TDLC Birthdays\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-03 20:52+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Mac <chimit@gmail.com>\n"
+"Language-Team: Valairus Veruna <valairus@veruna>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-Language: Russian\n"
+"X-Poedit-Country: RUSSIAN FEDERATION\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: ..\n"
+
+#: ../tdlc-birthdays.php:87
+msgid "You should make some friends to see their birthday here!"
+msgstr "Вы должны завести себе друзей, чтобы увидеть здесь их дни рождения!"
+
+#: ../tdlc-birthdays.php:90
+msgid "You must be logged in to see the birthday of your friends."
+msgstr "Вы должны быть авторизованы, что бы видеть дни рождения своих друзей."
+
+#: ../tdlc-birthdays.php:119
+msgid "No birthday today..."
+msgstr "Сегодня ни у кого нет дней рождения..."
+
+#: ../tdlc-birthdays.php:122
+msgid "No birthdays today or tomorrow..."
+msgstr "Завтра ни у кого нет дней рождения..."
+
+#: ../tdlc-birthdays.php:125
+#, php-format
+msgid "No birthdays in the next %d days..."
+msgstr "В следующие %d дня ни у кого нет дней рождения..."
+
+#: ../tdlc-birthdays.php:148
+msgid "<strong>Happy birthday to "
+msgstr " "
+
+#: ../tdlc-birthdays.php:150
+msgid "!</strong>"
+msgstr " "
+
+#: ../tdlc-birthdays.php:152
+msgid " who turned "
+msgstr " сегодня исполнилось "
+
+#: ../tdlc-birthdays.php:152
+msgid " today!</strong>"
+msgstr "!"
+
+#: ../tdlc-birthdays.php:165
+msgid "Upcoming birthdays:"
+msgstr "Ближайшие дни рождения (месяц/день):"
+
+#: ../tdlc-birthdays.php:175
+#, php-format
+msgid " (%1$d/%2$d)"
+msgstr " (%1$d/%2$d)"
+
+#: ../tdlc-birthdays.php:177
+#, php-format
+msgid " (%1$d/%2$d, %3$d years old)"
+msgstr " (%1$d/%2$d, %3$d лет)"
+
+#: ../tdlc-birthdays.php:211
+msgid "Please configure mandatory settings in the control panel."
+msgstr "Пожалуйста, настройте обязательные параметры в панели управления."
+
+#: ../tdlc-birthdays.php:252
+msgid "Widget Title: "
+msgstr "Заголовок виджета: "
+
+#: ../tdlc-birthdays.php:256
+msgid "Birthday field ID or exact Name: "
+msgstr "Укажите ID или полное название поля в профилях:"
+
+#: ../tdlc-birthdays.php:258
+msgid "<small>Create a <strong>datebox</strong> in Buddypress Profile Configuration to store the birthday dates and paste its ID or Name here.</small>"
+msgstr "<small>Создайте поле формата <strong>Выбор даты</strong> в настройках полей профилей BuddyPress.</small>"
+
+#: ../tdlc-birthdays.php:261
+msgid "Display birthdays of :"
+msgstr "Показывать дни рождения:"
+
+#: ../tdlc-birthdays.php:264
+msgid " everyone "
+msgstr "всех"
+
+#: ../tdlc-birthdays.php:268
+msgid " friends only "
+msgstr "только друзей"
+
+#: ../tdlc-birthdays.php:270
+msgid "<small>For 'friends only', the user must be registered, connected and have some friends!</small>"
+msgstr "<small>Если выбрано 'только друзей', то пользователь должен быть зарегистрирован, авторизован и иметь несколько друзей!</small>"
+
+#: ../tdlc-birthdays.php:273
+msgid "Display birthdays happening in the next: "
+msgstr "Отображать приближающиеся дни рождения в следующие:"
+
+#: ../tdlc-birthdays.php:274
+msgid " days."
+msgstr "дней."
+
+#: ../tdlc-birthdays.php:275
+msgid "<small>Set to 0 if you don't want to display upcoming birthdays.</small>"
+msgstr "<small>Укажите  0, если вы не хотите отображать предстоящие дни рождения.</small>"
+
+#: ../tdlc-birthdays.php:278
+msgid "Hide ages"
+msgstr "Не указывать возраст"
+
+#: ../tdlc-birthdays.php:280
+msgid "<small>Check this if you don't want the widget to tell how old people are!</small>"
+msgstr "<small>Выберете, если Вы не хотите, чтобы пользователи видели возраст!</small>"
+
+#: ../tdlc-birthdays.php:289
+msgid "Birthdays"
+msgstr "Дни рождения"
+
+#~ msgid " years old"
+#~ msgstr " ans"
+

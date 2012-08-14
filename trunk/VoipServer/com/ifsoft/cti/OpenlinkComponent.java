@@ -519,8 +519,16 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 				Iterator i = transport.elementIterator("candidate");
 
-				if ( i.hasNext())
+				if ( i.hasNext() == false)
 				{
+					Element webrtc =  transport.element("webrtc");
+
+					if (webrtc != null)
+					{
+						handleWebRtc(from, sid, conference, webrtc.getText(), action);
+					}
+
+				} else {
 					Element candidate = (Element) i.next();
 
             		if (candidate.attribute("ip") != null)
@@ -779,6 +787,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 			Element newTransportRaw = newContent.addElement("transport", RAW_UDP_NAMESPACE).addAttribute("pwd", cp.getPassword()).addAttribute("ufrag", cp.getUsername());
 			newTransportRaw.addElement("candidate").addAttribute("ip", payload.remoteIP).addAttribute("port", payload.remotePort).addAttribute("generation", "0").addAttribute("id", "1").addAttribute("component", "1").addAttribute("foundation", "1001321590").addAttribute("priority", "2130714367");
+			newTransportRaw.addElement("webrtc").setText(getWebRtcSdp(cp, payload));
 		}
 
 		sendPacket(iq);
@@ -883,6 +892,154 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		}
 	}
 
+
+	private String getToken(String sdp, String token, String delim)
+	{
+		int pos = sdp.indexOf(token);
+		String para = null;
+
+		if (pos > -1)
+		{
+			para = sdp.substring(pos + token.length());
+
+			if (para.indexOf(delim) > -1)
+			{
+				para = para.substring(0, para.indexOf(delim));
+
+			} else {
+
+				para = para.substring(0, para.indexOf("\n"));
+			}
+
+			para = para.trim();
+		}
+
+		return para;
+	}
+
+	private String getWebRtcSdp(CallParticipant cp, JinglePayload payload)
+	{
+		String ssrc = cp.getSsrc();
+		String ssrc_cname = "iirNX3Znb0iT+aow";
+		String ssrc_mslabel = "fAy0FNrYIDVfeRwX5X0IK5TOCVTNJOXt4Cdb";
+		String ssrc_label = "fAy0FNrYIDVfeRwX5X0IK5TOCVTNJOXt4Cdb00";
+
+		String candidate_foundation = "1001321590";
+		String candidate_priority = "2130714367";
+
+		String ice_ufrag = "wZPq/BJNlo0K6ej5";
+		String ice_pwd = "hLaFhH8Yfl+XeExexulHT42o";
+
+		String payload_id = "0";
+		String payload_name = "PCMU";
+		String payload_clockrate = "8000";
+
+		String sdp = "";
+
+		sdp += "v=0\r\n";
+		sdp += "o=- " + cp.getCallId() + " 1 IN IP4 127.0.0.1\r\n";
+		sdp += "s=canary\r\n";
+		sdp += "t=0 0\r\n";
+		sdp += "a=group:BUNDLE audio\r\n";
+		sdp += "m=audio " + payload.remotePort + " RTP/SAVPF " + payload_id + "\r\n";
+		sdp += "c=IN IP4 " + payload.remoteIP + "\r\n";
+		sdp += "a=rtcp:" + payload.remotePort + " IN IP4 " + payload.remoteIP + "\r\n";
+		sdp += "a=candidate:" + candidate_foundation + " 1 udp " + candidate_priority + " " + payload.remoteIP + " " + payload.remotePort + " typ host generation 0\r\n";
+		sdp += "a=ice-ufrag:" + ice_ufrag + "\r\n";
+		sdp += "a=ice-pwd:" + ice_pwd + "\r\n";
+		sdp += "a=sendrecv\r\n";
+		sdp += "a=mid:audio\r\n";
+		sdp += "a=rtcp-mux\r\n";
+		sdp += "a=crypto:1 AES_CM_128_HMAC_SHA1_80 " + cp.getEncryptionKey() + "\r\n";
+		sdp += "a=rtpmap:" + payload_id + " " + payload_name + "/" + payload_clockrate + "\r\n";
+		sdp += "a=ssrc:" + ssrc + " cname:" + ssrc_cname + "\r\n";
+		sdp += "a=ssrc:" + ssrc + " mslabel:" + ssrc_mslabel + "\r\n";
+		sdp += "a=ssrc:" + ssrc + " label:" + ssrc_label + "\r\n";
+
+		Log.info("getWebRtcSdp \n" + sdp);
+
+		return sdp;
+	}
+
+
+
+	private void handleWebRtc(JID from, String sid, String conference, String sdp, String action)
+	{
+		Log.info("handleWebRtc \n" + sdp);
+
+		String ipaddr 	= this.getToken(sdp, "c=IN IP4 ", "\n");
+		String port 	= this.getToken(sdp, "m=audio ", " ");
+		String ufrag 	= this.getToken(sdp, "a=ice-ufrag:", "\n");
+		String password	= this.getToken(sdp, "a=ice-pwd:", "\n");
+		String crypto1 	= this.getToken(sdp, "AES_CM_128_HMAC_SHA1_80 ", "\n");
+		String crypto2	= this.getToken(sdp, "AES_CM_128_HMAC_SHA1_32 ", "\n");
+		String ssrc  	= this.getToken(sdp, "a=ssrc:", " ");
+		String cname 	= this.getToken(sdp, "a=ssrc:" + ssrc + " cname:", "\n");
+		String mslabel 	= this.getToken(sdp, "a=ssrc:" + ssrc + " mslabel:", "\n");
+		String label 	= this.getToken(sdp, "a=ssrc:" + ssrc + " label:", "\n");
+		String fndtn 	= this.getToken(sdp, "a=candidate:", " ");
+		String prior	= this.getToken(sdp, "a=candidate:" + fndtn + " 1 udp ", " ");
+
+		String codecId = "0";
+		String codecName = "PCMU";
+		String codecClock = "8000";
+
+		Log.info("sid = " + sid + " ip " + ipaddr + " port " + port + " ufrag " + ufrag + " passw " + password + " crypto " + crypto1 + " ssrc cname " + cname);
+
+		JinglePayload jinglePayload = new JinglePayload(codecId, codecName, codecClock, port, ipaddr);
+
+		if ("session-initiate".equals(action) )
+		{
+			CallParticipant cp = new CallParticipant();
+			String fromJID = from.toString();
+
+			cp.setCallId(sid);
+			cp.setPhoneNumber(fromJID);
+			cp.setProtocol("JINGLE");
+			cp.setConferenceId(from.getNode());
+			cp.setConferenceDisplayName(conference);
+
+			cp.setSsrc(ssrc);
+			cp.setPassword(password);
+			cp.setUsername(ufrag);
+
+			if (crypto1 != null)
+			{
+				cp.setEncryptionKey(crypto1);
+				cp.setEncryptionAlgorithm("AES_CM_128_HMAC_SHA1_80");
+				cp.setEncryptionParams("KDR=0");
+			}
+
+			if (crypto2 != null)
+			{
+				cp.setEncryptionKey(crypto2);
+				cp.setEncryptionAlgorithm("AES_CM_128_HMAC_SHA1_32");
+				cp.setEncryptionParams("KDR=0");
+			}
+
+			if (isJidInConf(conference, from.getNode()) == false)
+			{
+				Log.warn("handleJingle access denied " + from + " " + conference);
+
+				sendJingleTerminate(cp);
+				return;
+			}
+
+			// Accept Jingle RTP call
+
+			new IncomingCallHandler(cp, jinglePayload);
+
+		} else {
+
+			CallHandler jingleHandler = CallHandler.findCall(sid);
+
+			if (jingleHandler != null)
+			{
+				JingleOutgoingCallAgent jingleAgent = (JingleOutgoingCallAgent) jingleHandler.getCallSetupAgent();
+				jingleAgent.callAccepted(jinglePayload);
+			}
+		}
+	}
 
 //-------------------------------------------------------
 //

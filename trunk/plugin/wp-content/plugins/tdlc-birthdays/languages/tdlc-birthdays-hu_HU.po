@@ -1,0 +1,129 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: TDLC Birthdays\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2010-03-03 20:52+0100\n"
+"PO-Revision-Date: \n"
+"Last-Translator: Boris Yakshov <tancosvagyok@gmail.com>\n"
+"Language-Team: tancosvagyok.hu <admin@tancosvagyok.hu>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SourceCharset: utf-8\n"
+"X-Poedit-KeywordsList: __\n"
+"X-Poedit-Language: Hungarian\n"
+"X-Poedit-Country: HUNGARY\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPath-1: ..\n"
+
+#: ../tdlc-birthdays.php:87
+msgid "You should make some friends to see their birthday here!"
+msgstr "Szüksége van egy barátra, hogy láthasd a születésnapját!"
+
+#: ../tdlc-birthdays.php:90
+msgid "You must be logged in to see the birthday of your friends."
+msgstr "Be kell jelentkeznie, hogy lássa a barátai születésnapját."
+
+#: ../tdlc-birthdays.php:119
+msgid "No birthday today..."
+msgstr "Nincs ma születésnap..."
+
+#: ../tdlc-birthdays.php:122
+msgid "No birthdays today or tomorrow..."
+msgstr "Nincs születésnap ma vagy holnap..."
+
+#: ../tdlc-birthdays.php:125
+#, php-format
+msgid "No birthdays in the next %d days..."
+msgstr "Nincs születésnap a következő %d nap..."
+
+#: ../tdlc-birthdays.php:148
+msgid "<strong>Happy birthday to "
+msgstr "<strong>Boldog szülinapot, "
+
+#: ../tdlc-birthdays.php:150
+msgid "!</strong>"
+msgstr "!</strong>"
+
+#: ../tdlc-birthdays.php:152
+msgid " who turned "
+msgstr " chi "
+
+#: ../tdlc-birthdays.php:152
+msgid " today!</strong>"
+msgstr "ma!</strong>"
+
+#: ../tdlc-birthdays.php:165
+msgid "Upcoming birthdays:"
+msgstr "Elkövetkező születésnapok:"
+
+#: ../tdlc-birthdays.php:175
+#, php-format
+msgid " (%1$d/%2$d)"
+msgstr " (%1$d/%2$d)"
+
+#: ../tdlc-birthdays.php:177
+#, php-format
+msgid " (%1$d/%2$d, %3$d years old)"
+msgstr " (%1$d/%2$d, %3$d éves)"
+
+#: ../tdlc-birthdays.php:211
+msgid "Please configure mandatory settings in the control panel."
+msgstr "Kérjük végezze el kötelező beállításokat a vezérlőpulton."
+
+#: ../tdlc-birthdays.php:252
+msgid "Widget Title: "
+msgstr "Widget Címe:"
+
+#: ../tdlc-birthdays.php:256
+msgid "Birthday field ID or exact Name: "
+msgstr "Születésnapi mező ID (azonosítója) vagy pontos neve:"
+
+#: ../tdlc-birthdays.php:258
+msgid "<small>Create a <strong>datebox</strong> in Buddypress Profile Configuration to store the birthday dates and paste its ID or Name here.</small>"
+msgstr "<small>Hozzon létre egy mezőt <strong>Dátum/Idő</strong> formátuma a BuddyPress profil beállításokban, a születésnapi dátumát tárolásához, és illessze be ide az azonosítót, vagy nevét.</small>"
+
+#: ../tdlc-birthdays.php:261
+msgid "Display birthdays of :"
+msgstr "Születésnapok megjelenítése:"
+
+#: ../tdlc-birthdays.php:264
+msgid " everyone "
+msgstr "mindenki"
+
+#: ../tdlc-birthdays.php:268
+msgid " friends only "
+msgstr "csak barátok"
+
+#: ../tdlc-birthdays.php:270
+msgid "<small>For 'friends only', the user must be registered, connected and have some friends!</small>"
+msgstr "<small>Ha választja \"csak barátok\" a felhasználónak regisztrálnia kell és barátnak lenni!</small>"
+
+#: ../tdlc-birthdays.php:273
+msgid "Display birthdays happening in the next: "
+msgstr "Megmutat közelgő születésnapok a következő:"
+
+#: ../tdlc-birthdays.php:274
+msgid " days."
+msgstr "nap."
+
+#: ../tdlc-birthdays.php:275
+msgid "<small>Set to 0 if you don't want to display upcoming birthdays.</small>"
+msgstr "<small>Adja meg 0, ha nem akarja megjeleníteni közelgő születésnapok.</small>"
+
+#: ../tdlc-birthdays.php:278
+msgid "Hide ages"
+msgstr "Kor elrejtése"
+
+#: ../tdlc-birthdays.php:280
+msgid "<small>Check this if you don't want the widget to tell how old people are!</small>"
+msgstr "<small>Jelölje be, ha nem akarjuk, hogy hogy mások lássanak a felhasználó korát!</small>"
+
+#: ../tdlc-birthdays.php:289
+msgid "Birthdays"
+msgstr "Születésnapok"
+
+msgid " years old"
+msgstr "éves"
+
