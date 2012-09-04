@@ -444,6 +444,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		String remotePort = null;
 		String rtmpUrl = null;
 		String playName = null;
+		String callback = null;
 		String publishName = null;
 		String cryptoSuite = null;
 		String keyParams = null;
@@ -560,7 +561,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 					{
 						Log.info("handleJingle RTMP/RTMFP url " + rtmpUrl + " " + publishName + " " + playName);
 
-						if ("session-initiate".equals(action) )
+						if ("session-initiate".equals(action) ) // outgoing calls only for RTMP/RTMFP
 						{
 							String protocol = "RTMP";
 
@@ -580,6 +581,31 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 							cp.setRtmpRecieveStream(publishName);	// remote publish name
 
 							sendJingleAction("session-accept", cp, new JinglePayload(codecId, codecName, codecClock, null, null));
+
+							return;
+						}
+					}
+
+            		if (candidate.attribute("callback") != null)
+            		{
+						callback = candidate.attribute("callback").getValue();
+
+						Log.info("handleJingle Callback destination " + callback);
+
+						if ("session-initiate".equals(action) )		// outgoing calls only for callback
+						{
+							CallParticipant cp = new CallParticipant();
+							cp.setCallId(sid);
+							cp.setProtocol("SIP");
+							cp.setPhoneNumber(from.toString());
+							cp.setConferenceId(from.getNode());
+							cp.setConferenceDisplayName(conference);
+
+							cp.setFromPhoneNumber(callback);
+
+							sendJingleAction("session-accept", cp, new JinglePayload(codecId, codecName, codecClock, null, null));
+
+							return;
 						}
 					}
 
@@ -636,6 +662,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 				}
 
 			} else Log.warn("handleJingle missing transport");
+
+			return;
 		}
 
 		if ("session-terminate".equals(action))
@@ -785,9 +813,17 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 		} else {
 
-			Element newTransportRaw = newContent.addElement("transport", RAW_UDP_NAMESPACE).addAttribute("pwd", cp.getPassword()).addAttribute("ufrag", cp.getUsername());
-			newTransportRaw.addElement("candidate").addAttribute("ip", payload.remoteIP).addAttribute("port", payload.remotePort).addAttribute("generation", "0").addAttribute("id", "1").addAttribute("component", "1").addAttribute("foundation", "1001321590").addAttribute("priority", "2130714367");
-			newTransportRaw.addElement("webrtc").setText(getWebRtcSdp(cp, payload));
+			if ("SIP".equals(cp.getProtocol()))
+			{
+				Element newTransportRtmp= newContent.addElement("transport", "http://xmpp.org/openlink/transport");
+				newTransportRtmp.addElement("candidate").addAttribute("callback", cp.getFromPhoneNumber());
+
+			} else {
+
+				Element newTransportRaw = newContent.addElement("transport", RAW_UDP_NAMESPACE).addAttribute("pwd", cp.getPassword()).addAttribute("ufrag", cp.getUsername());
+				newTransportRaw.addElement("candidate").addAttribute("ip", payload.remoteIP).addAttribute("port", payload.remotePort).addAttribute("generation", "0").addAttribute("id", "1").addAttribute("component", "1").addAttribute("foundation", "1001321590").addAttribute("priority", "2130714367");
+				newTransportRaw.addElement("webrtc").setText(getWebRtcSdp(cp, payload));
+			}
 		}
 
 		sendPacket(iq);
@@ -805,7 +841,6 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		String conference 	= cp.getConferenceDisplayName();
 		String playName 	= cp.getRtmpSendStream();
 		String publishName 	= cp.getRtmpRecieveStream();
-		String rtmpUrl 		= cp.getFromPhoneNumber();
 
 		List<Object[]> actionList = new ArrayList<Object[]>();
 
@@ -834,22 +869,23 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 		boolean secondleg = false;
 
-		actionList.add(new String[]{"SetConference", sid, cp.getConferenceId()});
-
 		if ("JINGLE".equals(protocol))					// Only SIP leg media needs to established. Jingle leg already established
 		{
+			actionList.add(new String[]{"SetConference", sid, cp.getConferenceId()});
+
 			if (isConf == false)
 			{
 				actionList.add(new String[]{"SetPhoneNo", sid, destination});
 				secondleg = true;
 			}
 
-		} else {										// RTMP/RTMFP both media legs need to established
+		} else {										// Callback or RTMP/RTMFP both media legs need to established
 
-			actionList.add(new String[]{"SetPhoneNo", sid, rtmpUrl});
+			actionList.add(new String[]{"SetPhoneNo", sid, cp.getFromPhoneNumber()});
 
 			if (isConf == false)
 			{
+				actionList.add(new String[]{"SetConference", sid, cp.getConferenceId()});
 				actionList.add(new String[]{"Set2ndPartyPhoneNo", sid, destination});
 				secondleg = true;
 
@@ -857,6 +893,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 				if (isJidInConf(conference, from.getNode()))
 				{
+					actionList.add(new String[]{"SetConference", sid, conference});
+
 					secondleg = true;					// user must be in MUC already. Security check
 				}
 			}
