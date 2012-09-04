@@ -9,4 +9,4 @@ jar:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\VoipServer\voip.jar
 
 BUILD SUCCESSFUL
-Total time: 12 seconds
+Total time: 3 seconds

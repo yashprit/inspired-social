@@ -13,6 +13,7 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 
 import java.util.*;
+
 import java.text.ParseException;
 import java.net.*;
 import java.io.File;
@@ -37,7 +38,10 @@ import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.database.SequenceManager;
 
 import org.jivesoftware.util.*;
-
+import org.jivesoftware.openfire.muc.*;
+import org.jivesoftware.openfire.muc.spi.*;
+import org.jivesoftware.openfire.forms.spi.*;
+import org.jivesoftware.openfire.forms.*;
 import org.jivesoftware.openfire.component.InternalComponentManager;
 
 import org.xmpp.packet.*;
@@ -159,6 +163,137 @@ public class Application implements CallEventListener  {
     //
     // ------------------------------------------------------------------------
 
+	private void createRoom(String roomName)
+	{
+		loginfo( "createRoom " + roomName);
+
+		try
+		{
+			if (XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService("conference").hasChatRoom(roomName) == false)
+			{
+				MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService("conference").getChatRoom(roomName);
+
+				if (room == null)
+				{
+					room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService("conference").getChatRoom(roomName, new JID("admin@"+domainName));
+
+					if (room != null)
+					{
+						configureRoom(room);
+					}
+				}
+			}
+
+		} catch (Exception e) {
+
+			e.printStackTrace();
+		}
+	}
+
+
+	private void configureRoom(MUCRoom room )
+	{
+		loginfo( "configureRoom " + room.getID());
+
+		FormField field;
+		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+/*
+        field = new XFormFieldImpl("muc#roomconfig_roomdesc");
+        field.setType(FormField.TYPE_TEXT_SINGLE);
+
+		String desc = room.getDescription();
+		desc = desc == null ? "" : desc;
+        field.addValue(desc);
+        dataForm.addField(field);
+
+        field = new XFormFieldImpl("muc#roomconfig_roomname");
+        field.setType(FormField.TYPE_TEXT_SINGLE);
+        field.addValue(room.getName());
+        dataForm.addField(field);
+
+		field = new XFormFieldImpl("FORM_TYPE");
+		field.setType(FormField.TYPE_HIDDEN);
+		field.addValue("http://jabber.org/protocol/muc#roomconfig");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_changesubject");
+		field.addValue("1");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_maxusers");
+		field.addValue("30");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_presencebroadcast");
+		field.addValue("moderator");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_publicroom");
+		field.addValue("1");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_persistentroom");
+		field.addValue("0");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_moderatedroom");
+		field.addValue("0");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_membersonly");
+		field.addValue("0");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_allowinvites");
+		field.addValue("1");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_passwordprotectedroom");
+		field.addValue("0");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_whois");
+		field.addValue("moderator");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_enablelogging");
+		field.addValue("1");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("x-muc#roomconfig_canchangenick");
+		field.addValue("1");
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("x-muc#roomconfig_registration");
+		field.addValue("1");
+		dataForm.addField(field);
+
+		// Keep the existing list of admins
+		field = new XFormFieldImpl("muc#roomconfig_roomadmins");
+		for (String jid : room.getAdmins()) {
+			field.addValue(jid);
+		}
+		dataForm.addField(field);
+
+		field = new XFormFieldImpl("muc#roomconfig_roomowners");
+		field.addValue("admin@"+domainName);
+		dataForm.addField(field);
+*/
+		// Create an IQ packet and set the dataform as the main fragment
+		IQ iq = new IQ(IQ.Type.set);
+		Element element = iq.setChildElement("query", "http://jabber.org/protocol/muc#owner");
+		element.add(dataForm.asXMLElement());
+
+		try
+		{
+			// Send the IQ packet that will modify the room's configuration
+			room.getIQOwnerHandler().handleIQ(iq, room.getRole());
+
+		} catch (Exception e) {
+			logerror("configureRoom exception " + e);
+		}
+	}
+
 
 	private void connectToMUC(final BridgeParticipant bp)
 	{
@@ -171,14 +306,26 @@ public class Application implements CallEventListener  {
 
 			final String conferenceId = cp.getConferenceId();
 
-			Message message = new Message();
-			message.setFrom(jid);
-			message.setTo(jid);
-			Element invite = message.addChildElement("x", "jabber:x:conference");
-			invite.addAttribute("jid", conferenceId + "@conference." + domainName);
-			sendPacket(message);
+			createRoom(conferenceId);
 
-			loginfo("VoiceBridge connectToMUC outgoing message \n" + message);
+			IQ iq = new IQ(IQ.Type.set);
+			iq.setFrom(conferenceId + "@" + component.getName() + "." + domainName);
+			iq.setTo(jid.toString());
+
+			Element openlink = iq.setChildElement("openlink", "http://www.xmpp.org/protocol/openlink");
+
+			Element invite = openlink.addElement("invite");
+			invite.addAttribute("from", bp.userJID.toString());
+			invite.addAttribute("room", conferenceId + "@conference." + domainName);
+
+			if (cp.getConferenceDisplayName() != null)
+			{
+				invite.addElement("reason").setText(cp.getConferenceDisplayName());
+			}
+
+			sendPacket(iq);
+
+			loginfo("VoiceBridge connectToMUC outgoing message \n" + iq);
 
 		} catch (Exception e) {
 
@@ -221,9 +368,9 @@ public class Application implements CallEventListener  {
 		String response = null;
 
 		try {
-			loginfo("VoiceBridge manageParticipant");
+			loginfo("VoiceBridge manageParticipant " + userJID + " " + uid + " " + parameter + " " + value);
 
-			if ( bridgeParticipants.containsKey(uid) == false)
+			if (bridgeParticipants.containsKey(uid) == false)
 			{
 				CallParticipant cp = new CallParticipant();
 				cp.setCallId(uid);
@@ -563,11 +710,11 @@ public class Application implements CallEventListener  {
 				cp.setConferenceId(tokens[0].trim());
 
 				if (tokens.length > 1) {
-					cp.setMediaPreference(tokens[1]);
+					cp.setConferenceDisplayName(tokens[1]);
 				}
 
 				if (tokens.length > 2) {
-					cp.setConferenceDisplayName(tokens[2]);
+					cp.setMediaPreference(tokens[2]);
 				}
 
 			} catch (Exception e) {

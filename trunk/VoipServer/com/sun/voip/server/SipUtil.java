@@ -478,7 +478,11 @@ if (false) {
 
 		Logger.println("fromNumber " + fromNumber);
 
-		fromAddress = addressFactory.createSipURI(fromNumber, ourIpAddress);
+		if (fromNumber.startsWith("sip:"))
+			fromAddress = (SipURI)addressFactory.createAddress(fromNumber).getURI();
+		else
+			fromAddress = addressFactory.createSipURI(fromNumber, ourIpAddress);
+
 		fromAddress.setPort(ourSipPort);
         toAddress = addressFactory.createSipURI(toNumber, voipGateway);
 	}
@@ -592,8 +596,13 @@ if (false) {
          * e.g. Contact: "Awarenex" <sip:Awarenex@152.70.1.43:5060>;
          *   where   "Awarenex" <sip:... == (local Address)
          */
-        SipURI contactURI =
-	    addressFactory.createSipURI(fromNumber, ourPublicIpAddress);
+        SipURI contactURI = null;
+
+		if (fromNumber.startsWith("sip:"))
+			contactURI = (SipURI)addressFactory.createAddress(fromNumber).getURI();
+		else
+			contactURI = addressFactory.createSipURI(fromNumber, ourPublicIpAddress);
+
 
 	contactURI.setPort(ourPublicSipPort);
 
