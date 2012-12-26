@@ -42,7 +42,7 @@ function setupConMini(con) {
 	WebRtc.init(con, {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]});	
 }
 
-function handleMuteSignal(peer, type, muc, audioMuted, videoMuted)
+function handleMuteSignal(peer, type, muc, audioMuted, videoMuted, videoRequested)
 {
 	logThis("handleMuteSignal " + peer.farParty + " " + audioMuted + " " + videoMuted + " " + type + " " + muc, 3);
 
@@ -64,8 +64,14 @@ function handleMuteSignal(peer, type, muc, audioMuted, videoMuted)
 	} else {
 		nick = jQuery('#jappix_mini a#friend-' + hash).text().revertHtmlEnc();
 	}
-
-	var message = (!audioMuted ? "Started" : "Stopped") + " sending audio/video";
+	
+	
+	if (videoRequested) 
+	{
+		var message = (!audioMuted ? "Started" : "Stopped") + " sending video";
+	} else {
+		var message = (!audioMuted ? "Started" : "Stopped") + " sending audio";	
+	}
 	
 	var time = getCompleteTime();
 	var stamp = extractStamp(new Date());
@@ -76,10 +82,10 @@ function handleMuteSignal(peer, type, muc, audioMuted, videoMuted)
 				
 	displayMessageMini(muc ? "groupchat" : "chat", message, xid, nick, hash, time, stamp, 'user-message');
 	
-	if (audioMuted)
+	if (audioMuted || (videoMuted && videoRequested))
 		clearAudioVideo(hash);	
 	else
-		notifyAudioVideo(hash, xid, videoMuted);
+		notifyAudioVideo(hash, xid, muc, videoRequested);
 
 }
 	
@@ -781,7 +787,7 @@ function notifyMessageMini(hash) {
 	notifyTitleMini();
 }
 
-function notifyAudioVideo(hash, xid, videoMuted) 
+function notifyAudioVideo(hash, xid, muc, videoRequested) 
 {
 	// Define the paths
 	
@@ -789,33 +795,80 @@ function notifyAudioVideo(hash, xid, videoMuted)
 	var notify = tab + ' span.jm_media_notify';
 	var image = "chat/img/others/call_off.gif";
 	
-	if (!videoMuted)
+	if (muc)
 	{
-		image = "chat/img/others/video_off.gif";
+		var room = xid.split("@")[0];
+		
+		if (WebRtc.isRemoteRoomMuted(room))
+		{
+			image = "chat/img/others/call_on.png";
+				
+		} else {
+			image = "chat/img/others/call_off.gif";		
+		
+		}		
+		
+	} else {
+	
+		if (videoRequested)
+		{
+			if (WebRtc.hasRemoteUserVideo(xid))
+			{
+				if (WebRtc.isRemoteUserVideoMuted(xid))
+					image = "chat/img/others/video_on.png";			
+				else
+					image = "chat/img/others/video_off.gif";			
+			}
+			
+		} else {
+		
+			if (WebRtc.isRemoteUserMuted(xid))
+				image = "chat/img/others/call_on.png";			
+			else 
+				image = "chat/img/others/call_off.gif";	
+		}
+		
 	}
 	
 	if(!exists(notify))
 		jQuery(tab).append(
 			'<span class="jm_media_notify">' + 
-				'<img onclick="muteRemoteUser(this)" src="' + image + '" style="width:16px" id="' + xid + '" />' + 
+				'<img onclick="muteRemote(this, ' + muc + ')" src="' + image + '" style="width:16px" id="' + xid + '" />' + 
 			'</span>'
 		);
 }
 
-function muteRemoteUser(img)
+function muteRemote(img, muc)
 {
-	console.log("muteRemoteUser " + img.id);
+	console.log("muteRemote " + img.id);
 		
 	if (img.src.indexOf("call_on.png") > -1)
 	{
 		img.src = "chat/img/others/call_off.gif";
 		var mute = false;
-	} else {
+		
+	} 	
+	else if (img.src.indexOf("call_off.gif") > -1) 
+	{
 		img.src = "chat/img/others/call_on.png";
 		var mute = true;		
 	}
 	
-	WebRtc.muteRemoteUser(mute, img.id)
+	else if (img.src.indexOf("video_on.png") > -1)
+	{
+		img.src = "chat/img/others/video_off.gif";
+		var mute = false;
+		
+	} else {
+		img.src = "chat/img/others/video_on.png";
+		var mute = true;		
+	}		
+	
+		
+	if (muc)
+		WebRtc.muteRemoteRoom(mute, img.id.split("@")[0])	
+	else
+		WebRtc.muteRemoteUser(mute, img.id)
 }
 
 
