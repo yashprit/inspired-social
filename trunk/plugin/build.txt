@@ -4,4 +4,4 @@ war:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\plugin\inspired.war
 
 BUILD SUCCESSFUL
-Total time: 41 seconds
+Total time: 53 seconds

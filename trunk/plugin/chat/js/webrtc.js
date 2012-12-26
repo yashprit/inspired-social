@@ -177,7 +177,7 @@ WebRtc.handleRoster = function(myJid, jid, room, action, mediaHints)
 	if (action == "chat")
 	{
 		WebRtc.log("WebRtc.handleRoster opening chat with " + room);					
-		WebRtc.rooms[room] = {ready: true, active: false};		
+		WebRtc.rooms[room] = {ready: true, active: false, muted: false};		
 		WebRtc.setPeer(uniqueKey, room);
 		WebRtc.peers[uniqueKey].muc = false;
 			
@@ -193,7 +193,7 @@ WebRtc.handleRoster = function(myJid, jid, room, action, mediaHints)
 		if (myJid == jid)
 		{
 			WebRtc.log("WebRtc.handleRoster opening room " + room);					
-			WebRtc.rooms[room] = {ready: true, active: false};
+			WebRtc.rooms[room] = {ready: true, active: false, muted: false};
 		}
 
 		if (WebRtc.rooms[room] == null && myJid != jid)
@@ -253,25 +253,12 @@ WebRtc.muteRoom = function(mute, room)
 
 				peer.pc.localStreams[0].audioTracks[0].enabled = !mute;	
 				
-				peer.sendMuteSignal(mute, true, "room");				
+				peer.sendMuteSignal(mute, true, "room", false);				
 			}
 		}
 	}
 	
 	if (WebRtc.rooms[room]) WebRtc.rooms[room].active = !mute;
-};
-
-WebRtc.isRoomMuted = function(room)
-{
-	var mute = true;
-	if (WebRtc.rooms[room]) mute = !WebRtc.rooms[room].active;
-	
-	return mute;
-};
-
-WebRtc.toggleRoomMute = function(room)
-{
-	WebRtc.muteRoom(!WebRtc.isRoomMuted(room), room);
 };
 
 WebRtc.muteRemoteRoom = function(mute, room)
@@ -293,8 +280,36 @@ WebRtc.muteRemoteRoom = function(mute, room)
 		}
 	}
 	
-	if (WebRtc.rooms[room]) WebRtc.rooms[room].active = !mute;
+	if (WebRtc.rooms[room]) WebRtc.rooms[room].muted = mute;
 };
+
+WebRtc.isRoomMuted = function(room)
+{
+	var mute = true;
+	if (WebRtc.rooms[room]) mute = !WebRtc.rooms[room].active;
+	
+	return mute;
+};
+
+WebRtc.isRemoteRoomMuted = function(room)
+{
+	WebRtc.log("WebRtc.isRemoteRoomMuted " + room);
+	console.log(WebRtc.rooms[room]);
+	
+	var mute = true;
+	if (WebRtc.rooms[room]) mute = WebRtc.rooms[room].muted;
+	
+	return mute;
+};
+
+
+WebRtc.toggleRoomMute = function(room)
+{
+	WebRtc.muteRoom(!WebRtc.isRoomMuted(room), room);
+};
+
+
+
 
 WebRtc.muteUser = function(mute, jid, video)
 {	
@@ -312,13 +327,19 @@ WebRtc.muteUser = function(mute, jid, video)
 		{
 			peer.pc.localStreams[0].videoTracks[0].enabled = !mute;	
 			
-			peer.sendMuteSignal(mute, mute, "private");			
+			peer.sendMuteSignal(mute, mute, "private", video);			
 		} else {
 
-			peer.sendMuteSignal(mute, true, "private");		
+			peer.sendMuteSignal(mute, true, "private", false);		
 		}
 	}	
 };
+
+WebRtc.toggleUserMute = function(jid, video)
+{
+	WebRtc.muteUser(!WebRtc.isUserMuted(jid), jid, video);
+};
+
 
 WebRtc.isUserMuted = function(jid)
 {
@@ -334,10 +355,48 @@ WebRtc.isUserMuted = function(jid)
 	return mute;
 };
 
-WebRtc.toggleUserMute = function(jid, video)
+WebRtc.isRemoteUserMuted = function(jid)
 {
-	WebRtc.muteUser(!WebRtc.isUserMuted(jid), jid, video);
+	var mute = true;
+	var uniqueKey = WebRtc.escape(jid)
+
+	var peer = WebRtc.peers[uniqueKey]
+
+	if (peer != null && peer.pc && peer.pc.remoteStreams.length > 0)
+	{		
+		mute = !peer.pc.remoteStreams[0].audioTracks[0].enabled;		
+	}	
+	return mute;
 };
+
+WebRtc.hasRemoteUserVideo = function(jid)
+{
+	var hasVideo = false;
+	var uniqueKey = WebRtc.escape(jid)
+
+	var peer = WebRtc.peers[uniqueKey]
+
+	if (peer != null && peer.pc && peer.pc.remoteStreams.length > 0)
+	{		
+		hasVideo = true;		
+	}	
+	return hasVideo;
+};
+
+WebRtc.isRemoteUserVideoMuted = function(jid)
+{
+	var mute = true;
+	var uniqueKey = WebRtc.escape(jid)
+
+	var peer = WebRtc.peers[uniqueKey]
+
+	if (peer != null && peer.pc && peer.pc.remoteStreams.length > 0)
+	{		
+		mute = !peer.pc.remoteStreams[0].videoTracks[0].enabled;		
+	}	
+	return mute;
+};
+
 
 WebRtc.muteRemoteUser = function(mute, jid)
 {
@@ -552,11 +611,12 @@ WebRtc.prototype.handleMute = function(elem)
 	var mute = elem.getElementsByTagName("mute")[0];
 	var audio = mute.getAttribute("audio");
 	var video = mute.getAttribute("video");	
+	var videoReq = mute.getAttribute("videoreq");		
 	var muc = mute.getAttribute("muc");
 	
 	this.remoteRoomMuteType = mute.getAttribute("type");
 	
-	if (WebRtc.callback) WebRtc.callback(this, this.remoteRoomMuteType, muc == "true", audio == "true", video == "true");
+	if (WebRtc.callback) WebRtc.callback(this, this.remoteRoomMuteType, muc == "true", audio == "true", video == "true", videoReq == "true");
 }
 
 WebRtc.prototype.handleCandidate = function(elem)
@@ -736,14 +796,14 @@ WebRtc.prototype.sendSDP = function(sdp, mediaHints)
 }
 
 	
-WebRtc.prototype.sendMuteSignal = function (audio, video, type)
+WebRtc.prototype.sendMuteSignal = function (audio, video, type, videoReq)
 {
 	WebRtc.log("sendMuteSignal " + audio + " " + video + " " + type);
 		
 	var msg = "";
 	msg += "<message type='chat' to='" + this.farParty + "'>";	
 	msg += "<webrtc xmlns='http://webrtc.org/xmpp'>";
-	msg += "<mute audio='" + audio + "' video='" + video + "' muc='" + this.muc + "' type='" + type + "' />";	
+	msg += "<mute audio='" + audio + "' video='" + video + "' videoreq='" + videoReq + "' muc='" + this.muc + "' type='" + type + "' />";	
 	msg += "</webrtc>";
 	if (this.muc) msg += "<muc/>";	
 	msg += "</message>";	
