@@ -6,16 +6,20 @@ import java.util.*;
 import java.nio.*;
 import com.sun.voip.server.MemberReceiver;
 import com.sun.voip.AudioConversion;
+import com.jcumulus.server.rtmfp.application.Publication;
+import com.jcumulus.server.rtmfp.packet.AudioPacket;
+import com.jcumulus.server.rtmfp.d.E;
 
 public class RtmfpParticipant extends RtmpParticipant {
 
-	public static CumulusAudioHandler handler = null;
-
+	public static Map<String, Publication> publishHandlers = Collections.synchronizedMap( new HashMap<String, Publication>());
+	public static Map<String, RtmfpParticipant> playHandlers = Collections.synchronizedMap( new HashMap<String, RtmfpParticipant>());
 
     public RtmfpParticipant(MemberReceiver memberReceiver)
     {
 		super(memberReceiver);
 	}
+
     // ------------------------------------------------------------------------
     //
     // Overide
@@ -23,8 +27,9 @@ public class RtmfpParticipant extends RtmpParticipant {
     // ------------------------------------------------------------------------
 
 
-    public void push ( byte[] stream, short timestamp )
+    public void push ( byte[] stream )
 	{
+
 		try {
 
 			if (memberReceiver != null && stream.length > 0)
@@ -38,7 +43,7 @@ public class RtmfpParticipant extends RtmpParticipant {
 
 				if ( kt2 < 10 )
 				{
-					loggerdebug( "**** RtmfpParticipant.push() - dataRecieved -> length = " + stream.length);
+					loggerdebug( "**** RtmfpParticipant.push() - dataRecieved -> length = " + stream.length + " " + playName);
 				}
 
 			}
@@ -65,22 +70,13 @@ public class RtmfpParticipant extends RtmpParticipant {
 			this.publishName = publishName;
 			this.playName = playName;
 
+			playHandlers.put(playName, this);
+
 			kt = 0;
 			kt2 = 0;
 			counter = 0;
          	startTime = System.currentTimeMillis();
 
-			try {
-
-				if (handler != null)
-				{
-					handler.startPublisher(publishName);
-				}
-
-			}
-			catch ( Exception e ) {
-				loggererror( "RtmfpParticipant startStream exception " + e );
-			}
 		}
     }
 
@@ -91,10 +87,8 @@ public class RtmfpParticipant extends RtmpParticipant {
         System.out.println( "RtmfpParticipant stopStream" );
 
         try {
-			if (handler != null)
-			{
-				handler.stopPublisher(publishName);
-			}
+			playHandlers.remove(playName);
+			publishHandlers.remove(publishName);
         }
         catch ( Exception e ) {
             loggererror( "RtmfpParticipant stopStream exception " + e );
@@ -108,11 +102,6 @@ public class RtmfpParticipant extends RtmpParticipant {
 	{
 		if (pcmBuffer.length < 160) return;
 
-		if ( kt < 10 )
-		{
-			loggerdebug( "++++ RtmfpParticipant.pushAudio() - dataSent -> length = " + pcmBuffer.length);
-		}
-
 		try {
 			pcmBuffer = normalize(pcmBuffer);
 
@@ -123,9 +112,14 @@ public class RtmfpParticipant extends RtmpParticipant {
 
 			AudioConversion.linearToUlaw(pcmBuffer, packetBody, 1);
 
-			if (handler != null)
+			if (RtmfpParticipant.publishHandlers.containsKey(publishName) )
 			{
-				handler.handleAudioData(publishName, packetBody, ts);
+				if ( kt < 10 )
+				{
+					loggerdebug( "++++ RtmfpParticipant.pushAudio() - dataSent -> length = " + pcmBuffer.length + " " + publishName);
+				}
+
+				RtmfpParticipant.publishHandlers.get(publishName).B(ts, new AudioPacket(packetBody,  packetBody.length), 0);
 			}
 
 		} catch (Exception e) {

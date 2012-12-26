@@ -1,12 +1,84 @@
 Buildfile: build.xml
 
+clean:
+   [delete] Deleting directory C:\Projects\InspiredProject\inspired\VoipServer\build
+    [mkdir] Created dir: C:\Projects\InspiredProject\inspired\VoipServer\build
+     [copy] Copying 120 files to C:\Projects\InspiredProject\inspired\VoipServer\build\com\sun\voip\server\sounds
+
 compile:
-    [javac] Compiling 1 source file to C:\Projects\InspiredProject\inspired\VoipServer
-    [javac] Note: C:\Projects\InspiredProject\inspired\VoipServer\com\ifsoft\cti\OpenlinkComponent.java uses unchecked or unsafe operations.
+    [javac] Compiling 197 source files to C:\Projects\InspiredProject\inspired\VoipServer\build
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\org\red5\server\webapp\voicebridge\Application.java:242: warning: [deprecation] org.jivesoftware.openfire.forms.FormField in org.jivesoftware.openfire.forms has been deprecated
+    [javac] 		FormField field;
+    [javac] 		^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\org\red5\server\webapp\voicebridge\Application.java:243: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XDataFormImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+    [javac] 		^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\org\red5\server\webapp\voicebridge\Application.java:243: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XDataFormImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+    [javac] 		                             ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\org\red5\server\webapp\voicebridge\Application.java:243: warning: [deprecation] org.jivesoftware.openfire.forms.DataForm in org.jivesoftware.openfire.forms has been deprecated
+    [javac] 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+    [javac] 		                                           ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\org\red5\server\webapp\voicebridge\Application.java:326: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 			field = new XFormFieldImpl("muc#roomconfig_persistentroom");
+    [javac] 			            ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\SipUtil.java:108: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac] 	ourSipPort = sipProvider.getListeningPoint().getPort();
+    [javac] 	                        ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\SipUtil.java:551: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac]             (sipProvider.getListeningPoint().getTransport());
+    [javac]                         ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\SipUtil.java:577: warning: [deprecation] createCSeqHeader(int,java.lang.String) in javax.sip.header.HeaderFactory has been deprecated
+    [javac]         cSeqHeader = headerFactory.createCSeqHeader(1, Request.INVITE);
+    [javac]                                   ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:154: warning: [deprecation] getSequenceNumber() in javax.sip.header.CSeqHeader has been deprecated
+    [javac]             	if (cseq.getSequenceNumber() < 2) {
+    [javac]             	        ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:235: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac] 		sipProvider.getListeningPoint().getTransport());
+    [javac] 		           ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:237: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac]             throw new IOException(sipProvider.getListeningPoint().getTransport()
+    [javac]                                              ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:247: warning: [deprecation] createCSeqHeader(int,java.lang.String) in javax.sip.header.HeaderFactory has been deprecated
+    [javac]             cSeqHeader = headerFactory.createCSeqHeader(1, Request.REGISTER);
+    [javac]                                       ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:388: warning: [deprecation] getSequenceNumber() in javax.sip.header.CSeqHeader has been deprecated
+    [javac]             cSeqHeader.setSequenceNumber(cSeqHeader.getSequenceNumber()+1);
+    [javac]                                                    ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:388: warning: [deprecation] setSequenceNumber(int) in javax.sip.header.CSeqHeader has been deprecated
+    [javac]             cSeqHeader.setSequenceNumber(cSeqHeader.getSequenceNumber()+1);
+    [javac]                       ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:429: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac]             fromURI.setTransportParam(sipProvider.getListeningPoint().getTransport());
+    [javac]                                                  ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:431: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac]             fromURI.setPort(sipProvider.getListeningPoint().getPort());
+    [javac]                                        ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:460: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac]         ListeningPoint lp = sipProvider.getListeningPoint();
+    [javac]                                        ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:514: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac] 		sipProvider.getListeningPoint().getTransport());
+    [javac] 		           ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\RegisterProcessing.java:515: warning: [deprecation] getListeningPoint() in javax.sip.SipProvider has been deprecated
+    [javac] 	    contactURI.setPort(sipProvider.getListeningPoint().getPort());
+    [javac] 	                                  ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\SipServer.java:188: warning: [deprecation] createListeningPoint(int,java.lang.String) in javax.sip.SipStack has been deprecated
+    [javac]             lp = sipStack.createListeningPoint(sipPort, "udp");
+    [javac]                          ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\SipServer.java:750: warning: [deprecation] getSequenceNumber() in javax.sip.header.CSeqHeader has been deprecated
+    [javac]             cSeq.setSequenceNumber(cSeq.getSequenceNumber() + 1);
+    [javac]                                        ^
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\com\sun\voip\server\SipServer.java:750: warning: [deprecation] setSequenceNumber(int) in javax.sip.header.CSeqHeader has been deprecated
+    [javac]             cSeq.setSequenceNumber(cSeq.getSequenceNumber() + 1);
+    [javac]                 ^
+    [javac] Note: Some input files use unchecked or unsafe operations.
     [javac] Note: Recompile with -Xlint:unchecked for details.
+    [javac] 22 warnings
 
 jar:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\VoipServer\voip.jar
 
 BUILD SUCCESSFUL
-Total time: 3 seconds
+Total time: 9 seconds

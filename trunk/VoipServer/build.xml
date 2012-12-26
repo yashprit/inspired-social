@@ -9,16 +9,24 @@
 		<fileset dir="${openfire.home}\lib" includes="openfire.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="servlet.jar"/>
 	</path>
-		
-	<target name="compile">
-		<javac debug="true" deprecation="true" srcdir="${voicebridgePlugin.dir}" destdir="${voicebridgePlugin.dir}">
+
+	<target name="clean">  
+	 	<delete dir="${voicebridgePlugin.dir}\build"/>
+		<mkdir dir="${voicebridgePlugin.dir}\build"/>
+		<copy todir="${voicebridgePlugin.dir}\build\com\sun\voip\server\sounds">
+		    <fileset dir="${voicebridgePlugin.dir}\com\sun\voip\server\sounds"/>
+		</copy>		
+	</target>
+	
+	<target name="compile" depends="clean">
+		<javac debug="true" deprecation="true" srcdir="${voicebridgePlugin.dir}" destdir="${voicebridgePlugin.dir}\build">
 			<classpath refid="build.classpath"/>
 		</javac>
 	</target>
 
 	<target name="jar" depends="compile">
 		<jar destfile="${voicebridgePlugin.dir}\voip.jar">
-			<fileset dir="${voicebridgePlugin.dir}">
+			<fileset dir="${voicebridgePlugin.dir}\build">
 				<include name="**" />
 			</fileset>
 		</jar>

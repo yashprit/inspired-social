@@ -13,13 +13,13 @@
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for bbPress */
-define( 'BBDB_NAME', 'wordpress' );
+define( 'BBDB_NAME', 'inspired342' );
 
 /** MySQL database username */
 define( 'BBDB_USER', 'root' );
 
 /** MySQL database password */
-define( 'BBDB_PASSWORD', '969131' );
+define( 'BBDB_PASSWORD', 'password' );
 
 /** MySQL hostname */
 define( 'BBDB_HOST', 'localhost' );

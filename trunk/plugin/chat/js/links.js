@@ -28,29 +28,18 @@ function applyLinks(string, mode, style) {
 	else
 		target = '';
 	
-	if (string.indexOf('/video/') > -1)
+	if (string.indexOf('/video/screenviewer.html?stream=') > -1)
 	{
 		var type = "video-chat";
 		var prompt = "Open video confence";
-		
-		if (string.indexOf('redfire_2way.html') > -1)
-		{
-			type = "video-chat";
-		}
-		
-		if (string.indexOf('redfire_video.html') > -1)
-		{
-			type = "video-groupchat";
-			prompt = "Open group video confence";
-		}
 
 		if (string.indexOf('screenviewer.html') > -1)
 		{
 			type = "screen-share-viewer";
-			prompt = "Open screen share";
+			prompt = "open screen share";
 		}
 		
-		string = '<a href="javascript:top.openURL(&quot;' + string + '&quot;,&quot;' +  type + '&quot;)"' + style + '><img src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/conference.png"/>&nbsp;' + prompt + '</a>';
+		string = '<a target="_blank" href="' + string + '"' + style + '><img style="width:16px;" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/share_on.png"/>&nbsp;' + prompt + '</a>';
 	
 	} else {
 		// XMPP address

@@ -118,6 +118,16 @@ Last revision: 24/06/11
 	padding-top: 7px;
 }
 
+#jappix_mini a.jm_chat-tab span.jm_media_notify {
+	position: absolute;
+	top: 6px;
+	right: 9px;
+}
+
+#jappix_mini a.jm_chat-tab span.jm_media_notify span {
+	float: left;
+}
+
 #jappix_mini a.jm_chat-tab span.jm_notify {
 	position: absolute;
 	top: 6px;
@@ -127,7 +137,6 @@ Last revision: 24/06/11
 #jappix_mini a.jm_chat-tab span.jm_notify span {
 	float: left;
 }
-
 #jappix_mini a.jm_chat-tab span.jm_notify span.jm_notify_left {
 	background-position: 0 -360px;
 }

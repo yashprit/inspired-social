@@ -1,4 +1,4 @@
-C:\Projects\flex41\bin\mxmlc.exe  ScreenViewer.mxml
+call D:\ApacheFlex4.8\bin\mxmlc  ScreenViewer.mxml
 
 pause
 

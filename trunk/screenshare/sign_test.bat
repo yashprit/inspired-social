@@ -1,4 +1,4 @@
 
-C:\"Program Files"\Java\jdk1.6.0_01\bin\jarsigner.exe -keystore developer.keystore -storepass password screenshare.jar screenshare
+"C:\Program Files\Java\jdk1.7.0_05\bin\jarsigner.exe" -keystore developer.keystore -storepass password screenshare.jar screenshare
 
 pause

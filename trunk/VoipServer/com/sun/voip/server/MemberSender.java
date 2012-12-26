@@ -89,7 +89,7 @@ public class MemberSender {
     private double totalTimeToGetData;
     private int comfortPayloadsSent = 0;
     private Cipher encryptCipher;
-    private String encryptionKey;
+    private String encryptionKey = null;
     private String encryptionAlgorithm;
     private String encryptionParams;
     private SRTPSecContext srtpSecurityContext;
@@ -319,9 +319,15 @@ public class MemberSender {
 		}
 	}
 
-	stunServerImpl = new StunServerImpl();
-	timer = new Timer();
-	timer.scheduleAtFixedRate(new BindingRequestTask(), 0, 3000);
+	if (needToEncrypt())
+	{
+		Logger.writeFile("Call " + cp + " MemberSender stun monitor started...");
+
+		stunServerImpl = new StunServerImpl();
+		timer = new Timer();
+		timer.scheduleAtFixedRate(new BindingRequestTask(), 0, 3000);
+	}
+	else Logger.writeFile("Call " + cp + " MemberSender NO stun monitor");
 
 	initializationDone = true;
 
@@ -520,12 +526,14 @@ public class MemberSender {
 	/*
 	 * Encrypt data if required
 	 */
-	if (needToEncrypt()) {
+	if (needToEncrypt())
+	{
 	    rtpData = encrypt(rtpData, rtpData.length);
-
-		senderPacket.setBuffer(rtpData);
-		senderPacket.setLength(rtpData.length);
 	}
+
+	senderPacket.setBuffer(rtpData);
+	senderPacket.setLength(rtpData.length);
+
 
     if (Logger.logLevel == -78)
     {

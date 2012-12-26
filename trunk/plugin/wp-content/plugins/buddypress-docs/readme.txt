@@ -3,8 +3,8 @@ Contributors: boonebgorges, cuny-academic-commons
 Donate link: http://teleogistic.net/donate
 Tags: buddypress, docs, wiki, documents, collaboration
 Requires at least: WordPress 3.3, BuddyPress 1.5
-Tested up to: WordPress 3.4.1, BuddyPress 1.5.6
-Stable tag: 1.1.24
+Tested up to: WordPress 3.5, BuddyPress 1.6.2
+Stable tag: 1.2.8
  
 Adds collaborative Docs to BuddyPress.
 
@@ -14,7 +14,7 @@ BuddyPress Docs adds collaborative work spaces to your BuddyPress community. Par
 
 Features include:
 
-* Group-specific Docs
+* Docs that can be linked to groups or users, with a variety of privacy levels
 * Doc taxonomy, using tags
 * Fully sortable and filterable doc lists
 * TinyMCE front-end doc editing
@@ -35,8 +35,59 @@ This plugin is in active development. For feature requests and bug reports, visi
 
 == Changelog ==
 
+= 1.2.8 =
+* Fixes problem with group associations and privacy levels of new docs
+* Improves access protection in WP searches and elsewhere
+* Sets hide_sitewide more carefully when posting Doc activity items
+* Prevents some errors related to wp_check_post_lock()
+* Adds Russian translation
+
+= 1.2.7 =
+* Updates German translation
+* Fixes rewrite problem when using custom BP_DOCS_SLUG
+* Fixes fatal error when upgrading BuddyPress
+
+= 1.2.6 =
+* Updates Danish translation
+* Fixes infinite loop bug in upgrader
+* Fixes html entity problem in permalinks
+
+= 1.2.5 =
+* Fixes comment posting
+* Fixes comment display and posting permissions
+* Don't show Tags: label when no tags are present
+
+= 1.2.4 =
+* Updates .pot file
+* Updates German translation
+* l18n improvements
+* Ensures that doc links are trailingslashed
+* Fixes bug that prevented front-end doc deletion
+* Removes temporarily non-functional doc counts from group tabs
+
+= 1.2.3 = 
+* Fixes bug with bp-pages
+
+= 1.2.2 =
+* Improves group-association auto-settings when creating via the Create New Doc link in a group
+* Fixes bug that erroneously required a directory page
+
+= 1.2.1 =
+* Fixes bug with overzealous Create New Doc button
+* Fixes some PHP warnings
+
+= 1.2 =
+* Major plugin rewrite
+* Moves Docs out of groups, making URLs cleaner, interface simpler, and making it possible to have Docs not linked to any group
+* Adds a sitewide Docs directory
+
+= 1.1.25 =
+* Fixes bug in Javascript that may have caused secondary editor rows not to
+  show in some cases
+* Fixes bug that broke comment moderation in some cases
+
 = 1.1.24 =
-* Maves Table buttons to second row of editor, for better fit on all themes
+* Moves Table buttons to third row of editor, for better fit on all themes
 * Adds Danish translation
 
 = 1.1.23 =
@@ -203,3 +254,10 @@ This plugin is in active development. For feature requests and bug reports, visi
 
 = 1.0-beta =
 * Initial public release
+
+== Upgrade Notice ==
+
+= 1.2 =
+* Major plugin rewrite. See http://dev.commons.gc.cuny.edu/2012/11/15/buddypress-docs-1-2/ for more details.
+
+

@@ -19,7 +19,7 @@ public class RtmpParticipant extends ThirdParty {
 
     protected static final int ULAW_CODEC_ID = 130;
 
-	protected long startTime = System.currentTimeMillis();
+	protected long startTime = 0;
 	protected StreamRouter router = null;
 	protected StreamPlayer player = null;
 
@@ -96,7 +96,7 @@ public class RtmpParticipant extends ThirdParty {
 			kt = 0;
 			kt2 = 0;
 			counter = 0;
-         	startTime = System.currentTimeMillis();
+         	startTime = 0;
 
 			try {
 
@@ -132,6 +132,8 @@ public class RtmpParticipant extends ThirdParty {
     {
 
         System.out.println( "RtmpParticipant stopStream" );
+
+        startTime = 0;
 
         try {
 
@@ -175,15 +177,17 @@ public class RtmpParticipant extends ThirdParty {
 		try {
 			pcmBuffer = normalize(pcmBuffer);
 
-			int ts = (int)(System.currentTimeMillis() - startTime);
 			byte[] packetBody = new byte[pcmBuffer.length + 1];
 			packetBody[0] = (byte) ULAW_CODEC_ID;
 
 			AudioConversion.linearToUlaw(pcmBuffer, packetBody, 1);
 
+			if (startTime == 0) startTime = System.currentTimeMillis();
+			int ts = (int)(System.currentTimeMillis() - startTime);
+
 			if (rtmpHandler != null)
 			{
-				rtmpHandler.pushAudio(packetBody, ts);
+				rtmpHandler.pushAudio(packetBody, (kt == 0) ? 0: ts);
 
 			} else {
 

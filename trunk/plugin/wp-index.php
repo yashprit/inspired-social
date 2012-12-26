@@ -1,15 +1,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+<meta http-equiv="X-UA-Compatible" content="chrome=1">
 <link rel="stylesheet" type="text/css" href="chat/css/mini.css" />
 <link rel="stylesheet" type="text/css" href="chat/css/window.css" />
 <script type="text/javascript" src="chat/js/jquery.js"></script>
 <script type="text/javascript" src="chat/js/interfaceUI.js"></script>
+<script type="text/javascript" src="chat/js/webrtc.js"></script>
 <script type="text/javascript" src="chat/php/get.php?l=en&t=js&g=mini.xml"></script>
 
 
 <script language="JavaScript">
-	var username, password;
+	var username, password, videoXid;
 
 	function setUser(user, pass)
 	{
@@ -32,80 +34,64 @@
 
 	function setGroups(groups)
 	{
-		if (MINI_GROUPCHATS.length != groups.length || MINI_GROUPCHATS.length == 0)
+		if (username != "")
 		{
-			if (username != "")
+			if (MINI_GROUPCHATS.length != groups.length || MINI_GROUPCHATS.length == 0)
 			{
-				disconnectMini();
-
-				MINI_GROUPCHATS = groups;
-				MINI_ANIMATE = true;
-
 				if (MINI_GROUPCHATS.length != groups.length)
 				{
-					launchMini(true, false, window.location.hostname, username, password);
+					if(!MINI_INITIALIZED)
+					{
+						disconnectMini();
 
-				} else {
+						MINI_GROUPCHATS = groups;
+						MINI_ANIMATE = true;
+						launchMini(true, false, window.location.hostname, username, password);
 
-					launchMini(true, false, window.location.hostname, username, password);
+					} else {
+
+						for(var i = 0; i < MINI_GROUPCHATS.length; i++)
+						{
+							if(!MINI_GROUPCHATS[i])
+								continue;
+
+							//console.log("setGroups removing group " + MINI_GROUPCHATS[i])
+
+							try {
+								var chat_room = bareXID(generateXID(MINI_GROUPCHATS[i], 'groupchat'));
+								var hash = hex_md5(chat_room);
+								var current = '#jappix_mini #chat-' + hash;
+
+								jQuery(current).remove();
+								presenceMini('unavailable', '', '', '', chat_room + '/' + unescape(jQuery(current).attr('data-nick')));
+							}
+
+							catch(e) {}
+						}
+
+						MINI_GROUPCHATS = groups;
+
+						for(var i = 0; i < MINI_GROUPCHATS.length; i++)
+						{
+							if(!MINI_GROUPCHATS[i])
+								continue;
+
+							//console.log("setGroups adding group " + MINI_GROUPCHATS[i])
+
+							try {
+								var chat_room = bareXID(generateXID(MINI_GROUPCHATS[i], 'groupchat'));
+								chatMini('groupchat', chat_room, getXIDNick(chat_room), hex_md5(chat_room), MINI_PASSWORDS[i], MINI_SHOWPANE);
+							}
+
+							catch(e) {}
+						}
+					}
 				}
-
 			}
 		}
 
 	}
 
-	function showControls(height)
-	{
-		jQuery('#jappix_mini div.jm_roster div.jm_phone').css('height', height + "px");
-		jQuery('#red5phone').css('height', height - 2 + "px");
-		jQuery('#red5phone').css('width', "225px");
-	}
-
-
-	function doPhono(destination)
-	{
-		document.getElementById("red5phone").contentWindow.document.getElementById("demo-number").value = destination;
-		document.getElementById("red5phone").contentWindow.makeCall();
-	}
-
-	function incomingCall(callId)
-	{
-
-	}
-
-
-	function openURL(url, type)
-	{
-		if (type == "phono")
-		{
-			document.getElementById("red5frame").contentWindow.location.href = url;
-			openWindow(300, 300);
-		}
-
-		if (type == "video-chat")
-		{
-			document.getElementById("red5frame").contentWindow.location.href = url;
-			openWindow(720, 560);
-		}
-
-		if (type == "video-groupchat")
-		{
-			document.getElementById("red5frame").contentWindow.location.href = url;
-			openWindow(1084, 660);
-		}
-
-		if (type == "screen-share-viewer")
-		{
-			document.getElementById("red5frame").contentWindow.location.href = url;
-			openWindow(1064, 818);
-		}
-
-		if (type == "screen-share-publisher")
-		{
-			jQuery('body').append('<iframe height="0" width="0" src="' + url + '"></iframe>');
-		}
-	}
 
 	function openWindow(width, height)
 	{
@@ -117,7 +103,7 @@
 			resizeWindow(width, height);
 
 			jQuery('#window').show();
-			jQuery('#red5frame').show();
+			jQuery('#webrtcframe').show();
 		}
 	}
 
@@ -129,10 +115,10 @@
 		var newWidth = width - 25;
 
 		jQuery('#windowContent').css('width', newWidth + 'px');
-		jQuery('#red5frame').css('width', newWidth + 'px');
+		jQuery('#webrtcframe').css('width', newWidth + 'px');
 
 		jQuery('#windowContent').css('height', newHeight + 'px');
-		jQuery('#red5frame').css('height', newHeight + 'px');
+		jQuery('#webrtcframe').css('height', newHeight + 'px');
 
 	}
 
@@ -142,9 +128,14 @@
 			'click',
 			function()
 			{
-				document.getElementById("red5frame").contentWindow.location.href = "about:blank";
-				jQuery('#red5frame').hide();
+				jQuery('#webrtcframe').hide();
 				jQuery('#window').hide();
+
+				if (videoXid)
+				{
+					WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(videoXid), getXIDNick(videoXid), "leave");
+					jQuery('#jappix_mini #chat-' + hex_md5(videoXid)).remove();
+				}
 			}
 		);
 
@@ -156,7 +147,7 @@
 				jQuery('#windowBottom, #windowBottomContent').animate({height: 10}, 300);
 				jQuery('#window').animate({height:30},300).get(0).isMinimized = true;
 				jQuery(this).hide();
-				jQuery('#red5frame').hide();
+				jQuery('#webrtcframe').hide();
 				jQuery('#windowResize').hide();
 				jQuery('#windowMax').show();
 			}
@@ -169,7 +160,7 @@
 				jQuery('#windowContent').SlideToggleUp(300);
 				jQuery('#windowBottom, #windowBottomContent').animate({height: windowSize.hb + 13}, 300);
 				jQuery('#window').animate({height:windowSize.hb+43}, 300).get(0).isMinimized = false;
-				jQuery('#red5frame').show();
+				jQuery('#webrtcframe').show();
 				jQuery(this).hide();
 				jQuery('#windowMin, #windowResize').show();
 			}
@@ -215,9 +206,27 @@
 		jQuery('#wordpress').css('width',  myWidth +  'px');
 	}
 
-	function reload()
+	function toggleFullScreen()
 	{
-		document.getElementById("red5frame").contentWindow.location.reload();
+		var videoElement = document.getElementById("remoteVideo");
+
+		if (!document.mozFullScreen && !document.webkitFullScreen)
+		{
+		  if (videoElement.mozRequestFullScreen) {
+			videoElement.mozRequestFullScreen();
+
+		  } else {
+			videoElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
+		  }
+
+		} else {
+
+		  if (document.mozCancelFullScreen) {
+			document.mozCancelFullScreen();
+		  } else {
+			document.webkitCancelFullScreen();
+		  }
+		}
 	}
 </script>
 </head>
@@ -226,14 +235,21 @@
 
 <div id="window" style="display:none">
 	<div id="windowTop">
-		<div id="windowTopContent"><span onclick='reload()'>Inspired</span></div>
+		<div id="windowTopContent"><span>Inspired</span></div>
 		<img src="chat/img/window/window_min.jpg" id="windowMin" />
 		<img src="chat/img/window/window_max.jpg" id="windowMax" />
 		<img src="chat/img/window/window_close.jpg" id="windowClose" />
 	</div>
 	<div id="windowBottom"><div id="windowBottomContent">&nbsp;</div></div>
 	<div id="windowContent" style="overflow: hidden;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
-		<iframe id="red5frame" width="100%" height="100%" marginwidth="0" marginheight="0" frameborder="no" scrolling="no" style="border-width:0px; border-color:#333; background:#FFF; overflow: hidden;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
+		<div id='webrtcframe' style='display:none'>
+			<div style="position:relative;width:330px;height:250px;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
+			  <video id="remoteVideo" onDblClick="toggleFullScreen();" style="width:320px;height:240px"></video>
+			  <div style="position:absolute;bottom:0;left:0;right:0:width:64px;height:48px">
+				<video id="localVideoPreview" autoplay="autoplay" style="width:64px;height:48px"/>
+			  </div>
+			</div>
+		</div>
 	</div>
 	<img src="chat/img/window/window_resize.gif" id="windowResize" />
 </div>
