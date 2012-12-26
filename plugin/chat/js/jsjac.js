@@ -6,8 +6,8 @@ This is the JSJaC library for Jappix (from trunk)
 -------------------------------------------------
 
 Licenses: Mozilla Public License version 1.1, GNU GPL, AGPL
-Authors: Stefan Strigler, Valérian Saliou, Zash
-Last revision: 22/06/11
+Authors: Stefan Strigler, Vanaryon, Zash
+Last revision: 13/02/12
 
 */
 
@@ -330,6 +330,10 @@ String.prototype.revertHtmlEnc = function() {
  * @type Date
  */
 Date.jab2date = function(ts) {
+  // Timestamp
+  if(!isNaN(ts))
+  	return new Date(ts * 1000);
+  
   // Get the UTC date
   var date = new Date(Date.UTC(ts.substr(0,4),ts.substr(5,2)-1,ts.substr(8,2),ts.substr(11,2),ts.substr(14,2),ts.substr(17,2)));
   
@@ -1021,19 +1025,14 @@ function b64t2d(t) {
   return d;
 }
 
-if (typeof(atob) == 'undefined' || typeof(btoa) == 'undefined')
-  b64arrays();
+b64arrays();
 
-if (typeof(atob) == 'undefined') {
-  atob = function(s) {
-    return utf8d2t(b64t2d(s));
-  }
+b64decode = function(s) {
+  return utf8d2t(b64t2d(s));
 }
 
-if (typeof(btoa) == 'undefined') {
-  btoa = function(s) {
-    return b64d2t(utf8t2d(s));
-  }
+b64encode = function(s) {
+  return b64d2t(utf8t2d(s));
 }
 
 function cnonce(size) {
@@ -1661,7 +1660,7 @@ JSJaCPacket.prototype.setType = function(type) {
  */
 JSJaCPacket.prototype.setXMLLang = function(xmllang) {
   // Fix IE9+ bug with xml:lang attribute
-  if (BrowserDetect && (BrowserDetect.browser == 'Explorer') && (BrowserDetect.version >= 9))
+  if (jQuery.browser.msie && (parseInt(jQuery.browser.version) >= 9))
     return this;
   if (!xmllang || xmllang == '')
     this.getNode().removeAttribute('xml:lang');
@@ -2212,6 +2211,32 @@ JSJaCMessage.prototype.setThread = function(thread) {
   return this;
 };
 /**
+ * Sets the 'nick' attribute for this message.
+ * This is sometime sused to detect the sender nickname when he's not in the roster
+ * @param {String} nickname
+ * @return this message
+ * @type JSJaCMessage
+ */
+JSJaCMessage.prototype.setNick = function(nick) {
+  var aNode = this.getChild("nick");
+  var tNode = this.getDoc().createTextNode(nick);
+  if (aNode)
+    try {
+      aNode.replaceChild(tNode,aNode.firstChild);
+    } catch (e) { }
+  else {
+    try {
+      aNode = this.getDoc().createElementNS('http://jabber.org/protocol/nick',
+                                            "nick");
+    } catch (ex) {
+      aNode = this.getDoc().createElement("nick")
+    }
+    this.getNode().appendChild(aNode);
+    aNode.appendChild(tNode);
+  }
+  return this;
+};
+/**
  * Gets the 'thread' identifier for this message
  * @return A thread identifier
  * @type String
@@ -2234,6 +2259,14 @@ JSJaCMessage.prototype.getBody = function() {
  */
 JSJaCMessage.prototype.getSubject = function() {
   return this.getChildVal('subject')
+};
+/**
+ * Gets the nickname of this message
+ * @return The nickname of this message
+ * @type String
+ */
+JSJaCMessage.prototype.getNick = function() {
+  return this.getChildVal('nick');
 };
 
 
@@ -3162,7 +3195,7 @@ JSJaCConnection.prototype._doSASLAuth = function() {
       this.username+String.fromCharCode(0)+
       this.pass;
       this.oDbg.log("authenticating with '"+authStr+"'",2);
-      authStr = btoa(authStr);
+      authStr = b64encode(authStr);
       return this._sendRaw("<auth xmlns='urn:ietf:params:xml:ns:xmpp-sasl' mechanism='PLAIN'>"+authStr+"</auth>",
                            this._doSASLAuthDone);
     }
@@ -3181,7 +3214,7 @@ JSJaCConnection.prototype._doSASLAuthDigestMd5S1 = function(el) {
     this._handleEvent('onerror',JSJaCError('401','auth','not-authorized'));
     this.disconnect();
   } else {
-    var challenge = atob(el.firstChild.nodeValue);
+    var challenge = b64decode(el.firstChild.nodeValue);
     this.oDbg.log("got challenge: "+challenge,2);
     this._nonce = challenge.substring(challenge.indexOf("nonce=")+7);
     this._nonce = this._nonce.substring(0,this._nonce.indexOf("\""));
@@ -3221,7 +3254,7 @@ JSJaCConnection.prototype._doSASLAuthDigestMd5S1 = function(el) {
     this.oDbg.log("response: "+rPlain,2);
 
     this._sendRaw("<response xmlns='urn:ietf:params:xml:ns:xmpp-sasl'>"+
-                  Base64.encode(rPlain)+"</response>",
+                  b64encode(rPlain)+"</response>",
                   this._doSASLAuthDigestMd5S2);
   }
 };
@@ -3240,7 +3273,7 @@ JSJaCConnection.prototype._doSASLAuthDigestMd5S2 = function(el) {
     return;
   }
 
-  var response = atob(el.firstChild.nodeValue);
+  var response = b64decode(el.firstChild.nodeValue);
   this.oDbg.log("response: "+response,2);
 
   var rspauth = response.substring(response.indexOf("rspauth=")+8);
@@ -4291,3 +4324,256 @@ JSJaCHttpBindingConnection.prototype._suspend = function() {
   this.oDbg.log("Disconnecting: " + reqstr,4);
   this._req[slot].r.send(reqstr);
 };
+
+
+function JSJaCOpenfireWSConnection(oArg) {
+  this.base = JSJaCConnection;
+  this.base(oArg);
+  this._ws = null;
+  
+  this.registerHandler('onerror', JSJaC.bind(this._cleanupWebSocket, this));
+}
+
+JSJaCOpenfireWSConnection.prototype = new JSJaCConnection();
+
+JSJaCOpenfireWSConnection.prototype._cleanupWebSocket = function() {
+  if (this._ws !== null) {
+    this._ws.onclose = null;
+    this._ws.onerror = null;
+    this._ws.onopen = null;
+    this._ws.onmessage = null;
+
+    this._ws.close();
+    this._ws = null;
+  }
+};
+
+JSJaCOpenfireWSConnection.prototype.connect = function(oArg) {
+  this._setStatus('connecting');
+
+  this.domain = oArg.domain || 'localhost';
+  this.username = oArg.username;
+  this.resource = oArg.resource;
+  this.pass = oArg.pass;
+  this.register = oArg.register;
+
+  this.authhost = oArg.authhost || this.domain;
+  this.authtype = oArg.authtype || 'sasl';
+
+  this.jid = this.username + '@' + this.domain;
+  this.fulljid = this.jid + '/' + this.resource;
+
+  if (!window.WebSocket) 
+  {
+	window.WebSocket = window.MozWebSocket;
+  }
+	
+  this.protocol = window.location.protocol == "http:" ? "ws:" : "wss:"
+  this.host = window.location.host;
+  this._httpbase = this.protocol + "//" + this.host + "/ws/server?username=" + this.username + "&password=" + this.pass + "&resource=" + this.resource; 
+  this._ws = new window.WebSocket(this._httpbase, 'xmpp');
+  this._ws.onclose = JSJaC.bind(this._onclose, this);
+  this._ws.onerror = JSJaC.bind(this._onerror, this);
+  this._ws.onopen = JSJaC.bind(this._onopen, this);
+  this._ws.onmessage = JSJaC.bind(this._onmessage, this);
+  
+};
+
+/**
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._onopen = function() {
+
+  	window.openfireWebSocket = this._ws;
+  	
+  	this._connected = true;	
+  	this._handleEvent('onconnect');  
+  	
+	this.interval = setInterval (function() {window.openfireWebSocket.send(" ")}, 10000 );  	
+};
+
+
+JSJaCOpenfireWSConnection.prototype.disconnect = function() {
+  this._setStatus('disconnecting');
+
+  if (!this.connected()) {
+    return;
+  }
+  this._connected = false;
+
+  this.oDbg.log('Disconnecting', 4);
+  this._cleanupWebSocket();
+
+  this.oDbg.log('Disconnected', 2);
+  this._handleEvent('ondisconnect');
+};
+
+/**
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._onclose = function() {
+  this.oDbg.log('websocket closed', 2);
+
+  if (this._status !== 'disconnecting') {
+    this._handleEvent('onerror', JSJaCError('503', 'cancel', 'service-unavailable'));
+    this._connected = false;    
+    this._handleEvent('ondisconnect');
+  }
+  
+  clearInterval(this.interval);  
+};
+
+/**
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._onerror = function() {
+  this.oDbg.log('websocket error', 1);
+  this._connected = false;
+  this._handleEvent('onerror', JSJaCError('503', 'cancel', 'service-unavailable'));
+};
+
+/**
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._onmessage = function(event) {
+  var stanza, node, packet;
+
+  stanza = event.data;
+  this._setStatus('processing');
+  if (!stanza || stanza === '') {
+    return;
+  }
+
+  // WebSocket works only on modern browsers, so it is safe to assume
+  // that namespaceURI and getElementsByTagNameNS are available.
+  node = this._parseXml(stanza);
+  if (node.namespaceURI === NS_STREAM && node.localName === 'error') {
+    if (node.getElementsByTagNameNS(NS_STREAMS, 'conflict').length > 0) {
+      this._setStatus('session-terminate-conflict');
+    }
+    this._connected = false;
+    this._handleEvent('onerror', JSJaCError('503', 'cancel', 'remote-stream-error'));
+    return;
+  }
+
+  packet = JSJaCPacket.wrapNode(node);
+  if (!packet) {
+    return;
+  }
+
+  this.oDbg.log('async recv: ' + event.data, 4);
+  this._handleEvent('packet_in', packet);
+
+  if (packet.pType && !this._handlePID(packet)) {
+    this._handleEvent(packet.pType() + '_in', packet);
+    this._handleEvent(packet.pType(), packet);
+  }
+};
+
+/**
+ * Parse single XML stanza. As proposed in XMPP Sub-protocol for
+ * WebSocket draft, it assumes that every stanza is sent in a separate
+ * WebSocket frame, which greatly simplifies parsing.
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._parseXml = function(s) {
+  var doc;
+
+  this.oDbg.log('Parsing: ' + s, 4);
+  try {
+    doc = XmlDocument.create('stream', NS_STREAM);
+    if(s.indexOf('<stream:stream') === -1) {
+      // Wrap every stanza into stream element, so that XML namespaces work properly.
+      doc.loadXML("<stream:stream xmlns:stream='" + NS_STREAM + "' xmlns='jabber:client'>" + s + "</stream:stream>");
+      return doc.documentElement.firstChild;
+    } else {
+      doc.loadXML(s);
+      return doc.documentElement;
+    }
+  } catch (e) {
+    this.oDbg.log('Error: ' + e);
+    this._connected = false;
+    this._handleEvent('onerror', JSJaCError('500', 'wait', 'internal-service-error'));
+  }
+
+  return null;
+};
+
+/**
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._getInitialRequestString = function() {
+  var streamto, reqstr;
+
+  streamto = this.domain;
+  if (this.authhost) {
+    streamto = this.authhost;
+  }
+
+  reqstr = '<stream:stream to="' + streamto + '" xmlns="jabber:client" xmlns:stream="' + NS_STREAM + '"';
+  if (this.authtype === 'sasl' || this.authtype === 'saslanon') {
+    reqstr += ' version="1.0"';
+  }
+  reqstr += '>';
+  return reqstr;
+};
+
+JSJaCOpenfireWSConnection.prototype.send = function(packet, cb, arg) {
+  this._ws.onmessage = JSJaC.bind(this._onmessage, this);
+  if (!packet || !packet.pType) {
+    this.oDbg.log('no packet: ' + packet, 1);
+    return false;
+  }
+
+  if (!this.connected()) {
+    return false;
+  }
+
+  // remember id for response if callback present
+  if (cb) {
+    if (!packet.getID()) {
+      packet.setID('JSJaCID_' + this._ID++); // generate an ID
+    }
+
+    // register callback with id
+    this._registerPID(packet.getID(), cb, arg);
+  }
+
+  try {
+    this._handleEvent(packet.pType() + '_out', packet);
+    this._handleEvent('packet_out', packet);
+    this._ws.send(packet.xml());
+  } catch (e) {
+    this.oDbg.log(e.toString(), 1);
+    return false;
+  }
+
+  return true;
+};
+
+
+JSJaCOpenfireWSConnection.prototype.sendXML = function(xml) {
+    this._ws.send(xml);
+};
+
+JSJaCOpenfireWSConnection.prototype.resume = function() {
+  return false; // not supported for websockets
+};
+
+JSJaCOpenfireWSConnection.prototype.suspend = function() {
+  return false; // not supported for websockets
+};
+
+
+/**
+ * @private
+ */
+JSJaCOpenfireWSConnection.prototype._sendRaw = function(xml, cb, arg) {
+  if (cb) {
+    this._ws.onmessage = JSJaC.bind(cb, this, arg);
+  }
+
+  this._ws.send(xml);
+  return true;
+};
+

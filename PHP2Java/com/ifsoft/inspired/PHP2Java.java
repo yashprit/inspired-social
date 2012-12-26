@@ -497,6 +497,8 @@ public class PHP2Java extends AbstractQuercusModule
 
 		field = new XFormFieldImpl("muc#roomconfig_presencebroadcast");
 		field.addValue("moderator");
+		field.addValue("participant");
+		field.addValue("visitor");
 		dataForm.addField(field);
 
 		field = new XFormFieldImpl("muc#roomconfig_publicroom");

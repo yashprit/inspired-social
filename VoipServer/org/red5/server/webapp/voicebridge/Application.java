@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.IOException;
 import java.security.cert.Certificate;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
 
 import com.sun.voip.server.*;
 import com.sun.voip.client.*;
@@ -50,9 +51,27 @@ import org.dom4j.*;
 
 import com.ifsoft.cti.OpenlinkComponent;
 
+import com.jcumulus.server.rtmfp.ServerPipelineFactory;
+import com.jcumulus.server.rtmfp.Sessions;
+
+import java.io.*;
+import java.net.InetSocketAddress;
+import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
+import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.FixedReceiveBufferSizePredictorFactory;
+import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
+
+import org.apache.log4j.Logger;
 
 
 public class Application implements CallEventListener  {
+
+	private Logger Log = Logger.getLogger(getClass().getName());
 
  	private String version = "0.0.0.1";
 	private Config config;
@@ -60,10 +79,14 @@ public class Application implements CallEventListener  {
 	private static Site site;
 	private static Map< String, BridgeParticipant > bridgeParticipants 	= new ConcurrentHashMap< String, BridgeParticipant >();
 
-    private Map< String, LocalClientSession > sessions 	= new ConcurrentHashMap<String, LocalClientSession>();
     private static Map<String, String> pubsubNodes = new ConcurrentHashMap<String, String>();
 
 	public static OpenlinkComponent component;
+
+    private static ConnectionlessBootstrap bootstrap = null;
+    public static Channel channel = null;
+    private static Sessions sessions;
+
 
     // ------------------------------------------------------------------------
     //
@@ -77,7 +100,7 @@ public class Application implements CallEventListener  {
 		try{
 			this.component = component;
 
-			loginfo(String.format("Red5XMPP version %s", version));
+			Log.info(String.format("Voip Engine version %s", version));
 			domainName = JiveGlobals.getProperty("xmpp.domain", XMPPServer.getInstance().getServerInfo().getHostname());
 
 			Site site = new Site();
@@ -120,7 +143,29 @@ public class Application implements CallEventListener  {
 
 			com.sun.voip.Logger.init(logDir + "voicebridge.log", false);
 
+			Log.info("Starting jVoiceBridge....");
+
 			new SipServer(config, properties);
+
+			Log.info("Starting jCumulus.....");
+
+			sessions = new Sessions();
+			ExecutorService executorservice = Executors.newCachedThreadPool();
+			NioDatagramChannelFactory niodatagramchannelfactory = new NioDatagramChannelFactory(executorservice);
+			bootstrap = new ConnectionlessBootstrap(niodatagramchannelfactory);
+			OrderedMemoryAwareThreadPoolExecutor orderedmemoryawarethreadpoolexecutor = new OrderedMemoryAwareThreadPoolExecutor(10, 0x100000L, 0x40000000L, 100L, TimeUnit.MILLISECONDS, Executors.defaultThreadFactory());
+
+			bootstrap.setPipelineFactory(new ServerPipelineFactory(sessions, orderedmemoryawarethreadpoolexecutor));
+			bootstrap.setOption("reuseAddress", Boolean.valueOf(true));
+			bootstrap.setOption("sendBufferSize", Integer.valueOf(1215));
+			bootstrap.setOption("receiveBufferSize", Integer.valueOf(2048));
+			bootstrap.setOption("receiveBufferSizePredictorFactory", new FixedReceiveBufferSizePredictorFactory(2048));
+
+			InetSocketAddress inetsocketaddress = new InetSocketAddress(JiveGlobals.getIntProperty("voicebridge.rtmfp.port", 1935));
+
+			Log.info("Listening on " + inetsocketaddress.getPort() + " port");
+
+			channel = bootstrap.bind(inetsocketaddress);
 
 		} catch (Exception e) {
 
@@ -132,16 +177,10 @@ public class Application implements CallEventListener  {
 
     public void appStop()
     {
-        loginfo( "Red5XMPP stopping");
+        Log.info( "jVoiceBridge stopping...");
 
 		CallHandler.shutdown();
 		config.terminate();
-
-        for (LocalClientSession session : sessions.values())
-        {
-			session.close();
-			session = null;
-		}
 
 		ArrayList conferenceList = ConferenceManager.getConferenceList();
 
@@ -153,6 +192,11 @@ public class Application implements CallEventListener  {
 
 			} catch (Exception e) {}
 		}
+
+		Log.info("jCumulus stopping...");
+
+		channel.close();
+		bootstrap.releaseExternalResources();
     }
 
 
@@ -163,9 +207,9 @@ public class Application implements CallEventListener  {
     //
     // ------------------------------------------------------------------------
 
-	private void createRoom(String roomName)
+	public void createRoom(String roomName, boolean tempRoom)
 	{
-		loginfo( "createRoom " + roomName);
+		Log.info( "createRoom " + roomName);
 
 		try
 		{
@@ -179,7 +223,7 @@ public class Application implements CallEventListener  {
 
 					if (room != null)
 					{
-						configureRoom(room);
+						configureRoom(room, tempRoom);
 					}
 				}
 			}
@@ -191,25 +235,26 @@ public class Application implements CallEventListener  {
 	}
 
 
-	private void configureRoom(MUCRoom room )
+	private void configureRoom(MUCRoom room, boolean tempRoom)
 	{
-		loginfo( "configureRoom " + room.getID());
+		Log.info( "configureRoom " + room.getID());
 
 		FormField field;
 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+
 /*
-        field = new XFormFieldImpl("muc#roomconfig_roomdesc");
-        field.setType(FormField.TYPE_TEXT_SINGLE);
+		field = new XFormFieldImpl("muc#roomconfig_roomdesc");
+		field.setType(FormField.TYPE_TEXT_SINGLE);
 
 		String desc = room.getDescription();
 		desc = desc == null ? "" : desc;
-        field.addValue(desc);
-        dataForm.addField(field);
+		field.addValue(desc);
+		dataForm.addField(field);
 
-        field = new XFormFieldImpl("muc#roomconfig_roomname");
-        field.setType(FormField.TYPE_TEXT_SINGLE);
-        field.addValue(room.getName());
-        dataForm.addField(field);
+		field = new XFormFieldImpl("muc#roomconfig_roomname");
+		field.setType(FormField.TYPE_TEXT_SINGLE);
+		field.addValue(room.getName());
+		dataForm.addField(field);
 
 		field = new XFormFieldImpl("FORM_TYPE");
 		field.setType(FormField.TYPE_HIDDEN);
@@ -230,10 +275,6 @@ public class Application implements CallEventListener  {
 
 		field = new XFormFieldImpl("muc#roomconfig_publicroom");
 		field.addValue("1");
-		dataForm.addField(field);
-
-		field = new XFormFieldImpl("muc#roomconfig_persistentroom");
-		field.addValue("0");
 		dataForm.addField(field);
 
 		field = new XFormFieldImpl("muc#roomconfig_moderatedroom");
@@ -279,6 +320,14 @@ public class Application implements CallEventListener  {
 		field.addValue("admin@"+domainName);
 		dataForm.addField(field);
 */
+
+		if (tempRoom == false)
+		{
+			field = new XFormFieldImpl("muc#roomconfig_persistentroom");
+			field.addValue(tempRoom ? "0": "1");
+			dataForm.addField(field);
+		}
+
 		// Create an IQ packet and set the dataform as the main fragment
 		IQ iq = new IQ(IQ.Type.set);
 		Element element = iq.setChildElement("query", "http://jabber.org/protocol/muc#owner");
@@ -290,7 +339,7 @@ public class Application implements CallEventListener  {
 			room.getIQOwnerHandler().handleIQ(iq, room.getRole());
 
 		} catch (Exception e) {
-			logerror("configureRoom exception " + e);
+			Log.error("configureRoom exception " + e);
 		}
 	}
 
@@ -300,23 +349,26 @@ public class Application implements CallEventListener  {
 		final JID jid = bp.participantJID;
 		final CallParticipant cp = bp.callParticipant;
 
-    	loginfo("VoiceBridge connectToMUC " + jid + " " + cp.getConferenceId() + " " + cp.getCallId());
+    	Log.info("VoiceBridge connectToMUC " + jid + " " + cp.getConferenceId() + " " + cp.getCallId() + " " + cp.getProtocol());
 
 		try {
 
 			final String conferenceId = cp.getConferenceId();
 
-			createRoom(conferenceId);
+			createRoom(conferenceId, true);
 
 			IQ iq = new IQ(IQ.Type.set);
 			iq.setFrom(conferenceId + "@" + component.getName() + "." + domainName);
 			iq.setTo(jid.toString());
 
-			Element openlink = iq.setChildElement("openlink", "http://www.xmpp.org/protocol/openlink");
+			Element openlink = iq.setChildElement("collaboration", "http://inspiredfutures.co.uk/protocol/collaboration");
 
 			Element invite = openlink.addElement("invite");
 			invite.addAttribute("from", bp.userJID.toString());
 			invite.addAttribute("room", conferenceId + "@conference." + domainName);
+
+			if ("NS".equals(cp.getProtocol()) == false)
+				invite.addElement("audio");
 
 			if (cp.getConferenceDisplayName() != null)
 			{
@@ -325,11 +377,11 @@ public class Application implements CallEventListener  {
 
 			sendPacket(iq);
 
-			loginfo("VoiceBridge connectToMUC outgoing message \n" + iq);
+			Log.info("VoiceBridge connectToMUC outgoing message \n" + iq);
 
 		} catch (Exception e) {
 
-			logerror("connectToMUC " + e);
+			Log.error("connectToMUC " + e);
 		}
 	}
 
@@ -339,7 +391,7 @@ public class Application implements CallEventListener  {
 		JID jid = bp.participantJID;
 		CallParticipant cp = bp.callParticipant;
 
-    	loginfo("VoiceBridge disconnectFromMUC " + jid + " " + cp.getConferenceId() + " " + cp.getCallId());
+    	Log.info("VoiceBridge disconnectFromMUC " + jid + " " + cp.getConferenceId() + " " + cp.getCallId());
 
 		String conferenceId = cp.getConferenceId();
 
@@ -354,11 +406,11 @@ public class Application implements CallEventListener  {
 
 			sendPacket(presence);
 
-			loginfo("VoiceBridge disconnectFromMUC outgoing presence \n" + presence);
+			Log.info("VoiceBridge disconnectFromMUC outgoing presence \n" + presence);
 
 		} catch (Exception e) {
 
-			logerror("disconnectFromMUC " + e);
+			Log.error("disconnectFromMUC " + e);
 		}
 
 	}
@@ -368,7 +420,7 @@ public class Application implements CallEventListener  {
 		String response = null;
 
 		try {
-			loginfo("VoiceBridge manageParticipant " + userJID + " " + uid + " " + parameter + " " + value);
+			Log.info("VoiceBridge manageParticipant " + userJID + " " + uid + " " + parameter + " " + value);
 
 			if (bridgeParticipants.containsKey(uid) == false)
 			{
@@ -416,7 +468,7 @@ public class Application implements CallEventListener  {
 	{
 		for (String uid : uids)
 		{
-    		loginfo("VoiceBridge handlePostBridge " + uid);
+    		Log.info("VoiceBridge handlePostBridge " + uid);
 
 			BridgeParticipant bp = bridgeParticipants.get(uid);
 
@@ -432,7 +484,7 @@ public class Application implements CallEventListener  {
     public String manageVoiceBridge(String parameter, String value)
     {
 		String response = null;
-    	loginfo("VoiceBridge manageConference");
+    	Log.info("VoiceBridge manageConference");
 
 		try {
 
@@ -451,7 +503,7 @@ public class Application implements CallEventListener  {
 		CallParticipant cp = bp.callParticipant;
 
 		String response = null;
-    	loginfo("VoiceBridge makeOutgoingCall " + uid + " " + cp.getCallId() + " " + bp.participantJID);
+    	Log.info("VoiceBridge makeOutgoingCall " + uid + " " + cp.getCallId() + " " + bp.participantJID);
 
 		try {
 
@@ -496,7 +548,7 @@ public class Application implements CallEventListener  {
     {
 		CallParticipant cp = bp.callParticipant;
 		String response = null;
-    	loginfo("VoiceBridge migrateCall");
+    	Log.info("VoiceBridge migrateCall");
 
 		try {
 
@@ -581,7 +633,7 @@ public class Application implements CallEventListener  {
 			try {
 				response = makeOutgoingCall(bp, uid);
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return response;
 		}
@@ -1288,7 +1340,7 @@ public class Application implements CallEventListener  {
 
 		if (cp.migrateCall() == false)
 		{
-			if (cp.getProtocol() == null || "SIP".equalsIgnoreCase(cp.getProtocol()) || "JINGLE".equalsIgnoreCase(cp.getProtocol()))
+			if (cp.getProtocol() == null || "SIP".equalsIgnoreCase(cp.getProtocol()) || "JINGLE".equalsIgnoreCase(cp.getProtocol()) || "NS".equalsIgnoreCase(cp.getProtocol()))
 			{
 				if (cp.getPhoneNumber() == null)
 				{
@@ -1427,7 +1479,7 @@ public class Application implements CallEventListener  {
 
 		if (sip != null)
 		{
-			loginfo("Found SIP Mapping user " + userId);
+			Log.info("Found SIP Mapping user " + userId);
 
 			cp.setSipProxy(userId);		// use proxy
 			cp.setVoIPGateway(userId);	// use proxy as single gateway
@@ -1441,7 +1493,7 @@ public class Application implements CallEventListener  {
 
 			if (sip != null)
 			{
-				loginfo("Found SIP Mapping proxy user " + userId);
+				Log.info("Found SIP Mapping proxy user " + userId);
 
 				cp.setSipProxy(userId);		// use proxy
 				cp.setVoIPGateway(userId);	// use proxy as single gateway
@@ -1518,13 +1570,13 @@ public class Application implements CallEventListener  {
 
 	public void interceptMessage(Message received)
 	{
-		//loginfo("VoiceBridge interceptMessage incoming\n" + received);
+		//Log.info("VoiceBridge interceptMessage incoming\n" + received);
 	}
 
 
     public void callEventNotification(CallEvent callEvent)
     {
- 		loginfo( "VoiceBridge callEventNotification " + callEvent.toString());
+ 		Log.info( "VoiceBridge callEventNotification " + callEvent.toString());
 
 		reportCallEventNotification(callEvent, "monitorCallStatus");
     }
@@ -1723,7 +1775,7 @@ public class Application implements CallEventListener  {
 
 			IQ iq1 = new IQ(IQ.Type.set);
 			iq1.setFrom(username + "@" + component.getName() + "." + domain);
-			iq1.setTo("logger." + domain);
+			iq1.setTo("Log." + domain);
 
 			Element log = iq1.setChildElement("log", "http://www.jivesoftware.com/protocol/log");
 			Element callLog = log.addElement("callLog");
@@ -1816,24 +1868,6 @@ public class Application implements CallEventListener  {
 		reportCallEventNotification(callEvent, "notifyConferenceMonitors");
     }
 
-
-    // ------------------------------------------------------------------------
-    //
-    // Logging
-    //
-    // ------------------------------------------------------------------------
-
-    private void loginfo( String s )
-    {
-        System.out.println( s );
-    }
-
-    private void logerror( String s )
-    {
-        System.out.println( "[ERROR] " + s );
-    }
-
-
     // ------------------------------------------------------------------------
     //
     // ConferenceMonitor
@@ -1885,7 +1919,7 @@ public class Application implements CallEventListener  {
 			try {
 				LowPassFilter.setNAvg(getInteger(value));
 			} catch (Exception e) {
-				logerror("parseBridgeParameters : nAvg " + value + " is not numeric" );
+				Log.error("parseBridgeParameters : nAvg " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -1895,7 +1929,7 @@ public class Application implements CallEventListener  {
 			try {
 				LowPassFilter.setLpfVolumeAdjustment(getDouble(value));
 			} catch (Exception e) {
-				logerror("parseBridgeParameters : lpfv " + value + " is not numeric" );
+				Log.error("parseBridgeParameters : lpfv " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -1905,7 +1939,7 @@ public class Application implements CallEventListener  {
 			try {
 				SipTPCCallAgent.forceGatewayError(stringToBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -1916,7 +1950,7 @@ public class Application implements CallEventListener  {
 
 			if (tokens.length != 2)
 			{
-				logerror("You must specify both a whisperGroupId and a callId");
+				Log.error("You must specify both a whisperGroupId and a callId");
 				return;
 			}
 
@@ -1927,14 +1961,14 @@ public class Application implements CallEventListener  {
 
 			if (callHandler == null)
 			{
-				logerror("Invalid callId:  " + callId);
+				Log.error("Invalid callId:  " + callId);
 				return;
 			}
 
 			try {
 				callHandler.getMember().addCall(whisperGroupId);
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -1945,7 +1979,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceManager.setAllowShortNames(stringToBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -1973,7 +2007,7 @@ public class Application implements CallEventListener  {
 			try {
 				CallHandler.setCnThresh(getQualifierString(value), getInteger(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
             return;
 		}
@@ -1983,7 +2017,7 @@ public class Application implements CallEventListener  {
 			try {
 				MemberSender.setComfortNoiseType(getInteger(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
             return;
 		}
@@ -1993,7 +2027,7 @@ public class Application implements CallEventListener  {
 			try {
 				RtpPacket.setDefaultComfortNoiseLevel((byte) getInteger(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
             return;
 		}
@@ -2003,20 +2037,20 @@ public class Application implements CallEventListener  {
 			try {
 				WhisperGroup.setCommonMixDefault(stringToBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
 
 		if ("conferenceInfoShort".equalsIgnoreCase(parameter))
 		{
-			loginfo(ConferenceManager.getAbbreviatedConferenceInfo());
+			Log.info(ConferenceManager.getAbbreviatedConferenceInfo());
 			return;
 		}
 
 		if ("conferenceInfo".equalsIgnoreCase(parameter))
 		{
-			loginfo(ConferenceManager.getDetailedConferenceInfo());
+			Log.info(ConferenceManager.getDetailedConferenceInfo());
 			return;
 		}
 
@@ -2026,7 +2060,7 @@ public class Application implements CallEventListener  {
 
 			if (tokens.length < 2)
 			{
-				logerror("Missing parameters");
+				Log.error("Missing parameters");
 				return;
 			}
 
@@ -2034,7 +2068,7 @@ public class Application implements CallEventListener  {
 
 			if (tokens[1].indexOf("PCM") != 0 && tokens[1].indexOf("SPEEX") != 0)
 			{
-				logerror("invalid media specification");
+				Log.error("invalid media specification");
 				return;
 			}
 
@@ -2050,7 +2084,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceManager.createConference(conferenceId, mediaPreference, displayName);
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2062,7 +2096,7 @@ public class Application implements CallEventListener  {
 
 			if (tokens.length < 2)
 			{
-				logerror("You must specify both a conferenceId and a whisperGroupId");
+				Log.error("You must specify both a conferenceId and a whisperGroupId");
 				return;
 			}
 
@@ -2081,7 +2115,7 @@ public class Application implements CallEventListener  {
 
 			} catch (ParseException e) {
 
-				logerror("Can't create Whisper group " + tokens[1] + " " + e.getMessage());
+				Log.error("Can't create Whisper group " + tokens[1] + " " + e.getMessage());
 			}
 			return;
 		}
@@ -2091,7 +2125,7 @@ public class Application implements CallEventListener  {
 			try {
 				MemberReceiver.deferMixing(getBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2102,14 +2136,14 @@ public class Application implements CallEventListener  {
 
 			if (tokens.length != 2)
 			{
-				logerror("You must specify both a conferenceId and a whisperGroupId");
+				Log.error("You must specify both a conferenceId and a whisperGroupId");
 				return;
 			}
 
 			try {
 				ConferenceManager.destroyWhisperGroup(tokens[0], tokens[1]);
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2120,7 +2154,7 @@ public class Application implements CallEventListener  {
 			try {
 				CallSetupAgent.setDefaultCallAnswerTimeout(getInteger(value));
 			} catch (Exception e) {
-				logerror("callAnswerTimeout " + value + " is not numeric" );
+				Log.error("callAnswerTimeout " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2133,7 +2167,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2142,11 +2176,11 @@ public class Application implements CallEventListener  {
 					CallHandler.setDoNotRecord(callId, booleanValue);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2160,7 +2194,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2169,11 +2203,11 @@ public class Application implements CallEventListener  {
 					CallHandler.setDtmfSuppression(callId, booleanValue);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2187,7 +2221,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2196,11 +2230,11 @@ public class Application implements CallEventListener  {
 					CallHandler.setDropPackets(callId, integerValue);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2211,7 +2245,7 @@ public class Application implements CallEventListener  {
 			try {
 				CallHandler.setDuplicateCallLimit(getInteger(value));
 			} catch (Exception e) {
-				logerror("duplicateCallLimit " + value + " is not numeric" );
+				Log.error("duplicateCallLimit " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2222,14 +2256,14 @@ public class Application implements CallEventListener  {
 			try {
 				IncomingCallHandler.setDirectConferencing(getBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
 
 		if ("distributedConferenceInfo".equalsIgnoreCase(parameter))
 		{
-			loginfo(ConferenceManager.getDistributedConferenceInfo());
+			Log.info(ConferenceManager.getDistributedConferenceInfo());
 			return;
 		}
 
@@ -2244,7 +2278,7 @@ public class Application implements CallEventListener  {
 			try {
 				CallHandler.enablePSTNCalls(getBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2255,7 +2289,7 @@ public class Application implements CallEventListener  {
 				ConferenceManager.endConference(value);
 
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2265,7 +2299,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceMember.setFirstRtpPort(getInteger(value));
 			} catch (Exception e) {
-				logerror("firstRtpPort " + value + " is not numeric" );
+				Log.error("firstRtpPort " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2275,7 +2309,7 @@ public class Application implements CallEventListener  {
 			try {
 				MixManager.setForcePrivateMix(getBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2287,7 +2321,7 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length < 2)
 				{
-					logerror("Missing parameters:  " + value);
+					Log.error("Missing parameters:  " + value);
 					return;
 				}
 
@@ -2295,7 +2329,7 @@ public class Application implements CallEventListener  {
 
 				if (dest == null)
 				{
-					logerror("Invalid callId:  " + tokens[0]);
+					Log.error("Invalid callId:  " + tokens[0]);
 					return;
 				}
 
@@ -2303,14 +2337,14 @@ public class Application implements CallEventListener  {
 
 				if (src == null)
 				{
-					logerror("Invalid callId:  " + tokens[1]);
+					Log.error("Invalid callId:  " + tokens[1]);
 					return;
 				}
 
 				src.getMember().getMemberReceiver().addForwardMember(dest.getMember().getMemberSender());
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2321,7 +2355,7 @@ public class Application implements CallEventListener  {
 			try {
 				MemberReceiver.setForwardDtmfKeys(getBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2334,7 +2368,7 @@ public class Application implements CallEventListener  {
 
 		if ("gcs".equalsIgnoreCase(parameter))
 		{
-			loginfo(CallHandler.getCallStateForAllCalls());
+			Log.info(CallHandler.getCallStateForAllCalls());
 			return;
 		}
 
@@ -2346,18 +2380,18 @@ public class Application implements CallEventListener  {
 
 			if (callHandler == null)
 			{
-				logerror("Invalid callId:  " + callId);
+				Log.error("Invalid callId:  " + callId);
 				return;
 			}
 
-			loginfo(callHandler.getCallState());
+			Log.info(callHandler.getCallState());
 
 			return;
 		}
 
 		if ("getAllAbbreviatedMixDescriptors".equalsIgnoreCase(parameter))
 		{
-			loginfo(CallHandler.getAllAbbreviatedMixDescriptors());
+			Log.info(CallHandler.getAllAbbreviatedMixDescriptors());
 			return;
 		}
 
@@ -2369,17 +2403,17 @@ public class Application implements CallEventListener  {
 
 			if (callHandler == null)
 			{
-				logerror("Invalid callId:  " + callId);
+				Log.error("Invalid callId:  " + callId);
 				return;
 			}
 
-	        loginfo(callHandler.getMember().getAbbreviatedMixDescriptors());
+	        Log.info(callHandler.getMember().getAbbreviatedMixDescriptors());
 			return;
 		}
 
 		if ("getAllMixDescriptors".equalsIgnoreCase(parameter))
 		{
-			loginfo(CallHandler.getAllMixDescriptors());
+			Log.info(CallHandler.getAllMixDescriptors());
 			return;
 		}
 
@@ -2391,11 +2425,11 @@ public class Application implements CallEventListener  {
 
 			if (callHandler == null)
 			{
-				logerror("Invalid callId:  " + callId);
+				Log.error("Invalid callId:  " + callId);
 				return;
 			}
 
-	        loginfo(callHandler.getMember().getMixDescriptors());
+	        Log.info(callHandler.getMember().getMixDescriptors());
 			return;
 		}
 
@@ -2417,7 +2451,7 @@ public class Application implements CallEventListener  {
 
 		if ("getBriefConferenceInfo".equalsIgnoreCase(parameter))
 		{
-			loginfo(ConferenceManager.getBriefConferenceInfo());
+			Log.info(ConferenceManager.getBriefConferenceInfo());
 			return;
 		}
 
@@ -2438,7 +2472,7 @@ public class Application implements CallEventListener  {
 			try {
 				IncomingCallHandler.setIncomingCallVoiceDetection(getBoolean(value));
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2459,7 +2493,7 @@ public class Application implements CallEventListener  {
 			try {
 				config.setInternalExtenLength(getInteger(value));
 			} catch (Exception e) {
-				logerror("internalExtenLength " + value + " is not numeric" );
+				Log.error("internalExtenLength " + value + " is not numeric" );
 			}
 		}
 
@@ -2470,14 +2504,14 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length != 2)
 				{
-				   logerror("conferenceJoinTreatment requires two inputs");
+				   Log.error("conferenceJoinTreatment requires two inputs");
 				   return;
 				}
 
 				ConferenceManager.setConferenceJoinTreatment(tokens[1], tokens[0]);
 
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2489,14 +2523,14 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length != 2)
 				{
-				   logerror("conferenceLeaveTreatment requires two inputs");
+				   Log.error("conferenceLeaveTreatment requires two inputs");
 				   return;
 				}
 
 				ConferenceManager.setConferenceLeaveTreatment(tokens[1], tokens[0]);
 
 			} catch (ParseException e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2507,7 +2541,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceMember.setLastRtpPort(getInteger(value));
 			} catch (Exception e) {
-				logerror("lastRtpPort " + value + " is not numeric" );
+				Log.error("lastRtpPort " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2518,7 +2552,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceManager.setLoneReceiverPort(getInteger(value));
 			} catch (Exception e) {
-				logerror("loneReceiverPort " + value + " is not numeric" );
+				Log.error("loneReceiverPort " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2541,7 +2575,7 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length != 3)
 				{
-				   logerror("migrateToBridge requires three inputs");
+				   Log.error("migrateToBridge requires three inputs");
 				   return;
 				}
 
@@ -2553,7 +2587,7 @@ public class Application implements CallEventListener  {
 
 				if (callHandler == null)
 				{
-					logerror("Invalid callId: " + callId);
+					Log.error("Invalid callId: " + callId);
 					return;
 				}
 
@@ -2573,7 +2607,7 @@ public class Application implements CallEventListener  {
 
 				} catch (NumberFormatException e) {
 
-					logerror("Invalid bridge server port:  " + port);
+					Log.error("Invalid bridge server port:  " + port);
 					return;
 				}
 
@@ -2581,7 +2615,7 @@ public class Application implements CallEventListener  {
 					bridgeConnector = new BridgeConnector(bridge, serverPort, 5000);
 
 				} catch (IOException e) {
-					logerror("Unable to connect to bridge " + bridge	+ " " + e.getMessage());
+					Log.error("Unable to connect to bridge " + bridge	+ " " + e.getMessage());
 					return;
 				}
 
@@ -2594,7 +2628,7 @@ public class Application implements CallEventListener  {
 
 				} catch (IOException e) {
 
-					logerror("Unable to send command to bridge:  " + e.getMessage());
+					Log.error("Unable to send command to bridge:  " + e.getMessage());
 					return;
 				}
 
@@ -2604,7 +2638,7 @@ public class Application implements CallEventListener  {
 				//TODO convert to RTMP or Openlink
 */
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2614,7 +2648,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceSender.setSenderThreads(getInteger(value));
 			} catch (Exception e) {
-				logerror("senderThreads " + value + " is not numeric" );
+				Log.error("senderThreads " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2626,7 +2660,7 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length != 2)
 				{
-				   logerror("minJitterBufferSize requires two inputs");
+				   Log.error("minJitterBufferSize requires two inputs");
 				   return;
 				}
 
@@ -2635,14 +2669,14 @@ public class Application implements CallEventListener  {
 
 				if (callHandler == null)
 				{
-					logerror("Invalid callId:  " + tokens[1]);
+					Log.error("Invalid callId:  " + tokens[1]);
 					return;
 				}
 
 				callHandler.getMember().getMemberReceiver().setMinJitterBufferSize(minJitterBufferSize);
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2654,7 +2688,7 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length != 2)
 				{
-				   logerror("maxJitterBufferSize requires two inputs");
+				   Log.error("maxJitterBufferSize requires two inputs");
 				   return;
 				}
 
@@ -2663,14 +2697,14 @@ public class Application implements CallEventListener  {
 
 				if (callHandler == null)
 				{
-					logerror("Invalid callId:  " + tokens[1]);
+					Log.error("Invalid callId:  " + tokens[1]);
 					return;
 				}
 
 				callHandler.getMember().getMemberReceiver().setMaxJitterBufferSize(minJitterBufferSize);
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2683,7 +2717,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2692,7 +2726,7 @@ public class Application implements CallEventListener  {
 
 					if (callHandler == null)
 					{
-						logerror("No such callId:  " + callId);
+						Log.error("No such callId:  " + callId);
 						return;
 					}
 
@@ -2706,11 +2740,11 @@ public class Application implements CallEventListener  {
 					}
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2725,7 +2759,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2734,18 +2768,18 @@ public class Application implements CallEventListener  {
 
 					if (callHandler == null)
 					{
-						logerror("No such callId:  " + callId);
+						Log.error("No such callId:  " + callId);
 						return;
 					}
 
 	    			CallHandler.setMuted(callId, booleanValue);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2759,7 +2793,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2768,18 +2802,18 @@ public class Application implements CallEventListener  {
 
 					if (callHandler == null)
 					{
-						logerror("No such callId:  " + callId);
+						Log.error("No such callId:  " + callId);
 						return;
 					}
 
 	    			CallHandler.setMuteWhisperGroup(callId, booleanValue);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2793,7 +2827,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -2802,18 +2836,18 @@ public class Application implements CallEventListener  {
 
 					if (callHandler == null)
 					{
-						logerror("No such callId:  " + callId);
+						Log.error("No such callId:  " + callId);
 						return;
 					}
 
 	    			CallHandler.setConferenceMuted(callId, booleanValue);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -2826,7 +2860,7 @@ public class Application implements CallEventListener  {
 
 				if (tokens.length != 1)
 				{
-					logerror("You must specify a conference id");
+					Log.error("You must specify a conference id");
 					return;
 				}
 
@@ -2835,7 +2869,7 @@ public class Application implements CallEventListener  {
 				callEventNotification(event);
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2856,7 +2890,7 @@ public class Application implements CallEventListener  {
 			try {
 				ConferenceReceiver.setReceiverPause(getInteger(value));
 			} catch (Exception e) {
-				logerror("pause " + value + " is not numeric" );
+				Log.error("pause " + value + " is not numeric" );
 			}
 			return;
 		}
@@ -2870,7 +2904,7 @@ public class Application implements CallEventListener  {
 
 				if (callHandler == null)
 				{
-					logerror("Invalid callId:  " + tokens[0]);
+					Log.error("Invalid callId:  " + tokens[0]);
 					return;
 				}
 
@@ -2884,7 +2918,7 @@ public class Application implements CallEventListener  {
            	 	callHandler.getMember().pauseTreatment(treatmentId, true);
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2898,14 +2932,14 @@ public class Application implements CallEventListener  {
 
 				if (conferenceId == null)
 				{
-					logerror("conferenceId must be specified:  " + value);
+					Log.error("conferenceId must be specified:  " + value);
 					return;
 				}
 
             	ConferenceManager.pauseTreatment(conferenceId, treatment, true);
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2921,7 +2955,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("callId must be specified:  " + value);
+					Log.error("callId must be specified:  " + value);
 					return;
 				}
 
@@ -2929,16 +2963,16 @@ public class Application implements CallEventListener  {
 					CallHandler.playTreatmentToCall(callId, treatment);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 					return;
 
 				} catch (IOException e) {
-					logerror("Unable to read treatment file " + treatment + " " + e.getMessage());
+					Log.error("Unable to read treatment file " + treatment + " " + e.getMessage());
 					return;
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2954,7 +2988,7 @@ public class Application implements CallEventListener  {
 
 				if (conferenceId == null)
 				{
-					logerror("conference Id must be specified:  " + value);
+					Log.error("conference Id must be specified:  " + value);
 					return;
 				}
 
@@ -2962,12 +2996,12 @@ public class Application implements CallEventListener  {
 					 ConferenceManager.playTreatment(conferenceId, treatment);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid conference Id specified:  " + value);
+					Log.error("Invalid conference Id specified:  " + value);
 					return;
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -2983,12 +3017,12 @@ public class Application implements CallEventListener  {
 					 ConferenceManager.playTreatmentToAllConferences(treatment);
 
 				} catch (Exception e) {
-					logerror("Error playing treatment :  " + value);
+					Log.error("Error playing treatment :  " + value);
 					return;
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 			return;
 		}
@@ -3000,7 +3034,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -3009,7 +3043,7 @@ public class Application implements CallEventListener  {
 
 					if (callHandler == null)
 					{
-						logerror("No such callId:  " + callId);
+						Log.error("No such callId:  " + callId);
 						return;
 					}
 
@@ -3017,11 +3051,11 @@ public class Application implements CallEventListener  {
 					IncomingCallHandler.transferCall(callId, conferenceId);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;
@@ -3034,7 +3068,7 @@ public class Application implements CallEventListener  {
 
 				if (callId == null)
 				{
-					logerror("Call id is missing");
+					Log.error("Call id is missing");
 					return;
 				}
 
@@ -3043,7 +3077,7 @@ public class Application implements CallEventListener  {
 
 					if (callHandler == null)
 					{
-						logerror("No such callId:  " + callId);
+						Log.error("No such callId:  " + callId);
 						return;
 					}
 
@@ -3051,11 +3085,11 @@ public class Application implements CallEventListener  {
 					callHandler.dtmfKeys(dtmfKey);
 
 				} catch (NoSuchElementException e) {
-					logerror("Invalid callId specified:  " + value);
+					Log.error("Invalid callId specified:  " + value);
 				}
 
 			} catch (Exception e) {
-				logerror(e.toString());
+				Log.error(e.toString());
 			}
 
 			return;

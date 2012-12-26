@@ -13,6 +13,7 @@ import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.http.HttpBindManager;
 import org.jivesoftware.openfire.SessionManager;
 import org.jivesoftware.openfire.session.LocalClientSession;
+import org.jivesoftware.openfire.session.ClientSession;
 import org.jivesoftware.openfire.session.Session;
 import org.jivesoftware.openfire.RoutingTable;
 import org.jivesoftware.openfire.XMPPServer;
@@ -59,6 +60,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
     private static final String RTP_AUDIO = "urn:xmpp:jingle:apps:rtp:audio";
 
+    private static final String COLLABORATION_NAMESPACE = "http://inspiredfutures.co.uk/protocol/collaboration";
+
 	private ComponentManager componentManager;
 	private JID componentJID = null;
 	public Plugin plugin;
@@ -78,6 +81,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 	public Map<String, OpenlinkInterest> callInterests;
 	public Map<String, OpenlinkUser> userProfiles;
 
+	public Map<String, String> pendingIQs;
+
 	private Map<String, CallParticipant> callParticipants;
 	private Map<String, String> callStreams;
 
@@ -91,7 +96,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 	public OpenlinkComponent(Plugin plugin)
 	{
-        super(16, 1000, true);
+        super(16, 1000, false);
 
 		Log.info("OpenlinkComponent");
 
@@ -119,6 +124,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 			callParticipants		= new HashMap<String, CallParticipant>();
 			callStreams				= new HashMap<String, String>();
+			pendingIQs				= new HashMap<String, String>();
 
 
 			openlinkManger = new OpenlinkCommandManager();
@@ -223,75 +229,142 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		//   </item><status code="307"/>
 		// </x></presence>
 
-		Log.debug("handlePresence \n"+ presence.toString());
+		Log.info("handlePresence \n"+ presence.toString());
 
-		String callId = presence.getFrom().getResource();
-
-		if (presence.getType() == Presence.Type.unavailable)
+		if (presence.getFrom().toString().indexOf("@conference.") > -1)	// MUC voice calls
 		{
-			Log.info("handlePresence clearing call "+ callId);
-			CallHandler.hangup(callId, "User left call");
-		}
-	}
+			String callId = presence.getFrom().getResource();
 
-    @Override protected void handleMessage(Message received)
-    {
-		Log.debug("handleMessage \n"+ received.toString());
-    }
-
-	@Override protected void handleIQResult(IQ iq)
-	{
-		Log.debug("handleIQResult \n"+ iq.toString());
-
-		Element element = iq.getChildElement();
-
-		if (element != null)
-		{
-			String namespace = element.getNamespaceURI();
-
-			if("http://jabber.org/protocol/pubsub#owner".equals(namespace))
+			if (presence.getType() == Presence.Type.unavailable)
 			{
-				Element subscriptions = element.element("subscriptions");
+				Log.info("handlePresence clearing call "+ callId);
+				CallHandler.hangup(callId, "User left call");
+			}
 
-				if (subscriptions != null)
+		} else {	// Proxy presence, send to sever and all other users
+
+			presence.setTo(getDomain());
+			sendPacket(presence);
+
+			String identity = null;
+			String ipaddr = null;
+
+			Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+			if (collaboration != null || presence.getType() == Presence.Type.unavailable)
+			{
+				if (collaboration != null)
 				{
-					String node = subscriptions.attributeValue("node");
+					identity = collaboration.getText();
+				}
 
-					Log.info("handleIQResult found subscription node " + node);
+				for (ClientSession session : sessionManager.getSessions())
+				{
+					JID to = session.getAddress();
 
-					if (openlinkUserInterests.containsKey(node))
+					if (to.equals(presence.getFrom()) == false)
 					{
-						Log.info("handleIQResult found user interest " + node);
+						Log.info("handlePresence sending inipresence for " + identity + " to "+ to);
 
-						OpenlinkUserInterest openlinkUserInterest = openlinkUserInterests.get(node);
+						presence.setTo(to);
+						sendPacket(presence);
 
-						for ( Iterator<Element> i = subscriptions.elementIterator( "subscription" ); i.hasNext(); )
+					}  else {
+
+						try {
+							ipaddr = session.getHostAddress();	// ip address of user with presence
+
+						} catch (Exception e) {}
+
+						Log.info("handlePresence getting self ip address " + ipaddr);
+					}
+				}
+
+				if (identity != null && ipaddr != null) // close replaced sessions
+				{
+					for (ClientSession session : sessionManager.getSessions())
+					{
+						String ipaddr2 = null;
+
+						try {
+							ipaddr2 = session.getHostAddress();
+
+						} catch (Exception e) {}
+
+						Element collaboration2 = session.getPresence().getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+						if (ipaddr2 != null && collaboration2 != null && session.getAddress().equals(presence.getFrom()) == false)
 						{
-							Element subscription = (Element) i.next();
-							JID jid = new JID(subscription.attributeValue("jid"));
-							String sub = subscription.attributeValue("subscription");
+							String identity2 = collaboration2.getText();
 
-							OpenlinkSubscriber openlinkSubscriber = openlinkUserInterest.getSubscriber(jid);
-							openlinkSubscriber.setSubscription(sub);
-							setSubscriberDetails(jid, openlinkSubscriber);
+							Log.info("handlePresence checking for dead session " + identity + " " + identity2 + " " + ipaddr + " " + ipaddr2);
 
-							Log.info("handleIQResult added subscriber " + jid);
 
+							if (identity2.equals(identity) && ipaddr2.equals(ipaddr))	// duplicated session, remove
+							{
+								session.close();
+							}
 						}
 					}
-
 				}
 			}
 		}
 	}
 
-	@Override protected void handleIQError(IQ iq)
-	{
-		Log.debug("handleIQError \n"+ iq.toString());
-	}
+    @Override protected void handleMessage(Message received)
+    {
+		Log.info("handleMessage \n"+ received.toString());
+
+		Element element = received.getChildElement("event", "http://jabber.org/protocol/pubsub#event");
+
+		if (element != null)
+		{
+				for (ClientSession session : sessionManager.getSessions())
+				{
+					Presence uniPresence = session.getPresence();
+
+					JID to = session.getAddress(); //uniPresence.getFrom();
+
+					received.setTo(to);
+					received.setFrom(new JID(getName() + "." + getDomain()));
+
+					sendPacket(received);
+
+				}
+
+				return;
+		}
+
+		// forward messages to all sessions of username
+
+		String identityTo = received.getTo().getNode();
+
+		for (ClientSession session : sessionManager.getSessions())
+		{
+			Presence presence = session.getPresence();
+
+			Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+			if (collaboration != null)
+			{
+				String identity = collaboration.getText();
+
+				if (identity.equals(identityTo))
+				{
+					JID sessionId = session.getAddress(); //presence.getTo();
+
+					received.setTo(sessionId);
+					sendPacket(received);
+				}
+			}
+		}
+    }
+
 
    @Override public IQ handleDiscoInfo(IQ iq)
     {
+		Log.info("handleDiscoInfo \n"+ iq.toString());
+
     	JID jid = iq.getFrom();
 		Element child = iq.getChildElement();
 		String node = child.attributeValue("node");
@@ -341,6 +414,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
    @Override public IQ handleDiscoItems(IQ iq)
     {
+		Log.info("handleDiscoItems \n"+ iq.toString());
+
     	JID jid = iq.getFrom();
 		Element child = iq.getChildElement();
 		String node = child.attributeValue("node");
@@ -387,7 +462,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
    private IQ handleIQPacket(IQ iq)
    {
-		Log.debug("handleIQPacket \n"+ iq.toString());
+		Log.info("handleIQPacket \n"+ iq.toString());
 
 		Element element = iq.getChildElement();
 		IQ iq1 = IQ.createResultIQ(iq);
@@ -402,8 +477,286 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 				iq1 = openlinkManger.process(iq);
 
 			if(JINGLE_NAMESPACE.equals(namespace))
-				handleJingle(element, iq.getFrom(), iq.getTo().getNode());
+				iq1 = handleJingle(iq);
+
+			if(COLLABORATION_NAMESPACE.equals(namespace))
+				iq1 = handleCollaboration(iq);
+
+			if (namespace.indexOf("http://jabber.org/protocol/pubsub") > -1)
+				iq1 = handlePubSub(iq);
 		}
+		return iq1;
+	}
+
+	@Override protected void handleIQResult(IQ iq)
+	{
+		Log.info("handleIQResult \n"+ iq.toString());
+
+		Element element = iq.getChildElement();
+
+		if (element != null && pendingIQs.containsKey(iq.getID()))
+		{
+			String namespace = element.getNamespaceURI();
+			String sessionId = pendingIQs.get(iq.getID());
+/*
+			if("http://jabber.org/protocol/pubsub#owner".equals(namespace))
+			{
+				Element subscriptions = element.element("subscriptions");
+
+				if (subscriptions != null)
+				{
+					String node = subscriptions.attributeValue("node");
+
+					Log.info("handleIQResult found subscription node " + node);
+
+					if (openlinkUserInterests.containsKey(node))
+					{
+						Log.info("handleIQResult found user interest " + node);
+
+						OpenlinkUserInterest openlinkUserInterest = openlinkUserInterests.get(node);
+
+						for ( Iterator<Element> i = subscriptions.elementIterator( "subscription" ); i.hasNext(); )
+						{
+							Element subscription = (Element) i.next();
+							JID jid = new JID(subscription.attributeValue("jid"));
+							String sub = subscription.attributeValue("subscription");
+
+							OpenlinkSubscriber openlinkSubscriber = openlinkUserInterest.getSubscriber(jid);
+							openlinkSubscriber.setSubscription(sub);
+							setSubscriberDetails(jid, openlinkSubscriber);
+
+							Log.info("handleIQResult added subscriber " + jid);
+
+						}
+					}
+
+				}
+			}
+*/
+			if (namespace.indexOf("http://jabber.org/protocol/pubsub") > -1)
+			{
+				iq.setFrom(new JID(getName() + "." + getDomain()));
+				iq.setTo(new JID(sessionId + "@" + getDomain() + "/" + sessionId));
+
+				sendPacket(iq);
+			}
+		}
+	}
+
+	@Override protected void handleIQError(IQ iq)
+	{
+		Log.info("handleIQError \n"+ iq.toString());
+
+		Element element = iq.getChildElement();
+
+		if (element != null && pendingIQs.containsKey(iq.getID()))
+		{
+			String namespace = element.getNamespaceURI();
+			String sessionId = pendingIQs.get(iq.getID());
+
+			if (namespace.indexOf("http://jabber.org/protocol/pubsub") > -1)
+			{
+				iq.setFrom(new JID(getName() + "." + getDomain()));
+				iq.setTo(new JID(sessionId + "@" + getDomain() + "/" + sessionId));
+
+				sendPacket(iq);
+			}
+		}
+	}
+
+
+//-------------------------------------------------------
+//
+//	Collaboration
+//
+//-------------------------------------------------------
+
+
+   	private IQ handlePubSub(IQ iq)
+   	{
+		// anonymous users (random@domain/random) can't publish or subscribe.
+		// we have to user random@openlink.domain
+
+		Log.info("handleCollaboration IQ\n"+ iq.toString());
+
+		String sessionId = iq.getFrom().getNode();
+		String transId = iq.getID();
+
+		pendingIQs.put(transId, sessionId);	// we store user session id for when pubsub responds in handleIQResult
+
+		iq.setFrom(new JID(getName() + "." + getDomain()));
+		iq.setTo(new JID("pubsub." + getDomain()));
+
+		sendPacket(iq);
+
+		return null;	// we send result back later when pubsub responds in handleIQResult
+	}
+
+
+   	private IQ handleCollaboration(IQ iq)
+   	{
+		// we get presence objects for all active anonymous sessions
+		// the identity is stored in the collaboration child
+
+		Log.info("handleCollaboration IQ\n"+ iq.toString());
+
+		Element element = iq.getChildElement();
+		String action = element.attribute("action").getValue();
+
+		IQ iq1 = IQ.createResultIQ(iq);
+		Element collab = iq1.setChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+		if ("createRoom".equals(action))
+		{
+			String room = element.attribute("room").getValue();
+
+			if (application != null)
+			{
+				application.createRoom(room, false);
+			}
+		}
+
+		if ("inviteMuc".equals(action))
+		{
+			String identityTo = iq.getTo().getNode();
+
+			for (ClientSession session : sessionManager.getSessions())
+			{
+				Presence presence = session.getPresence();
+
+				Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+				if (collaboration != null)
+				{
+					String identity = collaboration.getText();
+
+					if (identity.equals(identityTo))
+					{
+						iq.setTo(session.getAddress());
+						sendPacket(iq);
+					}
+				}
+			}
+
+		}
+
+		if ("initiateMuc".equals(action))
+		{
+			String room = element.attribute("room").getValue();
+			String audio = element.attribute("audio").getValue();
+
+			Iterator i = element.elementIterator( "identity" );
+			List<String> identities = new ArrayList<String>();
+
+			for ( ; i.hasNext(); )
+			{
+				Element identityElement = (Element) i.next();
+				identities.add(identityElement.getText());
+			}
+
+			for (String invited : identities)
+			{
+				if (invited.indexOf("@") == -1)
+				{
+					for (ClientSession session : sessionManager.getSessions())
+					{
+						Presence presence = session.getPresence();
+
+						Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+						if (collaboration != null)
+						{
+							String identity = collaboration.getText();
+
+							if (identity.equals(invited))
+							{
+								List<Object[]> actionList = new ArrayList<Object[]>();
+
+								String sid = String.valueOf(System.currentTimeMillis());
+
+								actionList.add(new String[]{"Protocol", sid, audio.equals("true") ? "SIP" : "NS"});
+								actionList.add(new String[]{"SetConference", sid, room});
+								actionList.add(new String[]{"SetJID", sid, session.getAddress().toString()});
+								actionList.add(new String[]{"MakeCall", sid, null});
+
+								manageVoiceBridge(null, iq.getFrom(), actionList);
+							}
+						}
+					}
+
+				} else {
+
+					List<Object[]> actionList = new ArrayList<Object[]>();
+
+					String sid = String.valueOf(System.currentTimeMillis());
+
+					actionList.add(new String[]{"Protocol", sid, audio.equals("true") ? "SIP" : "NS"});
+					actionList.add(new String[]{"SetConference", sid, room});
+					actionList.add(new String[]{"SetJID", sid, invited});
+					actionList.add(new String[]{"MakeCall", sid, null});
+
+					manageVoiceBridge(null, iq.getFrom(), actionList);
+				}
+			}
+
+		}
+
+		if ("getSessions".equals(action))
+		{
+			for (ClientSession session : sessionManager.getSessions())
+			{
+				Presence presence = session.getPresence();
+				String status = presence.getShow() != null ? presence.getShow().toString() : "available";
+				String activity = presence.getStatus() != null ? presence.getStatus() : "";
+				String sessionId = session.getAddress().toString(); //presence.getFrom()
+
+				if (iq.getFrom().equals(sessionId) == false)
+				{
+					Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+					//Log.debug("handleCollaboration collaboration\n"+ collaboration.toString());
+
+					if (collaboration != null)
+					{
+						String identity = collaboration.getText();
+
+						//Log.debug("handleCollaboration looking for "+ identity);
+
+						Iterator i = element.elementIterator( "identity" );
+
+						if (i.hasNext())
+						{
+							for ( ; i.hasNext(); )
+							{
+								Element identityElement = (Element) i.next();
+
+								//Log.debug("handleCollaboration found "+ identityElement.getText());
+
+								if (identity.equals(identityElement.getText()))
+								{
+									collab.addElement("session").addAttribute("id", sessionId)
+																.addAttribute("identity", identity)
+																.addAttribute("presence", status)
+																.addAttribute("activity", activity);
+								}
+							}
+
+						} else {	// no list, assume all
+
+							collab.addElement("session").addAttribute("id", sessionId)
+														.addAttribute("identity", identity)
+														.addAttribute("presence", status)
+														.addAttribute("activity", activity);
+
+						}
+					}
+				}
+			}
+
+		}
+
+		//Log.debug("handleCollaboration Sessions\n"+ iq1.toXML());
+
 		return iq1;
 	}
 
@@ -429,11 +782,41 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 			</iq>
 */
 
-   	private void handleJingle(Element jingle, JID from, String conference)
+   	private IQ handleJingle(IQ iq)
    	{
+		IQ iq1 = IQ.createResultIQ(iq);
+		Element jingle = iq.getChildElement();
+		JID from = iq.getFrom();
+		String conference = iq.getTo().getNode();
+
 		Log.info("handleJingle " + conference + " " + from + "\n" + jingle.toString());
 
-		if (conference == null) return;
+		if (conference == null) return iq1;
+
+		if (conference.startsWith("identity-"))
+		{
+			String target = conference.substring(9);
+
+			for (ClientSession session : sessionManager.getSessions())
+			{
+				Presence presence = session.getPresence();
+
+				Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
+
+				if (collaboration != null)
+				{
+					String identity = collaboration.getText();
+
+					if (identity.equals(target))
+					{
+						iq.setTo(session.getAddress());
+						sendPacket(iq);
+					}
+				}
+			}
+
+			return null;
+		}
 
 		String action = jingle.attribute("action").getValue();
 		String sid = jingle.attribute("sid").getValue();
@@ -520,150 +903,153 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 				Iterator i = transport.elementIterator("candidate");
 
-				if ( i.hasNext() == false)
+				if ( i.hasNext())
 				{
 					Element webrtc =  transport.element("webrtc");
 
 					if (webrtc != null)
 					{
 						handleWebRtc(from, sid, conference, webrtc.getText(), action);
-					}
 
-				} else {
-					Element candidate = (Element) i.next();
+					} else {
 
-            		if (candidate.attribute("ip") != null)
-            		{
-						remoteIP = candidate.attribute("ip").getValue();
-					}
+						Element candidate = (Element) i.next();
 
-            		if (candidate.attribute("port") != null)
-            		{
-						remotePort = candidate.attribute("port").getValue();
-					}
-
-            		if (candidate.attribute("rtmpuri") != null)
-            		{
-						rtmpUrl = candidate.attribute("rtmpuri").getValue();
-					}
-
-            		if (candidate.attribute("playname") != null)
-            		{
-						playName = candidate.attribute("playname").getValue();
-					}
-
-            		if (candidate.attribute("publishname") != null)
-            		{
-						publishName = candidate.attribute("publishname").getValue();
-					}
-
-					if (rtmpUrl != null && publishName != null && playName != null)
-					{
-						Log.info("handleJingle RTMP/RTMFP url " + rtmpUrl + " " + publishName + " " + playName);
-
-						if ("session-initiate".equals(action) ) // outgoing calls only for RTMP/RTMFP
+						if (candidate.attribute("ip") != null)
 						{
-							String protocol = "RTMP";
-
-							if (rtmpUrl.startsWith("rtmfp:")) protocol = "RTMFP";
-
-							// Accept Jingle RTMP/RTMFP call
-
-							CallParticipant cp = new CallParticipant();
-							cp.setCallId(sid);
-							cp.setProtocol(protocol);
-							cp.setPhoneNumber(from.toString());
-							cp.setConferenceId(from.getNode());
-							cp.setConferenceDisplayName(conference);
-
-							cp.setFromPhoneNumber(rtmpUrl);
-							cp.setRtmpSendStream(playName);			// remote play name
-							cp.setRtmpRecieveStream(publishName);	// remote publish name
-
-							sendJingleAction("session-accept", cp, new JinglePayload(codecId, codecName, codecClock, null, null));
-
-							return;
+							remoteIP = candidate.attribute("ip").getValue();
 						}
-					}
 
-            		if (candidate.attribute("callback") != null)
-            		{
-						callback = candidate.attribute("callback").getValue();
-
-						Log.info("handleJingle Callback destination " + callback);
-
-						if ("session-initiate".equals(action) )		// outgoing calls only for callback
+						if (candidate.attribute("port") != null)
 						{
-							CallParticipant cp = new CallParticipant();
-							cp.setCallId(sid);
-							cp.setProtocol("SIP");
-							cp.setPhoneNumber(from.toString());
-							cp.setConferenceId(from.getNode());
-							cp.setConferenceDisplayName(conference);
-
-							cp.setFromPhoneNumber(callback);
-
-							sendJingleAction("session-accept", cp, new JinglePayload(codecId, codecName, codecClock, null, null));
-
-							return;
+							remotePort = candidate.attribute("port").getValue();
 						}
-					}
 
-
-					if (remoteIP != null && remotePort != null)
-					{
-						JinglePayload jinglePayload = new JinglePayload(codecId, codecName, codecClock, remotePort, remoteIP);
-
-						if ("session-initiate".equals(action) )
+						if (candidate.attribute("rtmpuri") != null)
 						{
-							CallParticipant cp = new CallParticipant();
-							String fromJID = from.toString();
+							rtmpUrl = candidate.attribute("rtmpuri").getValue();
+						}
 
-							cp.setCallId(sid);
-							cp.setPhoneNumber(fromJID);
-							cp.setProtocol("JINGLE");
-							cp.setConferenceId(from.getNode());
-							cp.setConferenceDisplayName(conference);
+						if (candidate.attribute("playname") != null)
+						{
+							playName = candidate.attribute("playname").getValue();
+						}
 
-							cp.setSsrc(ssrc);
-							cp.setPassword(password);
-							cp.setUsername(username);
+						if (candidate.attribute("publishname") != null)
+						{
+							publishName = candidate.attribute("publishname").getValue();
+						}
 
-							if (cryptoSuite != null && keyParams != null)
+						if (rtmpUrl != null && publishName != null && playName != null)
+						{
+							Log.info("handleJingle RTMP/RTMFP url " + rtmpUrl + " " + publishName + " " + playName);
+
+							if ("session-initiate".equals(action) ) // outgoing calls only for RTMP/RTMFP
 							{
-								cp.setEncryptionKey(keyParams);
-								cp.setEncryptionAlgorithm(cryptoSuite);
-								cp.setEncryptionParams(sessionParams);
-							}
+								String protocol = "RTMP";
 
-							if (isJidInConf(conference, from.getNode()) == false)
-							{
-								Log.warn("handleJingle access denied " + from + " " + conference);
+								if (rtmpUrl.startsWith("rtmfp:")) protocol = "RTMFP";
 
-								sendJingleTerminate(cp);
-								return;
-							}
+								// Accept Jingle RTMP/RTMFP call
 
-							// Accept Jingle RTP call
+								CallParticipant cp = new CallParticipant();
+								cp.setCallId(sid);
+								cp.setProtocol(protocol);
+								cp.setPhoneNumber(from.toString());
+								cp.setConferenceId(conference);
+								cp.setConferenceDisplayName(from.getNode());
 
-							new IncomingCallHandler(cp, jinglePayload);
+								cp.setFromPhoneNumber(rtmpUrl);
+								cp.setRtmpSendStream(playName);			// remote play name
+								cp.setRtmpRecieveStream(publishName);	// remote publish name
 
-						} else {
+								sendJingleAction("session-accept", cp, new JinglePayload(codecId, codecName, codecClock, null, null));
 
-							CallHandler jingleHandler = CallHandler.findCall(sid);
-
-							if (jingleHandler != null)
-							{
-								JingleOutgoingCallAgent jingleAgent = (JingleOutgoingCallAgent) jingleHandler.getCallSetupAgent();
-								jingleAgent.callAccepted(jinglePayload);
+								return iq1;
 							}
 						}
+
+						if (candidate.attribute("callback") != null)
+						{
+							callback = candidate.attribute("callback").getValue();
+
+							Log.info("handleJingle Callback destination " + callback);
+
+							if ("session-initiate".equals(action) )		// outgoing calls only for callback
+							{
+								CallParticipant cp = new CallParticipant();
+								cp.setCallId(sid);
+								cp.setProtocol("SIP");
+								cp.setPhoneNumber(from.toString());
+								cp.setConferenceId(conference);
+								cp.setConferenceDisplayName(from.getNode());
+
+								cp.setFromPhoneNumber(callback);
+
+								sendJingleAction("session-accept", cp, new JinglePayload(codecId, codecName, codecClock, null, null));
+
+								return iq1;
+							}
+						}
+
+
+						if (remoteIP != null && remotePort != null)
+						{
+							JinglePayload jinglePayload = new JinglePayload(codecId, codecName, codecClock, remotePort, remoteIP);
+
+							if ("session-initiate".equals(action) )
+							{
+								CallParticipant cp = new CallParticipant();
+								String fromJID = from.toString();
+
+								cp.setCallId(sid);
+								cp.setPhoneNumber(fromJID);
+								cp.setProtocol("JINGLE");
+								cp.setConferenceId(conference);
+								cp.setConferenceDisplayName(from.getNode());
+
+								cp.setSsrc(ssrc);
+								cp.setPassword(password);
+								cp.setUsername(username);
+
+								if (cryptoSuite != null && keyParams != null)
+								{
+									cp.setEncryptionKey(keyParams);
+									cp.setEncryptionAlgorithm(cryptoSuite);
+									cp.setEncryptionParams(sessionParams);
+								}
+
+								if (isJidInConf(conference, from.getNode()) == false)
+								{
+									Log.warn("handleJingle access denied " + from + " " + conference);
+
+									sendJingleTerminate(cp);
+									return iq1;
+								}
+
+								// Accept Jingle RTP call
+
+								new IncomingCallHandler(cp, jinglePayload);
+
+							} else {
+
+								CallHandler jingleHandler = CallHandler.findCall(sid);
+
+								if (jingleHandler != null)
+								{
+									JingleOutgoingCallAgent jingleAgent = (JingleOutgoingCallAgent) jingleHandler.getCallSetupAgent();
+									jingleAgent.callAccepted(jinglePayload);
+								}
+							}
+						}
+
+
 					}
 				}
 
 			} else Log.warn("handleJingle missing transport");
 
-			return;
+			return iq1;
 		}
 
 		if ("session-terminate".equals(action))
@@ -678,6 +1064,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 				}
 			} catch (Exception e) {}
 		}
+
+		return iq1;
 	}
 
 
@@ -726,7 +1114,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 	{
 		String sid = cp.getCallId();
 		String to = cp.getPhoneNumber();
-		String conference = cp.getConferenceDisplayName();
+		String conference = cp.getConferenceId();
 
 		IQ iq = new IQ(IQ.Type.set);
 		iq.setFrom(conference + "@" + getComponentJID());
@@ -767,7 +1155,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
    	{
 		String sid = cp.getCallId();
 		JID to = new JID(cp.getPhoneNumber());
-		String conference = cp.getConferenceDisplayName();
+		String conference = cp.getConferenceId();
 
 		IQ iq = new IQ(IQ.Type.set);
 		iq.setFrom(conference + "@" + getComponentJID());
@@ -822,7 +1210,11 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 				Element newTransportRaw = newContent.addElement("transport", RAW_UDP_NAMESPACE).addAttribute("pwd", cp.getPassword()).addAttribute("ufrag", cp.getUsername());
 				newTransportRaw.addElement("candidate").addAttribute("ip", payload.remoteIP).addAttribute("port", payload.remotePort).addAttribute("generation", "0").addAttribute("id", "1").addAttribute("component", "1").addAttribute("foundation", "1001321590").addAttribute("priority", "2130714367");
-				newTransportRaw.addElement("webrtc").setText(getWebRtcSdp(cp, payload));
+
+				if (cp.getRtmpRecieveStream() != null) // hack, needed to store fag somewhere
+				{
+					newTransportRaw.addElement("webrtc").setText(getWebRtcSdp(cp, payload));
+				}
 			}
 		}
 
@@ -838,7 +1230,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 	{
 		String protocol 	= cp.getProtocol();
 		String sid 			= cp.getCallId();
-		String conference 	= cp.getConferenceDisplayName();
+		String conference 	= cp.getConferenceId();
 		String playName 	= cp.getRtmpSendStream();
 		String publishName 	= cp.getRtmpRecieveStream();
 
@@ -871,10 +1263,9 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 		if ("JINGLE".equals(protocol))					// Only SIP leg media needs to established. Jingle leg already established
 		{
-			actionList.add(new String[]{"SetConference", sid, cp.getConferenceId()});
-
 			if (isConf == false)
 			{
+				actionList.add(new String[]{"SetConference", sid, cp.getConferenceDisplayName()});
 				actionList.add(new String[]{"SetPhoneNo", sid, destination});
 				secondleg = true;
 			}
@@ -885,7 +1276,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 			if (isConf == false)
 			{
-				actionList.add(new String[]{"SetConference", sid, cp.getConferenceId()});
+				actionList.add(new String[]{"SetConference", sid, cp.getConferenceDisplayName()});
 				actionList.add(new String[]{"Set2ndPartyPhoneNo", sid, destination});
 				secondleg = true;
 
@@ -1031,11 +1422,13 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 			CallParticipant cp = new CallParticipant();
 			String fromJID = from.toString();
 
+			cp.setRtmpRecieveStream("WEBRTC");  //hack nned to stire flag somewehere
+
 			cp.setCallId(sid);
 			cp.setPhoneNumber(fromJID);
 			cp.setProtocol("JINGLE");
-			cp.setConferenceId(from.getNode());
-			cp.setConferenceDisplayName(conference);
+			cp.setConferenceId(conference);
+			cp.setConferenceDisplayName(from.getNode());
 
 			cp.setSsrc(ssrc);
 			cp.setPassword(password);
