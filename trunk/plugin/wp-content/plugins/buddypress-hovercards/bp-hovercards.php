@@ -5,8 +5,8 @@ Plugin URI: https://github.com/mgmartel/BuddyPress-Hovercards/
 Author: Mike Martel
 Author URI: http://trenvo.nl
 Description: Adds hovercard to Buddypress avatars
-Version: 1.0
-Revision Date: October 5th, 2012
+Version: 1.1.1
+Revision Date: January 7th, 2013
 */
 
 /**
@@ -36,7 +36,7 @@ if ( !defined( 'ABSPATH' ) )
  *
  * @since 0.9
  */
-define ( 'BPHOVERCARDS_VERSION', '0.9' );
+define ( 'BPHOVERCARDS_VERSION', '1.1.1' );
 
 /**
  * PATHs and URLs
@@ -52,6 +52,12 @@ if ( ! class_exists( 'BuddyPress_Hovercards' ) ) :
 
     class BuddyPress_Hovercards
     {
+
+        /**
+         * In lieu of an options screen, some options fixed as classvars
+         */
+        protected $parent_filter = "#item-header-avatar, .profile_badge";
+        protected $element_filter = ".nohc";
 
         /**
          * Creates an instance of the BuddyPress_Hovercards class, and loads i18n.
@@ -103,8 +109,13 @@ if ( ! class_exists( 'BuddyPress_Hovercards' ) ) :
         public function load_scripts() {
             if( ! is_admin() ) {
                 wp_enqueue_script( 'jquery' );
-                wp_enqueue_script( 'tipsy', BPHOVERCARDS_INC_URL . '/js/jquery.tipsy.js', array ( 'jquery' ) );
-                wp_enqueue_script( 'tipsy-hovercard', BPHOVERCARDS_INC_URL . '/js/jquery.tipsy.buddypress.hovercard.js', array ( 'jquery','tipsy' ) );
+                wp_enqueue_script( 'tipsy', BPHOVERCARDS_INC_URL . '/js/jquery.tipsy.js', array ( 'jquery' ), '1.0.0a', true );
+                wp_enqueue_script( 'tipsy-hovercard', BPHOVERCARDS_INC_URL . '/js/jquery.tipsy.buddypress.hovercard.js', array ( 'jquery','tipsy' ), BPHOVERCARDS_VERSION, true );
+
+                wp_localize_script( 'tipsy-hovercard', 'bphc', array(
+                    'parent_filter'     => apply_filters('bphc_parent_filter', $this->parent_filter ),
+                    'element_filter'    => apply_filters('bphc_element_filter', $this->element_filter )
+                ));
 
                 wp_enqueue_style( 'tipsy-css', BPHOVERCARDS_INC_URL . '/css/tipsy.css' );
                 wp_enqueue_style( 'tipsy-hovercard-css', BPHOVERCARDS_INC_URL . '/css/tipsy.hovercard.css' );

@@ -3,7 +3,7 @@
 Title: Reading
 Setting: piklist_wp_helpers
 Tab: Reading
-Order: 40
+Order: 300
 */
 
   piklist('field', array(

@@ -3,7 +3,7 @@
 Title: Trackbacks / Pingbacks
 Setting: piklist_wp_helpers
 Tab: Discussion
-Order: 50
+Order: 410
 */
 
   piklist('field', array(

@@ -12,12 +12,18 @@
         <div class='tipsy-content'>
 
             <div class="user">
-                <h3><a href="<?php bp_member_link(); ?>"><?php bp_member_name(); ?></a></h3>
+
+                <h3>
+                    <?php // iexpert_skype_status( xprofile_get_field_data( 'skype', bp_get_member_user_id() ) ); ?>
+
+                    <a href="<?php bp_member_link(); ?>"><?php bp_member_name(); ?></a>
+                </h3>
+
                 <div><strong><?php bp_member_last_active(); ?></strong></div>
                 @<?php bp_member_user_nicename(); ?>
             </div>
 
-            <div class="update"><strong><?php _e("Last update", 'bp-hovercards'); ?></strong><br><?php bp_member_latest_update( 'length=34' ) ?></div>
+            <div class="update"><strong><?php _e("Last update", 'bp-hovercards'); ?></strong><br><?php bp_member_latest_update( 'length=68' ) ?></div>
 
             <a href="<?php bp_member_link() ?>"><?php _e("View profile", 'bp-hovercards'); ?></a>
 

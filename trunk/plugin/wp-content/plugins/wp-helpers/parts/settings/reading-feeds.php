@@ -3,7 +3,7 @@
 Title: Feeds
 Setting: piklist_wp_helpers
 Tab: Reading
-Order: 40
+Order: 310
 */
 
   piklist('field', array(

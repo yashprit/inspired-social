@@ -1,0 +1,81 @@
+<iq id="DzMjh-3" to="workgroup.btg199251" type="get">
+	<query xmlns="http://jabber.org/protocol/disco#items">
+	</query>
+</iq>
+
+<iq type="result" id="DzMjh-3" from="workgroup.btg199251" to="1a9f26a0@btg199251/1a9f26a0">
+	<query xmlns="http://jabber.org/protocol/disco#items">
+		<item jid="demo@workgroup.btg199251" name="demo"/>
+	</query>
+</iq>
+
+<iq id="g6Q16-31" to="demo@workgroup.btg199251" type="get">
+	<agent-status-request xmlns="http://jabber.org/protocol/workgroup"></agent-status-request> 
+</iq>
+
+<iq type="result" id="g6Q16-31" from="demo@workgroup.btg199251" to="dele.olajide@btg199251/Spark 2.6.3">
+	<agent-status-request xmlns="http://jabber.org/protocol/workgroup">
+		<agent jid="admin@btg199251">
+			<name xmlns="http://jivesoftware.com/protocol/workgroup">admin</name>
+		</agent>
+		<agent jid="florence.olajide@btg199251">
+			<name xmlns="http://jivesoftware.com/protocol/workgroup">florence.olajide</name>
+		</agent>
+	</agent-status-request>
+</iq>
+
+<presence id="g6Q16-28" to="demo@workgroup.btg199251">
+	<agent-status xmlns="http://jabber.org/protocol/workgroup"></agent-status>
+</presence>
+
+<presence id="6G9Qq-32" to="dele.olajide@btg199251/Spark 2.6.3" from="admin@btg199251/Spark 2.6.3">
+	<agent-status xmlns="http://jabber.org/protocol/workgroup" jid="demo@workgroup.btg199251">
+		<max-chats>4</max-chats>
+		<current-chats xmlns="http://jivesoftware.com/protocol/workgroup"/>
+	</agent-status>
+</presence>
+
+<iq type="set" id="786-10" from="demo@workgroup.btg199251" to="admin@btg199251/Spark 2.6.3">
+	<offer xmlns="http://jabber.org/protocol/workgroup" id="0e7te64" jid="c1129602@btg199251/c1129602">
+		<metadata xmlns="http://jivesoftware.com/protocol/workgroup">
+			<value name="userID">6WoYp4678t</value>
+			<value name="username">John Doe</value>
+			<value name="email">dele@uk2.net</value>
+			<value name="workgroup">demo@workgroup.btg199251</value>
+			<value name="Location">http://btg199251:9090/webchat/</value>
+			<value name="question">meaning of life</value>
+			<value name="referer">http://btg199251:9090/webchat/userinfo.jsp?chatID=9OT9p9nWpU&amp;workgroup=demo@workgroup.btg199251</value>
+		</metadata>
+		<timeout>20</timeout>
+		<session xmlns="http://jivesoftware.com/protocol/workgroup" id="0e7te64" workgroup="demo@workgroup.btg199251"/>
+		<user-request/><user xmlns="http://jivesoftware.com/protocol/workgroup" id="6WoYp4678t"/>
+	</offer>
+</iq>
+
+<iq id="g6Q16-36" to="demo@workgroup.btg199251" type="set">
+	<offer-accept id="0e7te64" xmlns="http://jabber.org/protocol/workgroup"/>
+</iq>
+
+
+ <message from="0e7te64@conference.btg199251" to="dele.olajide@btg199251/Spark 2.6.3">
+ 	<offer xmlns="http://jabber.org/protocol/workgroup" jid="c1129602@btg199251/c1129602"/>
+ 	<session xmlns="http://jivesoftware.com/protocol/workgroup" workgroup="demo@workgroup.btg199251" id="0e7te64"/>
+ 	<user xmlns="http://jivesoftware.com/protocol/workgroup" id="6WoYp4678t"/>
+ 	<x xmlns="http://jabber.org/protocol/muc#user">
+ 		<invite from="demo@workgroup.btg199251">
+ 			<reason>0e7te64</reason>
+ 		</invite>
+ 	</x>
+ 	<x xmlns="jabber:x:conference" jid="0e7te64@conference.btg199251"/>
+ </message>
+
+<message from="0e7te64@conference.btg199251" to="c1129602@btg199251/c1129602">
+	<workgroup xmlns="http://jabber.org/protocol/workgroup" jid="demo@workgroup.btg199251"/>
+	<session xmlns="http://jivesoftware.com/protocol/workgroup" id="0e7te64"/>
+	<x xmlns="http://jabber.org/protocol/muc#user">
+		<invite from="demo@workgroup.btg199251">
+			<reason>Please join me for a chat.</reason>
+		</invite>
+	</x>
+	<x xmlns="jabber:x:conference" jid="0e7te64@conference.btg199251"/>
+</message>

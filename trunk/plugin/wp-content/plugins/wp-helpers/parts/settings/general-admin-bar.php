@@ -2,6 +2,7 @@
 /*
 Title: Admin Bar
 Setting: piklist_wp_helpers
+Order: 120
 */
 
   piklist('field', array(

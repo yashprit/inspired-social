@@ -3,7 +3,7 @@
 Title: Comments
 Setting: piklist_wp_helpers
 Tab: Discussion
-Order: 50
+Order: 400
 */
 
   piklist('field', array(

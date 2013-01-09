@@ -3,7 +3,7 @@
 Plugin Name: WordPress Helpers
 Plugin URI: http://piklist.com
 Description: Enhanced settings for WordPress. Located under <a href="tools.php?page=piklist_wp_helpers">TOOLS > HELPERS</a>
-Version: 1.4.4
+Version: 1.4.5
 Author: Piklist
 Author URI: http://piklist.com/
 Plugin Type: Piklist
@@ -152,7 +152,15 @@ class Piklist_WordPress_Helpers
             case 'maintenance_mode':
               add_action('get_header', array('piklist_wordpress_helpers', 'maintenance_mode'));          
               add_action('admin_notices', array('piklist_wordpress_helpers', 'maintenance_mode_warning'));
-              add_filter('login_message', array('piklist_wordpress_helpers', 'maintenance_mode_warning'));
+              add_filter('login_message', array('piklist_wordpress_helpers', 'maintenance_mode_message'));
+            break;
+
+            case 'private_site':
+              add_action('wp', array('piklist_wordpress_helpers', 'redirect_to_login'));
+            break;
+
+            case 'redirect_to_home':
+              add_action('login_redirect', array('piklist_wordpress_helpers', 'go_home'), 10, 3);
             break;
 
             case 'notice_admin':
@@ -497,9 +505,6 @@ class Piklist_WordPress_Helpers
         add_filter('manage_edit-' . $custom_taxonomy . '_sortable_columns', array('piklist_wordpress_helpers', 'register_sortable_column'), self::$filter_priority);
       }
     }
-
-
-
   }
 
   public static function column_orderby_id($vars)
@@ -599,19 +604,33 @@ class Piklist_WordPress_Helpers
   {
     if (!current_user_can('manage_options') || !is_user_logged_in())
     {
-      wp_die(self::$options['maintenance_mode_message']);
+      if (isset(self::$options['private_site']))
+      {
+        self::redirect_to_login();
+      }
+      else
+      {
+        wp_die(self::$options['maintenance_mode_message']);
+      }           
     }
   }
 
   public static function maintenance_mode_warning()
   {
-    if (self::is_login_page())
+    self::admin_notice('This site is in Maintenance Mode. <a href="' . admin_url() . 'tools.php?page=piklist_wp_helpers&tab=users#piklist_wp_helpers_maintenance_mode_0">Deactivate when finished</a>.', false);
+  }
+
+  public static function maintenance_mode_message()
+  {
+    self::admin_notice(self::$options['maintenance_mode_message']);
+  }
+
+  public static function redirect_to_login()
+  {
+    if(!is_user_logged_in())
     {
-      self::login_message('Maintenance Mode active.');
-    }
-    else
-    {
-      self::admin_notice('This site is in Maintenance Mode. <a href="/wp-admin/tools.php?page=piklist_wp_helpers">Deactivate when finished</a>.', false);
+      wp_redirect(home_url() . '/wp-login.php', 302);
+      exit;
     }
   }
 
@@ -928,16 +947,10 @@ class Piklist_WordPress_Helpers
     echo $login_message;
   }
 
-  //@Credit http://wordpress.stackexchange.com/questions/12863/check-if-were-on-the-wp-login-page
-  public static function is_login_page()
+  public static function go_home($redirect_to, $request, $user)
   {
-    global $pagenow;
-    if (in_array($GLOBALS['pagenow'], array('wp-login.php', 'wp-register.php')))
-    {
-      return IS_LOGIN_PAGE;
-    }
-    return false;
-  }
+    return home_url();
+  } 
 
   public static function helpers_css()
   {

@@ -3,7 +3,7 @@
 Title: Writing
 Setting: piklist_wp_helpers
 Tab: Writing
-Order: 30
+Order: 200
 */
 
 global $wp_version;
@@ -96,6 +96,5 @@ if ($wp_version >= 3.5)
   ));
 
 }
-
   
 ?>
