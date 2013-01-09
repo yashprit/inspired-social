@@ -3,7 +3,7 @@
 Title: Search
 Setting: piklist_wp_helpers
 Tab: Reading
-Order: 40
+Order: 320
 */
 
 $valid_post_types = piklist(

@@ -65,8 +65,7 @@ WebRtc.close = function()
 	}
 	
 	WebRtc.peers = {}; 
-	WebRtc.rooms = {}; 	
-	WebRtc.localStream = null;	
+	WebRtc.rooms = {}; 		
 };
 
 
@@ -99,13 +98,17 @@ WebRtc.handleMessage = function(message, jid, room)
 	var uniqueKey = WebRtc.escape(jid)
 
 	WebRtc.log("WebRtc.handleMessage " + jid + " " + room + " " + uniqueKey);
+	console.log(message)
 	
-	if (message.getAttribute("type") == "error")
+	if (message.getAttribute("type") == "error" || message.getElementsByTagName("action").length == 0)
 	{
 		return;
 	}
+		
+	var action = message.getElementsByTagName("action")[0].firstChild.data;
 	
-	if (message.getElementsByTagName("answer").length > 0)
+	
+	if (action == "answer")
 	{
 		var peer = WebRtc.peers[uniqueKey]
 
@@ -117,7 +120,7 @@ WebRtc.handleMessage = function(message, jid, room)
 		return;
 	}
 	
-	if (message.getElementsByTagName("candidate").length > 0)
+	if (action == "candidate")
 	{
 		var peer = WebRtc.peers[uniqueKey]
 
@@ -129,7 +132,7 @@ WebRtc.handleMessage = function(message, jid, room)
 		return;	
 	}
 
-	if (message.getElementsByTagName("mute").length > 0)
+	if (action == "mute")
 	{
 		var peer = WebRtc.peers[uniqueKey]
 
@@ -141,7 +144,7 @@ WebRtc.handleMessage = function(message, jid, room)
 		return;
 	}
 	
-	if (message.getElementsByTagName("offer").length > 0)
+	if (action == "offer")
 	{
 		WebRtc.setPeer(uniqueKey, room);
 		WebRtc.peers[uniqueKey].handleOffer(message, jid);
@@ -542,10 +545,12 @@ WebRtc.prototype.handleAnswer = function(elem)
 {
 	WebRtc.log("handleAnswer");
 
-	var node = elem.getElementsByTagName("answer")[0];
-	var mediaHints = {audio: node.getAttribute("audio") == "true", video: node.getAttribute("video") == "true"};
+	var sdp = elem.getElementsByTagName("sdp")[0].firstChild.data;	
+	var audio = elem.getElementsByTagName("audio")[0].firstChild.data;
+	var video = elem.getElementsByTagName("video")[0].firstChild.data;
 	
-	var sdp = node.firstChild.data;
+	var mediaHints = {audio: audio == "true", video: video == "true"};
+
 	this.inviter= true;
 	this.pc.setRemoteDescription(new RTCSessionDescription({type: "answer", sdp : sdp}));
 	
@@ -557,21 +562,22 @@ WebRtc.prototype.handleOffer = function(elem, jid)
 {
 	WebRtc.log("handleOffer");
 
-	var node = elem.getElementsByTagName("offer")[0];
+	var sdp = elem.getElementsByTagName("sdp")[0].firstChild.data;	
+	var audio = elem.getElementsByTagName("audio")[0].firstChild.data;
+	var video = elem.getElementsByTagName("video")[0].firstChild.data;
 	
-	var mediaHints = {audio: node.getAttribute("audio") == "true", video: node.getAttribute("video") == "true"};
+	this.muc = elem.getElementsByTagName("muc")[0].firstChild.data == "true";
+	
+	var mediaHints = {audio: audio == "true", video: video == "true"};
 	
 	var _webrtc = this;
 	
 	this.createPeerConnection(function() {
 
 		WebRtc.log("handleOffer createPeerConnection callback");
-
-		var sdp = node.firstChild.data;	
 		
 		_webrtc.inviter= false;	
 		_webrtc.farParty = jid;
-		_webrtc.muc = elem.getElementsByTagName("muc").length > 0;
 		_webrtc.pc.setRemoteDescription(new RTCSessionDescription({type: "offer", sdp : sdp}));	
 		
 	}, mediaHints);
@@ -600,31 +606,35 @@ WebRtc.prototype.setAudioTrack = function()
 			this.pc.localStreams[0].videoTracks[0].enabled = true;	
 		}
 		
-		if (WebRtc.callback) WebRtc.callback(this, this.remoteRoomMuteType, this.muc, audioMuted, videoMuted);		
+		if (WebRtc.callback) WebRtc.callback.onMute(this, this.remoteRoomMuteType, this.muc, audioMuted, videoMuted);		
 	}
 }
 
 WebRtc.prototype.handleMute = function(elem)
 {
 	WebRtc.log("handleMute");
+
+	var audio = elem.getElementsByTagName("audio")[0].firstChild.data;
+	var video = elem.getElementsByTagName("video")[0].firstChild.data;
+	var videoReq = elem.getElementsByTagName("videoreq")[0].firstChild.data;	
+	var muc = elem.getElementsByTagName("muc")[0].firstChild.data;
+		
+	this.remoteRoomMuteType = elem.getElementsByTagName("type")[0].firstChild.data
 	
-	var mute = elem.getElementsByTagName("mute")[0];
-	var audio = mute.getAttribute("audio");
-	var video = mute.getAttribute("video");	
-	var videoReq = mute.getAttribute("videoreq");		
-	var muc = mute.getAttribute("muc");
-	
-	this.remoteRoomMuteType = mute.getAttribute("type");
-	
-	if (WebRtc.callback) WebRtc.callback(this, this.remoteRoomMuteType, muc == "true", audio == "true", video == "true", videoReq == "true");
+	if (WebRtc.callback)
+	{
+		WebRtc.callback.onMute(this, this.remoteRoomMuteType, muc == "true", audio == "true", video == "true", videoReq == "true");			
+	}
 }
 
 WebRtc.prototype.handleCandidate = function(elem)
 {
 	WebRtc.log("handleCandidate");
 	
-	var candidate = elem.getElementsByTagName("candidate")[0];
-	var ice = {sdpMLineIndex: candidate.getAttribute("label"), candidate: candidate.getAttribute("candidate")};
+	var label = elem.getElementsByTagName("label")[0].firstChild.data;
+	var candidate = elem.getElementsByTagName("candidate")[0].firstChild.data;
+	
+	var ice = {sdpMLineIndex: label, candidate: candidate};
 	var iceCandidate = new RTCIceCandidate(ice);
 	
 	if (this.farParty == null)	
@@ -736,7 +746,7 @@ WebRtc.prototype.onRemoteStreamAdded = function (event)
 	var url = webkitURL.createObjectURL(event.stream);
 	WebRtc.log("onRemoteStreamAdded " + url);
 	WebRtc.log(event);
-	
+
 	if (this.inviter == false)
 	{
 	    var _webrtc = this;	
@@ -749,13 +759,15 @@ WebRtc.prototype.onRemoteStreamAdded = function (event)
 	    });			
 	}
 
+	this.setAudioTrack();	
+	
 	if (this.remoteVideo && event.stream.videoTracks.length > 0)
 	{
 		document.getElementById(this.remoteVideo).src = url;
 		document.getElementById(this.remoteVideo).play();
 	}
-			
-	this.setAudioTrack();	
+
+	if (WebRtc.callback) WebRtc.callback.onReady(this);	
 }
 
 WebRtc.prototype.onRemoteStreamRemoved = function (event)
@@ -783,11 +795,16 @@ WebRtc.prototype.sendSDP = function(sdp, mediaHints)
 	msg += "<webrtc xmlns='http://webrtc.org/xmpp'>";
 	
 	if (this.inviter)
-		msg += "<offer audio='" + mediaHints.audio + "' video='" + mediaHints.video + "'>" + sdp + "</offer>";
-	else
-		msg += "<answer audio='" + mediaHints.audio + "' video='" + mediaHints.video + "'>" + sdp + "</answer>";		
+	{
+		msg += "<action>offer</action>";	
+	} else {
+		msg += "<action>answer</action>";	
+	}
 
-	if (this.muc) msg += "<muc/>";
+	msg += "<sdp>" + sdp+ "</sdp>";
+	msg += "<audio>" + mediaHints.audio + "</audio>";	
+	msg += "<video>" + mediaHints.video + "</video>";	
+	msg += "<muc>" + this.muc + "</muc>";	
 	
 	msg += "</webrtc>";	
 	msg += "</message>";	
@@ -803,9 +820,13 @@ WebRtc.prototype.sendMuteSignal = function (audio, video, type, videoReq)
 	var msg = "";
 	msg += "<message type='chat' to='" + this.farParty + "'>";	
 	msg += "<webrtc xmlns='http://webrtc.org/xmpp'>";
-	msg += "<mute audio='" + audio + "' video='" + video + "' videoreq='" + videoReq + "' muc='" + this.muc + "' type='" + type + "' />";	
+	msg += "<action>mute</action>";	
+	msg += "<audio>" + audio + "</audio>";	
+	msg += "<video>" + video + "</video>";	
+	msg += "<videoreq>" + videoReq + "</videoreq>";	
+	msg += "<muc>" + this.muc + "</muc>";	
+	msg += "<type>" + type + "</type>";	
 	msg += "</webrtc>";
-	if (this.muc) msg += "<muc/>";	
 	msg += "</message>";	
 	
 	this.sendPacket(msg);
@@ -818,9 +839,11 @@ WebRtc.prototype.sendTransportInfo = function (sdpMLineIndex, candidate)
 	var msg = "";
 	msg += "<message type='chat' to='" + this.farParty + "'>";	
 	msg += "<webrtc xmlns='http://webrtc.org/xmpp'>";
-	msg += "<candidate label='" + sdpMLineIndex + "' candidate='" + candidate + "' />";	
+	msg += "<action>candidate</action>";		
+	msg += "<label>" + sdpMLineIndex + "</label>";
+	msg += "<candidate>" + candidate + "</candidate>";	
+	msg += "<muc>" + this.muc + "</muc>";	
 	msg += "</webrtc>";
-	if (this.muc) msg += "<muc/>";	
 	msg += "</message>";	
 	
 	this.sendPacket(msg);	
@@ -845,7 +868,7 @@ WebRtc.prototype.addJingleNodesCandidates = function()
 WebRtc.prototype.sendPacket = function(packet) {
 
 	try {	
-		if (WebRtc.connection instanceof Strophe.Connection) 
+		if (WebRtc.connection instanceof Strophe.Connection || WebRtc.connection instanceof Openfire.Connection) 
 		{	
 			var xml = WebRtc.textToXML(packet);
 
@@ -868,6 +891,31 @@ WebRtc.prototype.sendPacket = function(packet) {
 		WebRtc.log(packet);
 
 		WebRtc.connection.sendXML(packet);	
+	}
+};
+
+WebRtc.prototype.muteUser = function(mute, video)
+{
+	this.pc.localStreams[0].audioTracks[0].enabled = !mute;				
+
+	if (this.pc.localStreams[0].videoTracks.length > 0 && video) 
+	{
+		this.pc.localStreams[0].videoTracks[0].enabled = !mute;	
+
+		this.sendMuteSignal(mute, mute, "private", video);			
+	} else {
+
+		this.sendMuteSignal(mute, true, "private", false);		
+	}
+};
+
+WebRtc.prototype.muteRemoteUser = function(mute)
+{
+	this.pc.remoteStreams[0].audioTracks[0].enabled = !mute;
+
+	if (this.pc.remoteStreams[0].videoTracks.length > 0) 
+	{
+		this.pc.remoteStreams[0].videoTracks[0].enabled = !mute;									
 	}
 };
 

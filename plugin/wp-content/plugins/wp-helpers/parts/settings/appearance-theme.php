@@ -3,7 +3,7 @@
 Title: Theme
 Setting: piklist_wp_helpers
 Tab: Appearance
-Order: 70
+Order: 500
 */
 
   piklist('field', array(

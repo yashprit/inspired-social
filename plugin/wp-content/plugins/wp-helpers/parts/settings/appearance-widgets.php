@@ -3,7 +3,7 @@
 Title: Widgets
 Setting: piklist_wp_helpers
 Tab: Appearance
-Order: 70
+Order: 510
 */
 
   piklist('field', array(

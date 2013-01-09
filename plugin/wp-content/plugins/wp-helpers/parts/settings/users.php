@@ -3,7 +3,7 @@
 Title: User Profiles
 Setting: piklist_wp_helpers
 Tab: Users
-Order: 80
+Order: 600
 */
 
 

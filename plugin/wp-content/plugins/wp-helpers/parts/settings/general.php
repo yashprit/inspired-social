@@ -2,9 +2,10 @@
 /*
 Title: General
 Setting: piklist_wp_helpers
-Order: 10
+Order: 100
 */
 
+global $wp_version;
   
   piklist('field', array(
     'type' => 'checkbox'
@@ -34,27 +35,6 @@ Order: 10
     ,'label' => 'Screen Options Tab'
     ,'choices' => array(
       'true' => 'Remove'
-    )
-  ));
-
-  piklist('field', array(
-    'type' => 'checkbox'
-    ,'field' => 'maintenance_mode'
-    ,'label' => 'Maintenance Mode'
-    ,'description' => '** Use with Caution. Only Administrators will be able to log in at wp-login.php.'
-    ,'choices' => array(
-      'true' => 'Message:[field=maintenance_mode_message]'
-    )
-    ,'fields' => array(
-      array(
-        'type' => 'text'
-        ,'field' => 'maintenance_mode_message'
-        ,'value' => 'We are currently down for Maintenance.'
-        ,'embed' => true
-        ,'attributes' => array(
-          'class' => 'regular-text'
-        )
-      )
     )
   ));
 

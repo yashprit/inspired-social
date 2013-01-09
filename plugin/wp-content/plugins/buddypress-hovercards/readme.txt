@@ -4,7 +4,7 @@ Donate link: http://trenvo.nl/
 Tags: buddypress, hovercards
 Requires at least: WP 3.2.1, BP 1.5
 Tested up to: WP 3.4.2, BP 1.6.1
-Stable tag: 1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,6 +27,24 @@ If you want to add a custom hovercard, or change the displayed fields, copy '/bp
 
 == Frequently Asked Questions ==
 
+= How can I disable hovercards for certain avatars? =
+
+Hovercards are disabled for some avatars already, namely the profile badge and the profile header. To add more disabled elements, you can use the folowing filters:
+
+'bphc_parent_filter' to disable hovercards for all children of a certain element id or class, e.g.:
+
+`function disable_bphc_by_parent( $filter ) {
+    return $filter . ', .children-of-this-class';
+}
+add_filter('bphc_parent_filter', 'disable_bphc_by_parent');`
+
+'bphc_element_filter' to disable hovercards for avatar img tag with this class/id, e.g.:
+
+`function disable_bphc_for_elements ( $filter ) {
+    return $filter . ', .avatars-with-this-class, #avatar-with-this-id'
+}
+add_filter('bphc_parent_filter', 'disable_bphc_by_parent');`
+
 = Can I make my own hovercard? =
 
 Yes. If you want to add a custom hovercard, or change the displayed fields, copy '/bp-hovercards/templates/hovercard.php' to the root of your (child) theme and edit it there to prevent it being overwritten at an update.
@@ -36,6 +54,15 @@ Yes. If you want to add a custom hovercard, or change the displayed fields, copy
 1. Example hovercard using the template included in the plugin.
 
 == Changelog ==
+
+= 1.1.1 =
+* Disable hovercards for profile badge and profile header (thanks Sandy)
+* Added filters 'bphc_parent_filter' and 'bphc_element_filter' to disable hovercards for certain avatars
+
+= 1.1 =
+* Hovercards are now not reloaded when they're still visible
+* Never show two hovercards at the same time
+* Hovercards were loaded during AJAX calls (when the mouse was no longer on)
 
 = 1.0 =
 * Fixed that non-logged in users got a stylish '0' instead of the hovercard
