@@ -23,6 +23,12 @@
 
 package com.sun.voip.server;
 
+import org.jivesoftware.openfire.SessionManager;
+import org.jivesoftware.openfire.session.ClientSession;
+import org.jivesoftware.util.JiveGlobals;
+
+import org.xmpp.packet.JID;
+
 import com.sun.voip.CallParticipant;
 import com.sun.voip.CallState;
 import com.sun.voip.CallEvent;
@@ -38,9 +44,11 @@ import java.util.NoSuchElementException;
 import java.text.ParseException;
 
 import java.util.Vector;
+import java.util.Collection;
 import org.red5.server.webapp.voicebridge.Application;
-
 import org.red5.server.webapp.voicebridge.Config;
+
+import com.ifsoft.cti.*;
 
 /**
  * Handle an incoming call.  The call is placed into a temporary conference.
@@ -53,21 +61,13 @@ public class IncomingCallHandler extends CallHandler
 	implements CallEventListener {
 
     private Integer stateChangeLock = new Integer(0);
-
     private ConferenceManager newConferenceManager;
-
     private TreatmentManager treatmentManager;
-
     private Object requestEvent;
-
     boolean haveIncomingConferenceId = false;;
-
     private static String defaultIncomingConferenceId = "IncomingCallsConference";
-
     private static String incomingCallTreatment;
-
     private static boolean incomingCallVoiceDetection = false;
-
     private static boolean directConferencing = false;
     private IncomingConferenceHandler incomingConferenceHandler;
 
@@ -83,8 +83,10 @@ public class IncomingCallHandler extends CallHandler
 
     public IncomingCallHandler(CallEventListener listener, CallParticipant cp, Object requestEvent)
     {
+		System.out.println("IncomingCallHandler " + cp);
+
 		if (CallHandler.enablePSTNCalls() == false) {
-			Logger.println("Ignoring incoming call " + cp);
+			Logger.println("Ignoring incoming call " + cp.getToPhoneNumber());
 			return;
 		}
 
@@ -97,35 +99,88 @@ public class IncomingCallHandler extends CallHandler
 
 		addCallEventListener(this);
 
-		if (Config.getInstance().getConferenceExten().equals(cp.getToPhoneNumber()))
+		if (cp.getConferenceId() == null || cp.getConferenceId().length() == 0)
 		{
-			incomingConferenceHandler = new IncomingConferenceHandler(this, cp.getToPhoneNumber());
-
-		} else if (Config.getInstance().getConferenceByPhone(cp.getToPhoneNumber()) != null) {
-
-			incomingConferenceHandler = new IncomingConferenceHandler(this, cp.getToPhoneNumber());
-
-		} else {
-
-			if (cp.getConferenceId() == null || cp.getConferenceId().length() == 0)
+			if (directConferencing)
 			{
-				if (directConferencing)
-				{
-					Logger.println("Don't have conf, using default....");
-					cp.setConferenceId(defaultIncomingConferenceId); // wait in lobby
-
-				} else {
-
-					Logger.println("Incoming SIP, call using called phone id as conference " + cp);
-					cp.setConferenceId(cp.getToPhoneNumber());
-					haveIncomingConferenceId = true;
-				}
+				System.out.println("Don't have conf, using default....");
+				cp.setConferenceId(defaultIncomingConferenceId); // wait in lobby
 
 			} else {
 
-				Logger.println("Have conf " + cp.getConferenceId());
-				haveIncomingConferenceId = true; // goto your conference
+				System.out.println("Incoming SIP, call " + cp);
+
+				Collection<ClientSession> sessions = SessionManager.getInstance().getSessions();
+				boolean foundUser = false;
+
+				for (ClientSession session : sessions)
+				{
+					try{
+						String userId = session.getAddress().getNode();
+
+						if (cp.getToPhoneNumber().equals(userId))
+						{
+							System.out.println("Incoming SIP, call route to user " + userId);
+
+							foundUser = true;
+							break;
+						}
+
+					} catch (Exception e) { }
+				}
+
+				if (foundUser)		// send this call to conf with username and invite user to join with Jingle RTMP
+				{
+					OpenlinkComponent component = (OpenlinkComponent) Application.component;
+
+					String sid = String.valueOf(System.currentTimeMillis());
+					String domain = JiveGlobals.getProperty("xmpp.domain");
+
+					CallParticipant cp2 = new CallParticipant();
+					cp2.setConferenceId(cp.getToPhoneNumber());
+					cp2.setProtocol("RTMP");
+					cp2.setCallId(sid);
+					cp2.setPhoneNumber(cp.getToPhoneNumber() + "@" + domain + "/" + cp.getToPhoneNumber());
+					cp2.setFromPhoneNumber("rtmp://" + domain + "/xmpp");
+
+					String suffix = sid.length() > 16 ? sid.substring(0, 16) : sid;
+
+					cp2.setRtmpRecieveStream("write" + suffix);
+					cp2.setRtmpSendStream("read" + suffix);
+
+					OutgoingCallHandler outgoingCallHandler = new OutgoingCallHandler(listener, cp2);
+					outgoingCallHandler.start();
+
+					JinglePayload localPayload = new JinglePayload("0", "PCMU", "8000", "0", "0");
+					component.sendJingleAction("session-initiate", cp2, localPayload);
+
+					cp.setConferenceId(cp.getToPhoneNumber());
+					haveIncomingConferenceId = true;
+
+	    			this.setOtherCall(outgoingCallHandler);
+	    			outgoingCallHandler.setOtherCall(this);
+
+				} else {		//  conf bridge
+
+					if (Config.getInstance().getConferenceExten().equals(cp.getToPhoneNumber()))
+					{
+						incomingConferenceHandler = new IncomingConferenceHandler(this, cp.getToPhoneNumber());
+
+					} else if (Config.getInstance().getConferenceByPhone(cp.getToPhoneNumber()) != null) {
+
+						incomingConferenceHandler = new IncomingConferenceHandler(this, cp.getToPhoneNumber());
+
+					} else {
+						cancelRequest(cp.getToPhoneNumber() + " is not a valid endpoint");	// reject call
+					}
+				}
+
 			}
+
+		} else {
+
+			Logger.println("Have conf " + cp.getConferenceId());
+			haveIncomingConferenceId = true; // goto your conference
 		}
 
 		start();
@@ -139,8 +194,19 @@ public class IncomingCallHandler extends CallHandler
 	return directConferencing;
     }
 
-    public void cancelRequest(String s) {
-	super.cancelRequest(s);
+    public void cancelRequest(String s)
+    {
+		super.cancelRequest(s);
+
+        CallHandler otherCall = this.otherCall;
+
+        this.otherCall = null;
+
+        if (otherCall != null) {
+            Logger.println("otherCall is " + otherCall.getCallParticipant());
+
+            otherCall.cancelRequest("Bridged Call ended");
+        }
     }
 
     class TransferTimer extends Thread

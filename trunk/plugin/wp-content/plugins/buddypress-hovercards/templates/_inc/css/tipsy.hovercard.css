@@ -18,6 +18,6 @@
     margin-left: 150px;
 }
 
-.tipsy-inner {
+.tipsy .tipsy-inner {
     max-width: 350px;
 }

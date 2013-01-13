@@ -15,6 +15,10 @@ Last revision: 24/06/11
 function applyLinks(string, mode, style) {
 	// Special stuffs
 	var style, target;
+	var prompt = "click to open screen share";	
+
+	console.log("applyLinks");
+	console.log(string);
 	
 	// Links style
 	if(!style)
@@ -27,21 +31,16 @@ function applyLinks(string, mode, style) {
 		target = ' target="_blank"';
 	else
 		target = '';
-	
-	if (string.indexOf('/video/screenviewer.html?stream=') > -1)
-	{
-		var type = "video-chat";
-		var prompt = "Open video confence";
 
-		if (string.indexOf('screenviewer.html') > -1)
-		{
-			type = "screen-share-viewer";
-			prompt = "open screen share";
-		}
+	if (string.indexOf('screen___share') > -1)
+	{
+		string = '<a target="_blank" href="video/screenviewer.html?stream=' + string + '&url=rtmp:/xmpp"' + style + '><img style="width:16px;" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/share_on.png"/>&nbsp;' + prompt + '</a>';	
+
+	} else if (string.indexOf('/video/screenviewer.html?stream=') > -1) {
 		
 		string = '<a target="_blank" href="' + string + '"' + style + '><img style="width:16px;" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/share_on.png"/>&nbsp;' + prompt + '</a>';
 	
-	} else {
+	} else if (string.indexOf("onclick=") == -1) {
 		// XMPP address
 		string = string.replace(/(\s|<br \/>|^)(([a-zA-Z0-9\._-]+)@([a-zA-Z0-9\.\/_-]+))(\s|$)/gi, '$1<a href="xmpp:$2" target="_blank"' + style + '>$2</a>$5');
 

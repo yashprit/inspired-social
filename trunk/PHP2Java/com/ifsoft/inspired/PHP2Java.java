@@ -61,6 +61,29 @@ public class PHP2Java extends AbstractQuercusModule
 
 	}
 
+	public String of_get_db_username()
+	{
+		return JiveGlobals.getXMLProperty("database.defaultProvider.username");
+	}
+
+	public String of_get_db_password()
+	{
+		return JiveGlobals.getXMLProperty("database.defaultProvider.password");
+	}
+
+	public String of_get_db_name()
+	{
+		String serverURL = JiveGlobals.getXMLProperty("database.defaultProvider.serverURL");
+		String defaultName = "inspired";
+
+		int pos = serverURL.indexOf("3306");
+
+		if (pos > -1) defaultName = serverURL.substring(pos + 5);
+
+		return defaultName;
+	}
+
+
 
 	public synchronized void createGroupChat(String groupId)
 	{

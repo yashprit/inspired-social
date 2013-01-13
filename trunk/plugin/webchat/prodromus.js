@@ -103,7 +103,11 @@ $(document).ready( function() {
     
     $('#prodromus-talk').bind( 'click', function( e ) {
 	    Prodromus.actionhandler.talk();
-    });    
+    });  
+    
+    $('#prodromus-screenshare').bind( 'click', function( e ) {
+	    Prodromus.actionhandler.screenshare();
+    });     
     
     $('#prodromus-msgform').bind( 'submit', function( e ) {
         return Prodromus.actionhandler.sendmessage();
@@ -260,6 +264,7 @@ Prodromus.actionhandler = {
                 
                 WebRtc.close();	
                 $('#prodromus-talk').css('display', 'none');
+		$('#prodromus-screenshare').css('display', 'none');                
                 break;
                 
             case Strophe.Status.CONNECTED:
@@ -288,10 +293,12 @@ Prodromus.actionhandler = {
 		{
 			WebRtc.mediaHints = {audio:true, video:false};
 
-			navigator.webkitGetUserMedia(WebRtc.mediaHints, function(stream) 
+			navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.video}, function(stream) 
 			{
-				WebRtc.localStream = stream;	
-
+				WebRtc.localStream = stream;
+				WebRtc.callback = {onReady: Prodromus.actionhandler.onReady, onMute: Prodromus.actionhandler.onMute};
+				WebRtc.init(Prodromus.connection, {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]}); 
+				
 			}, function(error) {
 
 				WebRtc.log("WebRtc.onUserMediaError " + error.code);	
@@ -299,9 +306,6 @@ Prodromus.actionhandler = {
 			
 		} 
 	
-		WebRtc.callback = {onReady: Prodromus.actionhandler.onReady, onMute: Prodromus.actionhandler.onMute};
-		WebRtc.init(Prodromus.connection, {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]}); 
-
                 break;
         }
     },
@@ -328,8 +332,16 @@ Prodromus.actionhandler = {
         
         if($(msg).attr('type') == "groupchat" && $(msg).find('body').size() > 0 ) 
         {
+        	var message = $(msg).find('body').first().text();
+
+        	if (message.indexOf("screen___share") > -1)
+        	{ 
+        		var prompt = "click here to view screen share"
+        		message = '<a target="_blank" href="' + message + '"><img style="width:16px;" src="../chat/img/others/share_on.png">' + prompt + '</a>';
+        	}
+        	
 		Prodromus.config.RECEIVERNAME = Strophe.unescapeNode(Strophe.getResourceFromJid($(msg).attr('from')));
-		Prodromus.UI.log( $(msg).find('body').first().text(), 'msgIn' );
+		Prodromus.UI.log( message, 'msgIn' );
 
         }  else      
 
@@ -340,8 +352,9 @@ Prodromus.actionhandler = {
         	Prodromus.config.ROOM = Strophe.getNodeFromJid($(msg).attr('from'));
         	Prodromus.config.SENDER = Prodromus.config.RECEIVER + "/" + Strophe.escapeNode(Prodromus.config.SENDERNAME)
         	
-		Prodromus.connection.muc.join($(msg).attr('from'), Prodromus.config.SENDERNAME) 
-        } else {
+		Prodromus.connection.muc.join($(msg).attr('from'), Prodromus.config.SENDERNAME) ;
+		
+        } else if ($(msg).find('webrtc').size() > 0) {
         
 		var jid = $(msg).attr('from'); 
 		var room = Strophe.getNodeFromJid(jid);		
@@ -415,12 +428,22 @@ Prodromus.actionhandler = {
     { 
 	WebRtc.log("handleReady " + peer.farParty); 
 	$('#prodromus-talk').css('display', 'inline');
+	$('#prodromus-screenshare').css('display', 'inline');	
     },
     
     onMute: function( peer, type, muc, audioMuted, videoMuted, videoRequested ) 
     { 
 	WebRtc.log("handleMuteSignal " + peer.farParty + " " + audioMuted + " " + videoMuted + " " + type + " " + muc, 3);
     
+    },
+
+    screenshare: function()
+    {
+	var stream = "screen___share" + Math.random().toString(36).substr(2,9);  	
+	Prodromus.buildAndSendMessage(stream, "groupchat");  
+
+	var url = "../video/screenshare?stream=" + stream + "&app=xmpp";		
+	$('body').append('<iframe height="0" width="0" src="' + url + '"></iframe>');	
     },
     
     talk: function()
@@ -442,6 +465,7 @@ Prodromus.UI = {
                 +'<form name="prodromus-credentials" action="">'
                     +'<input type="button" id="prodromus-connect" value="{t9n_connect}" />'
                     +'<input style="display:none" type="button" id="prodromus-talk" value="{t9n_talk}" />'                    
+                    +'<input style="display:none" type="button" id="prodromus-screenshare" value="{t9n_screenshare}" />'                       
                     +'<label for="prodromus-username">{t9n_your-name}:</label>'
                     +'<input type="text" id="prodromus-username" value="{sendername}" />'
                     +'<span id="prodromus-usernameDisplay"></span>'
@@ -461,6 +485,7 @@ Prodromus.UI = {
         pattern = pattern.replace( "{t9n_your-name}", Prodromus.i18n.t9n( 'your-name' ) );
         pattern = pattern.replace( "{t9n_connect}", Prodromus.i18n.t9n( 'connect' ) );
         pattern = pattern.replace( "{t9n_talk}", Prodromus.i18n.t9n( 'talk' ) );        
+        pattern = pattern.replace( "{t9n_screenshare}", Prodromus.i18n.t9n( 'screenshare' ) );            
         pattern = pattern.replace( "{t9n_send}", Prodromus.i18n.t9n( 'send' ) );
             
         $(el).html( pattern );
@@ -489,8 +514,11 @@ Prodromus.UI = {
                 break;
         }
         
-        msg = Prodromus.Util.htmlspecialchars( msg );
-        msg = Prodromus.Util.text2link( msg );
+        if (msg.indexOf("screen___share") == -1)
+        {
+        	msg = Prodromus.Util.htmlspecialchars( msg );        
+        	msg = Prodromus.Util.text2link( msg );
+        }
         
         pattern = pattern.replace( "{message}", msg );
         
@@ -521,6 +549,7 @@ Prodromus.t9n = {
         'connect': 'Verbinden',
         'talk': 'Talk',   
         'mute': 'Mute',          
+        'screenshare': 'Screen Share',          
         'connecting': 'Verbindung wird hergestellt...',
         'connected': 'Verbunden!',
         'disconnect': 'Verbindung trennen',
@@ -536,7 +565,8 @@ Prodromus.t9n = {
         'your-name': 'Your name',
         'connect': 'connect',
         'talk': 'talk',    
-        'mute': 'mute',         
+        'mute': 'mute',   
+        'screenshare': 'Screen Share',         
         'connecting': 'Connecting...',
         'connected': 'Connected!',
         'disconnect': 'disconnect',

@@ -1126,30 +1126,6 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		sendPacket(iq);
 	}
 
-	/*
-	<content creator='initiator' name='audio'>
-		<description xmlns='urn:xmpp:jingle:apps:rtp:1' profile='RTP/SAVPF' media='audio'>
-			<payload-type id='0' name='PCMU' clockrate='8000'/>
-			<encryption required='1'>
-				<crypto crypto-suite='AES_CM_128_HMAC_SHA1_32' key-params='inline:f1TD/wKRR8Jpya+YCL47ZChUrlvRLLDbJxiqqHGn' session-params='' tag='0'/>
-				<crypto crypto-suite='AES_CM_128_HMAC_SHA1_80' key-params='inline:BxXbmQypg01h2fh7eHNabpzj2HWrTNryO8XEzyR7' session-params='' tag='1'/>
-			</encryption>
-			<streams>
-				<stream cname='ZuBw/TRn2mPj0MHB' mslabel='fS2BDaJ3EvjpCScYfyMKKZRqrilk7eFj3xWh' label='fS2BDaJ3EvjpCScYfyMKKZRqrilk7eFj3xWh00'>
-					<ssrc>954782039</ssrc>
-				</stream>
-			</streams>
-		</description>
-		<transport xmlns='urn:xmpp:jingle:transports:raw-udp:1'>
-			<candidate ip='192.168.1.88' port='61032' generation='0'/>
-		</transport>
-		<transport xmlns='urn:xmpp:jingle:transports:ice-udp:1' pwd="sq+V1dtjWATOth4fPaZcVXEJ" ufrag="MnEBbD+P7snEQs7M">
-			<candidate component='1' foundation='1001321590' protocol='udp' priority='2130714367' ip='192.168.1.88' port='61032' type='host' generation='0'/>
-		</transport>
-
-	</content>
-
-	*/
 
    	public void sendJingleAction(String action, CallParticipant cp, JinglePayload payload)
    	{
@@ -1192,12 +1168,20 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 			Element streams = newDescription.addElement("streams");
 			Element stream = streams.addElement("stream").addAttribute("cname", "iirNX3Znb0iT+aow").addAttribute("mslabel", "fAy0FNrYIDVfeRwX5X0IK5TOCVTNJOXt4Cdb").addAttribute("label", "fAy0FNrYIDVfeRwX5X0IK5TOCVTNJOXt4Cdb00");
 			stream.addElement("ssrc").setText(cp.getSsrc());
-		}
+					}
 
 		if ("RTMP".equals(cp.getProtocol()) || "RTMFP".equals(cp.getProtocol()))
 		{
 			Element newTransportRtmp= newContent.addElement("transport", "http://voxeo.com/gordon/transports/rtmp");
 			newTransportRtmp.addElement("candidate").addAttribute("rtmpuri", cp.getFromPhoneNumber()).addAttribute("publishname", cp.getRtmpRecieveStream()).addAttribute("playname", cp.getRtmpSendStream());
+
+			if ("session-initiate".equals(action)) // outgoing RTMP Jingle bridge call to incoming call
+			{
+				callStreams.put(cp.getRtmpSendStream(), sid);
+				callStreams.put(cp.getRtmpRecieveStream(), sid);
+
+				callParticipants.put(sid, cp);
+			}
 
 		} else {
 
@@ -1222,7 +1206,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 		// make outgoing SIP call
 
-		makeOutgoingSipCall(to, cp);
+		if ("session-accept".equals(action))
+			makeOutgoingSipCall(to, cp);
 	}
 
 
@@ -1483,6 +1468,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
     {
 		Log.info("incomingCallNotification " + callEvent.toString());
 
+		handleCallNotification(callEvent);
     }
 
 
@@ -1490,13 +1476,20 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
     {
 		Log.info( "outgoingCallNotification " + callEvent.toString());
 
+		handleCallNotification(callEvent);
+    }
+
+    private void handleCallNotification(CallEvent callEvent)
+    {
+		Log.info( "handleCallNotification " + callEvent.toString());
+
 		try {
 
 			if (callEvent.getCallState().equals(CallState.ENDED))
 			{
 				if (callParticipants.containsKey(callEvent.getCallId()))
 				{
-					Log.info( "outgoingCallNotification  found existing call. Terminating");
+					Log.info( "handleCallNotification  found existing call. Terminating");
 
 					CallParticipant cp = callParticipants.remove(callEvent.getCallId());
 
@@ -1510,7 +1503,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 		} catch (Exception e) {
 
-			Log.error("Error in outgoingCallNotification " + e);
+			Log.error("Error in handleCallNotification " + e);
 			e.printStackTrace();
 		}
     }

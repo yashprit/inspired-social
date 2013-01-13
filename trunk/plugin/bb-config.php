@@ -13,13 +13,13 @@
 
 // ** MySQL settings - You can get this info from your web host ** //
 /** The name of the database for bbPress */
-define( 'BBDB_NAME', 'inspired342' );
+define( 'BBDB_NAME', of_get_db_name() );
 
 /** MySQL database username */
-define( 'BBDB_USER', 'root' );
+define( 'BBDB_USER', of_get_db_username() );
 
 /** MySQL database password */
-define( 'BBDB_PASSWORD', 'password' );
+define( 'BBDB_PASSWORD', of_get_db_password() );
 
 /** MySQL hostname */
 define( 'BBDB_HOST', 'localhost' );

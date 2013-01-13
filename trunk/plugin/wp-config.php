@@ -8,21 +8,21 @@
  * wp-config.php} Codex page. You can get the MySQL settings from your web host.
  *
  * This file is used by the wp-config.php creation script during the
- * installation. You don't have to use the web site, you can just copy this file
+ * installation. You dont have to use the web site, you can just copy this file
  * to "wp-config.php" and fill in the values.
  *
  * @package WordPress
  */
 
 // ** MySQL settings - You can get this info from your web host ** //
-/** The name of the database for WordPress */
-define('DB_NAME', 'inspired342');
+/* The name of the database for WordPress */
+define('DB_NAME', of_get_db_name());
 
 /** MySQL database username */
-define('DB_USER', 'root');
+define('DB_USER', of_get_db_username());
 
 /** MySQL database password */
-define('DB_PASSWORD', 'password');
+define('DB_PASSWORD', of_get_db_password());
 
 /** MySQL hostname */
 define('DB_HOST', 'localhost');
