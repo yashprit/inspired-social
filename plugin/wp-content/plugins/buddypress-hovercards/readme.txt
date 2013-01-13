@@ -4,7 +4,7 @@ Donate link: http://trenvo.nl/
 Tags: buddypress, hovercards
 Requires at least: WP 3.2.1, BP 1.5
 Tested up to: WP 3.4.2, BP 1.6.1
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -54,6 +54,9 @@ Yes. If you want to add a custom hovercard, or change the displayed fields, copy
 1. Example hovercard using the template included in the plugin.
 
 == Changelog ==
+
+= 1.1.2 =
+* Better compatibility with BP Social Theme
 
 = 1.1.1 =
 * Disable hovercards for profile badge and profile header (thanks Sandy)

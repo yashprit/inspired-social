@@ -375,6 +375,10 @@ public abstract class CallHandler extends Thread {
         csa.stopCallEstablishedTreatment();
     }
 
+    public void setOtherCall(CallHandler otherCall) {
+        this.otherCall = otherCall;
+    }
+
     /*
      * terminate a call.
      */

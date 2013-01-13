@@ -32,13 +32,14 @@
 		return password;
 	}
 
+
 	function setGroups(groups)
 	{
 		if (username != "")
 		{
 			if (MINI_GROUPCHATS.length != groups.length || MINI_GROUPCHATS.length == 0)
 			{
-				if (MINI_GROUPCHATS.length != groups.length)
+				if (MINI_GROUPCHATS.length != groups.length || !MINI_INITIALIZED)
 				{
 					if(!MINI_INITIALIZED)
 					{

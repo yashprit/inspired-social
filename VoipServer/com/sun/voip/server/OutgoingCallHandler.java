@@ -329,9 +329,10 @@ public class OutgoingCallHandler extends CallHandler
 	}
 
         if (csl != null && suppressEvent(cp, callEvent) == false) {
-            Application.outgoingCallNotification(callEvent);
 	    csl.callEventNotification(callEvent);
         }
+
+        Application.outgoingCallNotification(callEvent);
     }
 
     /*
@@ -458,16 +459,6 @@ public class OutgoingCallHandler extends CallHandler
 	}
     }
 
-    /*
-     * For two party calls.
-     *
-     * When one party hangs up, the other call should be terminated as well.
-     */
-    //private OutgoingCallHandler otherCall;
-
-    public void setOtherCall(OutgoingCallHandler otherCall) {
-        this.otherCall = otherCall;
-    }
 
     /*
      * For two party calls, we wait until the first party answers

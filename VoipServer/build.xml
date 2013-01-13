@@ -6,6 +6,7 @@
 
 	<path id="build.classpath">
 		<fileset dir="C:\Projects\InspiredProject\inspired\plugin\lib" includes="*.jar"/>
+		<fileset dir="C:\Projects\InspiredProject\inspired\VoipServer\lib" includes="*.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="openfire.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="servlet.jar"/>
 	</path>

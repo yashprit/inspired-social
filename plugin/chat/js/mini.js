@@ -628,7 +628,7 @@ function handlePresenceMini(pr) {
 				logThis('agent-status message  to ' + workGroup, 3);			
 				var text = "<a onclick='chatMini(&quot;groupchat&quot;, &quot;" + sessionXid + "&quot;, &quot;" + username +"&quot;, &quot;" + sessionHash + "&quot;, null, true);'>Talking with " + username + " about " + question + "</a>";
 				
-				displayMessageMini("groupchat", text, workGroup + "/" + nick, nick, hex_md5(workGroup), time, stamp, 'user-message', true);		
+				displayMessageMini("groupchat", text, workGroup + "/" + nick, nick, hex_md5(workGroup), time, stamp, 'user-message');		
 			}
 			
 		});
@@ -1172,7 +1172,7 @@ function createMini(domain, user, password) {
 	//setupConMini(con);
 	
 	// Old DOM?
-	if(dom && ((getTimeStamp() - stamp) < JSJACHBC_MAX_WAIT) && con.resume()) {
+	if(dom && ((getTimeStamp() - stamp) < JSJACHBC_MAX_WAIT)) {
 		// Read the old nickname
 		MINI_NICKNAME = getDB('jappix-mini', 'nickname');
 		
@@ -1386,7 +1386,7 @@ function createMini(domain, user, password) {
 }
 
 // Displays a given message
-function displayMessageMini(type, body, xid, nick, hash, time, stamp, message_type, internal) {
+function displayMessageMini(type, body, xid, nick, hash, time, stamp, message_type) {
 	// Generate path
 	var path = '#chat-' + hash;
 	
@@ -1433,25 +1433,25 @@ function displayMessageMini(type, body, xid, nick, hash, time, stamp, message_ty
 		me_command = true;
 	}
 		
-	if (!internal)
-	{
-		// Filter the links
-		body = applyLinks(body, 'mini');
-		
-		// HTML-encode the message
+
+	// HTML-encode the message
+	
+	if (body.indexOf("onclick='chatMini") == -1) 
 		body = body.htmlEnc();
 
-		// Apply the smileys
-		body = body.replace(/(;\)|;-\))(\s|$)/gi, smileyMini('wink', '$1'))
-			   .replace(/(:3|:-3)(\s|$)/gi, smileyMini('waii', '$1'))
-			   .replace(/(:\(|:-\()(\s|$)/gi, smileyMini('unhappy', '$1'))
-			   .replace(/(:P|:-P)(\s|$)/gi, smileyMini('tongue', '$1'))
-			   .replace(/(:O|:-O)(\s|$)/gi, smileyMini('surprised', '$1'))
-			   .replace(/(:\)|:-\))(\s|$)/gi, smileyMini('smile', '$1'))
-			   .replace(/(\^\^|\^_\^)(\s|$)/gi, smileyMini('happy', '$1'))
-			   .replace(/(:D|:-D)(\s|$)/gi, smileyMini('grin', '$1'));		
-	}
-	
+
+	// Apply the smileys
+	body = body.replace(/(;\)|;-\))(\s|$)/gi, smileyMini('wink', '$1'))
+		   .replace(/(:3|:-3)(\s|$)/gi, smileyMini('waii', '$1'))
+		   .replace(/(:\(|:-\()(\s|$)/gi, smileyMini('unhappy', '$1'))
+		   .replace(/(:P|:-P)(\s|$)/gi, smileyMini('tongue', '$1'))
+		   .replace(/(:O|:-O)(\s|$)/gi, smileyMini('surprised', '$1'))
+		   .replace(/(:\)|:-\))(\s|$)/gi, smileyMini('smile', '$1'))
+		   .replace(/(\^\^|\^_\^)(\s|$)/gi, smileyMini('happy', '$1'))
+		   .replace(/(:D|:-D)(\s|$)/gi, smileyMini('grin', '$1'));		
+
+	// Filter the links
+	body = applyLinks(body, 'mini');
 	
 	// Generate the message code
 	if(me_command)
@@ -1642,7 +1642,7 @@ function doScreenShareImage(img, xid, type)
 	{
 		img.src = "chat/img/others/share_off.png";
 		
-		var stream = "screen_share" + Math.random().toString(36).substr(2,9);
+		var stream = "screen___share" + Math.random().toString(36).substr(2,9);
 
 		var aMsg = new JSJaCMessage();
 		aMsg.setTo(xid);
@@ -2307,14 +2307,15 @@ function launchMini(autoconnect, show_pane, domain, user, password)
 	
 	WebRtc.mediaHints = {audio:true, video:false};
 
-	navigator.webkitGetUserMedia(WebRtc.mediaHints, function(stream) 
+	navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.vide}, function(stream) 
 	{
 		WebRtc.localStream = stream;	
 		createMini(domain, user, password);
 		
 	}, function(error) {
 	
-		logThis("WebRtc.onUserMediaError " + error.code);	
+		logThis("WebRtc.onUserMediaError " + error.code);
+		createMini(domain, user, password);		
 	});
 	
 	logThis('Welcome to Jappix Mini! Happy coding in developer mode!');

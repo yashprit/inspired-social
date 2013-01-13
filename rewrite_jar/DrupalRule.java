@@ -40,6 +40,8 @@ import java.io.File;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Cookie;
+import javax.servlet.RequestDispatcher;
 
 import org.tuckey.web.filters.urlrewrite.extend.RewriteMatch;
 import org.tuckey.web.filters.urlrewrite.extend.RewriteRule;
@@ -80,13 +82,7 @@ public class DrupalRule extends RewriteRule {
 	public RewriteMatch matches(HttpServletRequest request, HttpServletResponse response) {
 		String requestURI = request.getRequestURI();
 
-		System.out.println("matches url " + requestURI);
-
-		if (requestURI == null) return null;
-
-		if (requestURI.equals("/")) return null;
-
-		if (requestURI.equals("/favicon.ico")) return null;
+		System.out.println("matches url " + requestURI + " for " + request.getHeader("Authorization"));
 
 		if (requestURI.indexOf("screenshare?stream=") > -1) return null;
 
@@ -94,13 +90,49 @@ public class DrupalRule extends RewriteRule {
 
 		if (requestURI.indexOf("/inspired/chat/") > -1) return null;
 
-		if (requestURI.indexOf("/inspired/wp-admin/") > -1) return null;
+		if (requestURI.indexOf("\\inspired\\video\\") > -1) return null;
 
-		if (requestURI.indexOf("/inspired/wp-content/") > -1) return null;
+		if (requestURI == null) return null;
+
+		if (requestURI.equals("/")) return null;
+
+		if (requestURI.equals("/favicon.ico")) return null;
+
+		if (requestURI.indexOf("/inspired/wp-admin/") > -1) return null;
 
 		if (requestURI.indexOf("/inspired/wp-includes/") > -1) return null;
 
-		if (requestURI.indexOf("\\inspired\\video\\") > -1) return null;
+  		if (requestURI.indexOf("/inspired/wp-content/uploads") > -1)
+  		{
+			Cookie[] cookies = request.getCookies();
+			boolean loggedIn = false;
+
+			if (cookies != null)
+			{
+			  for (int i = 0; i < cookies.length; i++)
+			  {
+				if (cookies[i].getName().indexOf("wordpress_logged_in") > -1) {
+				  loggedIn = true;;
+				  break;
+				}
+			  }
+			}
+
+			if (!loggedIn)
+			{
+				try {
+					RequestDispatcher rd = request.getRequestDispatcher("/wp-login.php?redirect_to=" + request.getRequestURI().substring(1));
+					rd.forward(request, response);
+				} catch (Exception e) {
+
+					System.err.println("RewriteMatch " + e);
+				}
+			}
+
+			return null;
+		}
+
+		if (requestURI.indexOf("/inspired/wp-content/") > -1) return null;
 
 		// No rewrite if real path cannot be obtained, or if request URI points to a
 		// physical file or directory
