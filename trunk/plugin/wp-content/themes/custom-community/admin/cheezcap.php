@@ -12,6 +12,7 @@ require_once( dirname(__FILE__) . '/get-pro.php' );
 require_once( dirname(__FILE__) . '/post-metabox.php' );
 require_once( dirname(__FILE__) . '/library.php' );
 require_once( dirname(__FILE__) . '/config.php' );
+require_once( dirname(__FILE__) . '/bp-avatar.php' );
 
 
 add_action( 'admin_init', 'custom_community_theme_options_init' );
@@ -62,7 +63,7 @@ function cap_add_admin() {
         $done = false;
         $data = new ImportData();
         switch ( $action ) {
-            case 'Reset':            
+            case 'Reset All Settings':            
                 delete_option('custom_community_theme_options');     
                 cap_defaults_init();                  
                 $method = false;
@@ -74,7 +75,7 @@ function cap_add_admin() {
             case 'Import':
                 $method = 'Import';
                 if(empty($_FILES['file']['tmp_name']))
-                    return ;
+                    break ;
                 
                 $data = unserialize( implode ('', file ($_FILES['file']['tmp_name'])));
                 break;
@@ -94,6 +95,7 @@ function cap_add_admin() {
     $pgName = "$themename Settings";
     $hook = add_theme_page( $pgName, $pgName, isset( $req_cap_to_edit ) ? $req_cap_to_edit : 'edit_theme_options', 'theme_settings', 'top_level_settings' );
     add_action( "admin_print_scripts-$hook", 'cap_admin_js_libs' );
+    add_action( "admin_print_scripts-$hook", 'cc_add_rotate_tabs' );
     add_action( "admin_footer-$hook", 'cap_admin_js_footer' );
     add_action( "admin_print_styles-$hook", 'cap_admin_css' );    
 }
@@ -113,7 +115,7 @@ function cap_defaults_init(){
         foreach ($cap_option_arr['options'] AS $option){
             switch(get_class($option)){
                 case 'DropdownOption':
-                    $cap_options_default[$option->id] = $option->options[0];
+                    $cap_options_default[$option->id] = array_shift($option->options);
                 break;
                 case 'BooleanOption':
                 default:

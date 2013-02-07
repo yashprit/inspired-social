@@ -20,7 +20,7 @@
 	<?php endif; ?>
 </div><!-- #item-actions -->
 
-	<div id="item-header-avatar">
+	<div id="item-header-avatar" class="hidden-phone">
 		<a href="<?php bp_group_permalink() ?>" title="<?php bp_group_name() ?>">
 			<?php global $cap;  $asize = '150';
 			if($cap->bp_groups_avatar_size !=  '') 

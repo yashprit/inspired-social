@@ -43,11 +43,11 @@ add_shortcode('cc_h_line', 'h_line');
 function facebook_like() { 
     $pageURL = 'http';
 
-    if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+    if (!empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
     
     $pageURL .= "://";
     
-    if ($_SERVER["SERVER_PORT"] != "80") {
+    if (!empty($_SERVER["SERVER_PORT"]) && $_SERVER["SERVER_PORT"] != "80") {
         $pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
     } else {
         $pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
@@ -314,6 +314,7 @@ function cc_list_posts($atts,$content = null) {
     
     extract(shortcode_atts(array(
         'amount'        => '12',
+        'category__in'  => array(),
         'category_name' => '0',
         'img_position'  => 'mouse_over',
         'height'        => 'auto',
@@ -321,6 +322,8 @@ function cc_list_posts($atts,$content = null) {
         'post_type'     => 'post',
         'orderby'       => '',
         'order'         => '',
+        'year'          => '',
+        'monthnum'      => ''
     ), $atts));
 
     switch ($img_position){
@@ -341,26 +344,36 @@ function cc_list_posts($atts,$content = null) {
             break;
         }
         
-    if($category_name == 'all-categories'){
-        $category_name = '0';
+   if (empty($category__in)) {
+        $category__in = array();
+        $categories = get_categories();
+        foreach ($categories as $category) {
+            $category__in[] = $category->term_id;
+        }
+    } else if (!is_array($category__in)) {
+        $category__in = explode(',', $category__in);
     }
-        
+
     if($page_id != ''){
         $page_id = explode(',',$page_id);
     }
-    
+    $paged = (get_query_var('paged')) ? get_query_var('paged') : 1;
     $args = array(
         'orderby'        => $orderby,
         'order'          => $order,
         'post_type'      => $post_type,
         'post__in'       => $page_id,
-        'category_name'  => $category_name,
-        'posts_per_page' => $amount
+        'year'           => $year,
+        'monthnum'       => $monthnum,
+        'category__in'   => $category__in,
+        'category_name'   => $category_name,
+        'posts_per_page' => $amount,
+        'paged'          => $paged
     );
-    
+
     remove_all_filters('posts_orderby');
     query_posts($args);
-    
+
     if (have_posts()) {
         $thePath = array();
         $pattern = "/(?<=src=['|\"])[^'|\"]*?(?=['|\"])/i";
@@ -375,7 +388,7 @@ function cc_list_posts($atts,$content = null) {
                 $tmp .= '<a href="'. get_permalink().'" title="'. get_the_title().'"><img src="'.$thePath[0].'" /></a>';
                 $tmp .= '<div class="cover boxcaption">';
                 $tmp .= '<h3><a href="'. get_permalink().'" title="'. get_the_title().'">'. get_the_title().'</a></h3>';
-                $tmp .= '<p><a href="'. get_permalink().'" title="'. get_the_title().'">'.substr(get_the_excerpt(), 0, 100).'...</a></p>';
+                $tmp .= '<p class="hidden-phone"><a href="'. get_permalink().'" title="'. get_the_title().'">'.substr(get_the_excerpt(), 0, 100).'...</a></p>';
                 $tmp .= '</div>';
                 $tmp .= '</div>'; 
             } else {
@@ -399,7 +412,7 @@ function cc_list_posts($atts,$content = null) {
 
     wp_reset_query();
     
-    return '<div class="list-posts-all">'.$tmp.'</div>&nbsp;';
+    return '<div class="list-posts-all phone-hidden">'.$tmp.'</div>&nbsp;';
 }
 add_shortcode('cc_list_posts', 'cc_list_posts');
 

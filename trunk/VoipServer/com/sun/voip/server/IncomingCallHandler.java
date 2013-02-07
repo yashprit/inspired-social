@@ -133,15 +133,16 @@ public class IncomingCallHandler extends CallHandler
 				{
 					OpenlinkComponent component = (OpenlinkComponent) Application.component;
 
-					String sid = String.valueOf(System.currentTimeMillis());
+					String sid = "pstn-" + String.valueOf(System.currentTimeMillis());
 					String domain = JiveGlobals.getProperty("xmpp.domain");
 
 					CallParticipant cp2 = new CallParticipant();
-					cp2.setConferenceId(cp.getToPhoneNumber());
+					cp2.setConferenceId(sid);
 					cp2.setProtocol("RTMP");
 					cp2.setCallId(sid);
 					cp2.setPhoneNumber(cp.getToPhoneNumber() + "@" + domain + "/" + cp.getToPhoneNumber());
 					cp2.setFromPhoneNumber("rtmp://" + domain + "/xmpp");
+					cp2.setPhoneNumberLocation(cp.getPhoneNumber());
 
 					String suffix = sid.length() > 16 ? sid.substring(0, 16) : sid;
 
@@ -154,7 +155,7 @@ public class IncomingCallHandler extends CallHandler
 					JinglePayload localPayload = new JinglePayload("0", "PCMU", "8000", "0", "0");
 					component.sendJingleAction("session-initiate", cp2, localPayload);
 
-					cp.setConferenceId(cp.getToPhoneNumber());
+					cp.setConferenceId(sid);
 					haveIncomingConferenceId = true;
 
 	    			this.setOtherCall(outgoingCallHandler);

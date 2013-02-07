@@ -585,7 +585,7 @@ jq(document).ready( function() {
 			object = 'members';
 
 		if ( jq('div.pagination span.current').length )
-				var page_number = Number( jq('div.pagination span.current').html() );
+				page_number = new Number( jq('div.pagination span.current').html() );
 
 		bp_displaymode_request( object, displaymode, scope, 'div.' + object, search_terms, page_number, jq.cookie('bp-' + object + '-extras') );
 
@@ -725,6 +725,28 @@ jq(document).ready( function() {
 
 		return false;
 	});
+
+	/** Profile Visibility Settings *********************************/
+	jq('.field-visibility-settings').hide();
+	jq('.visibility-toggle-link').on( 'click', function() {
+		var toggle_div = jq(this).parent();
+		
+		jq(toggle_div).fadeOut( 600, function(){
+			jq(toggle_div).siblings('.field-visibility-settings').slideDown(400);
+		});
+		
+		return false;
+	} );
+
+	jq('.field-visibility-settings-close').on( 'click', function() {
+		var settings_div = jq(this).parent();
+		
+		jq(settings_div).slideUp( 400, function(){
+			jq(settings_div).siblings('.field-visibility-settings-toggle').fadeIn(800);
+		});
+		
+		return false;
+	} );
 
 	/** Friendship Requests **************************************/
 
@@ -1088,10 +1110,10 @@ jq(document).ready( function() {
     /* Scroll a lot of menu items in BuddyPress sub nav menu  ------start*/
     
     
+    if(screen.width > 1024){
+    var selector_nav_wrap = '.item-list-tabs[role="navigation"]:not("#subnav"), .item-list-tabs#object-nav';
     
-     var selector_nav_wrap = '.item-list-tabs[role="navigation"]:not("#subnav"), .item-list-tabs#object-nav';
-    
-    jq(selector_nav_wrap).prepend('<button class="prev">&lt;</button><button class="next">&gt;</button>').find('ul').wrap('<div>');
+    jq(selector_nav_wrap).prepend('<button class="prev">&lt;</button><button class="next">&gt;</button>').find('ul').wrap('<div class="bp-nav-wrap">');
     
 	// Enable or leave the keys
 	jq(selector_nav_wrap).each(function(){
@@ -1142,11 +1164,16 @@ jq(document).ready( function() {
 			marginLeft: '+='+diff
 		},400, 'swing');
 	});
+    }
     /* Scroll a lot of menu items in BuddyPress sub nav menu  ------end*/
     
     jq('.allow-dirrect-links').click( function(){
         window.location = jq(this).attr('data-url');
-    })
+    });
+    
+    //add class to plugins pages
+    jq('#content').addClass('span8');
+    
 });
 
 /* Setup activity scope and filter based on the current cookie settings. */
@@ -1203,9 +1230,8 @@ function bp_filter_request( object, filter, scope, target, search_terms, page, e
 	jq.cookie( 'bp-' + object + '-extras', extras, {path: '/'} );
 
 	/* Set the correct selected nav and filter */
-	jq('div.item-list-tabs li').each( function() {
-		jq(this).removeClass('selected');
-	});
+	jq('div.item-list-tabs li').removeClass('selected');
+    
 	jq('div.item-list-tabs li#' + object + '-' + scope + ', div.item-list-tabs#object-nav li.current').addClass('selected');
 	jq('div.item-list-tabs li.selected').addClass('loading');
 	jq('div.item-list-tabs select option[value="' + filter + '"]').prop( 'selected', true );
@@ -1232,7 +1258,7 @@ function bp_filter_request( object, filter, scope, target, search_terms, page, e
 			jq(this).html(response);
 			jq(this).fadeIn(100);
 	 	});
-		jq('div.item-list-tabs li.selected').removeClass('loading');
+		jq('div.item-list-tabs li.loading').removeClass('loading').addClass('selected');
 	});
 }
 
@@ -1254,7 +1280,7 @@ function bp_displaymode_request( object, displaymode, scope, target, search_term
 
 	/* Set the correct selected nav and displymode */
 	jq('div.item-list-tabs li').each( function() {
-		jq(this).removeClass('selected');
+//		jq(this).removeClass('selected');
 	});
 	jq('div.item-list-tabs li#' + object + '-' + scope + ', div.item-list-tabs#object-nav li.current').addClass('selected');
 	jq('div.item-list-tabs li.selected').addClass('loading');
@@ -1265,7 +1291,7 @@ function bp_displaymode_request( object, displaymode, scope, target, search_term
 
 	if ( bp_ajax_request )
 		bp_ajax_request.abort();
-
+alert(2)
 	bp_ajax_request = jq.post( ajaxurl, {
 		action: object + '_displaymode',
 		'cookie': encodeURIComponent(document.cookie),
@@ -1276,13 +1302,14 @@ function bp_displaymode_request( object, displaymode, scope, target, search_term
 		'page': page,
 		'extras': extras
 	},
-	function(response)
-	{
+	function(response, textStatus, jqXHR)
+	{ console.log(response, textStatus, jqXHR)
+        alert(5)
 		jq(target).fadeOut( 100, function() {
 			jq(this).html(response);
 			jq(this).fadeIn(100);
 	 	});
-		jq('div.item-list-tabs li.selected').removeClass('loading');
+		jq('div.item-list-tabs li.selected').removeClass('loading').addClass('selected');
 	});
 }
 

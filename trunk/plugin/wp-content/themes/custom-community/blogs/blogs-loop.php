@@ -32,7 +32,7 @@
 	<?php while ( bp_blogs() ) : bp_the_blog(); ?>
 
 		<li>
-			<div class="item-avatar">
+			<div class="item-avatar hidden-phone">
 				<a href="<?php bp_blog_permalink(); ?>"><?php bp_blog_avatar( 'type=thumb' ); ?></a>
 			</div>
 

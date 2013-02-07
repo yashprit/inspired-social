@@ -1,6 +1,6 @@
 <?php do_action( 'bp_before_forum_header' ); ?>
 
-<div id="item-header-avatar">
+<div id="item-header-avatar" class="hidden-phone">
 	<a href="<?php bp_forum_permalink(); ?>" title="<?php bp_get_forum_name(); ?>">
 
 		<?php //bp_forum_avatar(); ?>

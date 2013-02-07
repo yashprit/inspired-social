@@ -30,7 +30,7 @@
     function show(ele) {
       clearHideTimeout(ele);
 
-      if ( ele != timeoutEl && typeof timeoutEl !== "undefined" ) {
+      if ( ele != timeoutEl && typeof timeoutEl !== "undefined" && timeoutEl ) {
         jQuery('.tipsy').fadeOut();
         timeoutEl.data('visible', false);
       }
@@ -48,37 +48,40 @@
     }
 
     function enter() {
-      var a = $(this);
-      if ( a.data('visible') ) return;
+      var ele = $(this);
+      if ( ele.data('visible') ) return;
 
       var url = ajaxurl;
-      var user_id = a.attr('class').split('-')[1];
-      if( url && !a.data('ajax-success') ) {
+      var user_id = ele.attr('class').split('-')[1];
+      if( url && ! ele.data('ajax-success') && ! ele.data('hovercardPending') ) {
         if ( window.bphc_cache[user_id] ) {
-            a.data('ajax-success', true);
-            a.attr('title', window.bphc_cache[user_id]);
-            a.data('tipsyAnchor');
-            if ( ! a.data('visible') )
-                show(a);
+            ele.data('ajax-success', true);
+            ele.attr('title', window.bphc_cache[user_id]);
+            ele.data('tipsyAnchor');
+            if ( ! ele.data('visible') )
+                show(ele);
         } else {
             var data = {
                 action: 'buddypress_hovercard',
                 userid: user_id
             };
+
+            ele.data('hovercardPending', true);
             jQuery.post(url, data, function(response) {
-                a.data('ajax-success', true);
-                a.attr('title', response);
-                a.data('tipsyAnchor');
+                ele.data('hovercardPending', false);
+                ele.data('ajax-success', true);
+                ele.attr('title', response);
+                ele.data('tipsyAnchor');
                 window.bphc_cache[user_id] = response;
 
                 //if ( ! a.data('timeoutId') )
-                if ( a != timeoutEl && ! a.data('timeoutId') ){
-                    show(a);
+                if ( ele != timeoutEl && ! ele.data('timeoutId') ){
+                    show(ele);
                 }
             });
         }
       } else
-        show(a);
+        show(ele);
     }
     function leave() {
       hide($(this));
@@ -112,12 +115,7 @@
     html: true,
     hideDelay: 600,
     opacity: 1,
-    hoverIntent: true,
-    hoverIntentConfig: {
-      sensitivity: 3,
-      interval: 300,
-      timeout: 0
-    }
+    hoverIntent: false
   };
 
     $(document).ready(function() {

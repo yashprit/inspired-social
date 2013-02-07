@@ -22,7 +22,7 @@
 		<?php while ( bp_members() ) : bp_the_member(); ?>
 
 			<li id="friendship-<?php bp_friend_friendship_id() ?>">
-				<div class="item-avatar">
+				<div class="item-avatar hidden-phone">
 					<a href="<?php bp_member_link() ?>"><?php bp_member_avatar() ?></a>
 				</div>
 

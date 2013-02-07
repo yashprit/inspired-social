@@ -16,6 +16,16 @@ global $wp_version;
     )
   ));
 
+  piklist('field', array(
+    'type' => 'checkbox'
+    ,'field' => 'all_options'
+    ,'label' => 'Show ALL Options'
+    ,'choices' => array(
+      'true' => 'Expose ALL site options, under WordPress Settings tab.'
+    )
+  ));
+
+
   if ( is_multisite() && is_super_admin() )
   {
     piklist('field', array(

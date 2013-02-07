@@ -3,7 +3,7 @@
 Plugin Name: WordPress Helpers
 Plugin URI: http://piklist.com
 Description: Enhanced settings for WordPress. Located under <a href="tools.php?page=piklist_wp_helpers">TOOLS > HELPERS</a>
-Version: 1.4.5
+Version: 1.4.6
 Author: Piklist
 Author URI: http://piklist.com/
 Plugin Type: Piklist
@@ -28,6 +28,8 @@ class Piklist_WordPress_Helpers
     {
       return;
     }
+
+    add_action('in_plugin_update_message-' . plugin_basename(__FILE__), array('piklist_admin', 'update_available'), null, 2);
   }
 
   public static function init()
@@ -47,7 +49,7 @@ class Piklist_WordPress_Helpers
       ,'menu_slug' => 'piklist_wp_helpers'
       ,'setting' => 'piklist_wp_helpers'
       ,'icon_url' => plugins_url('piklist/parts/img/piklist-icon.png') 
-      ,'icon' => 'piklist-page'
+      ,'icon' => 'piklist'
       ,'single_line' => false
       ,'default_tab' => 'General'
     );
@@ -112,6 +114,10 @@ class Piklist_WordPress_Helpers
             case 'show_ids':
               add_action('init', array('piklist_wordpress_helpers', 'show_ids'), self::$filter_priority);
               add_action('piklist_helpers_admin_css', array('piklist_wordpress_helpers', 'column_id_width'), self::$filter_priority);
+            break;
+
+            case 'all_options':
+              add_action('admin_menu', array('piklist_wordpress_helpers', 'all_options_menu'), self::$filter_priority);
             break;
 
             case 'make_clickable':
@@ -411,7 +417,6 @@ class Piklist_WordPress_Helpers
     $wp_admin_bar->add_node(array(
       'id' => 'my-account'
       ,'title' => str_replace('Howdy, ', self::$options['change_howdy'] . ' ', $my_account->title)
-      ,'meta' => array()
     ));
   }
 
@@ -599,6 +604,15 @@ class Piklist_WordPress_Helpers
     }
   }
 
+  public static function all_options_menu()
+  {
+    global $submenu;
+    
+    $all_options_menu = array('All','manage_options','options.php');
+    array_unshift($submenu['options-general.php'], $all_options_menu);
+  }
+
+
   // @credit http://skyje.com/wordpress-code-snippets/
   public static function maintenance_mode()
   {
@@ -610,7 +624,7 @@ class Piklist_WordPress_Helpers
       }
       else
       {
-        wp_die(self::$options['maintenance_mode_message']);
+        wp_die(self::$options['maintenance_mode_message'], 'Temporarily Down for Maintenance', array('response' => '503'));
       }           
     }
   }
@@ -973,6 +987,5 @@ class Piklist_WordPress_Helpers
 <?php
   }
 }
-
 
 ?>

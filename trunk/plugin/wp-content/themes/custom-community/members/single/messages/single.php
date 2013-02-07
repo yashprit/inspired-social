@@ -34,7 +34,7 @@
 
 					<?php do_action( 'bp_before_message_meta' ) ?>
 
-					<?php bp_the_thread_message_sender_avatar( 'type=thumb&width=30&height=30' ) ?>
+					<?php bp_the_thread_message_sender_avatar( 'type=thumb&width=30&height=30&class=hidden-phone' ) ?>
 					<strong><a href="<?php bp_the_thread_message_sender_link() ?>" title="<?php bp_the_thread_message_sender_name() ?>"><?php bp_the_thread_message_sender_name() ?></a> <span class="activity"><?php bp_the_thread_message_time_since() ?></span></strong>
 
 					<?php do_action( 'bp_after_message_meta' ) ?>
@@ -70,7 +70,7 @@
 					<?php do_action( 'bp_before_message_meta' ) ?>
 
 					<div class="avatar-box">
-						<?php bp_loggedin_user_avatar( 'type=thumb&height=30&width=30' ) ?>
+						<?php bp_loggedin_user_avatar( 'type=thumb&height=30&width=30&class=hidden-phone' ) ?>
 
 						<strong><?php _e( 'Send a Reply', 'cc' ) ?></strong>
 					</div>

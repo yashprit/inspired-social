@@ -264,10 +264,13 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 					if (to.equals(presence.getFrom()) == false)
 					{
-						Log.info("handlePresence sending inipresence for " + identity + " to "+ to);
+						if (identity != null)
+						{
+							Log.info("handlePresence sending initial presence for " + identity + " to " + to);
 
-						presence.setTo(to);
-						sendPacket(presence);
+							presence.setTo(to);
+							sendPacket(presence);
+						}
 
 					}  else {
 
@@ -302,6 +305,11 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 							if (identity2.equals(identity) && ipaddr2.equals(ipaddr))	// duplicated session, remove
 							{
+								Presence pres = session.getPresence();
+								pres.setTo(session.getAddress());
+								pres.setType(Presence.Type.unavailable);
+								sendPacket(pres);
+
 								session.close();
 							}
 						}
@@ -958,6 +966,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 								cp.setPhoneNumber(from.toString());
 								cp.setConferenceId(conference);
 								cp.setConferenceDisplayName(from.getNode());
+								cp.setPhoneNumberLocation(from.toString());
 
 								cp.setFromPhoneNumber(rtmpUrl);
 								cp.setRtmpSendStream(playName);			// remote play name
@@ -983,6 +992,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 								cp.setPhoneNumber(from.toString());
 								cp.setConferenceId(conference);
 								cp.setConferenceDisplayName(from.getNode());
+								cp.setPhoneNumberLocation(from.toString());
 
 								cp.setFromPhoneNumber(callback);
 
@@ -1140,9 +1150,9 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		Element jingle = iq.setChildElement("jingle", JINGLE_NAMESPACE).addAttribute("sid", sid).addAttribute("action", action);
 
 		if ("session-initiate".equals(action))
-			jingle.addAttribute("initiator", conference + "@" + getComponentJID());
+			jingle.addAttribute("initiator", cp.getPhoneNumberLocation());
 		else
-			jingle.addAttribute("responder", conference + "@" + getComponentJID());
+			jingle.addAttribute("responder", cp.getPhoneNumberLocation());
 
 		Element newContent = jingle.addElement("content");
 

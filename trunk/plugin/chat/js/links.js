@@ -32,13 +32,15 @@ function applyLinks(string, mode, style) {
 	else
 		target = '';
 
-	if (string.indexOf('screen___share') > -1)
-	{
-		string = '<a target="_blank" href="video/screenviewer.html?stream=' + string + '&url=rtmp:/xmpp"' + style + '><img style="width:16px;" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/share_on.png"/>&nbsp;' + prompt + '</a>';	
 
-	} else if (string.indexOf('/video/screenviewer.html?stream=') > -1) {
+	if (string.indexOf('/video/screenviewer.html?stream=') > -1) {
 		
 		string = '<a target="_blank" href="' + string + '"' + style + '><img style="width:16px;" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/share_on.png"/>&nbsp;' + prompt + '</a>';
+		
+	} else if (string.indexOf('screen___share') > -1)  {
+
+		string = '<a target="_blank" href="video/screenviewer.html?stream=' + string + '&url=rtmp:/xmpp"' + style + '><img style="width:16px;" src="' + JAPPIX_STATIC + 'php/get.php?t=img&amp;f=others/share_on.png"/>&nbsp;' + prompt + '</a>';	
+		
 	
 	} else if (string.indexOf("onclick=") == -1) {
 		// XMPP address

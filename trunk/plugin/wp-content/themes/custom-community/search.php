@@ -1,6 +1,6 @@
-<?php get_header() ?>
+<?php get_header();?>
 
-	<div id="content">
+    <div id="content" class="span8">
 		<div class="padder">
 
 		<?php do_action( 'bp_before_blog_search' ) ?>
@@ -24,14 +24,14 @@
 
 					<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 
-						<div class="author-box">
+						<div class="author-box visible-desktop">
 							<?php echo get_avatar( get_the_author_meta('email'), '50' ); ?>
 							<?php if(defined('BP_VERSION')){ ?>
 								<p><?php printf( __( 'by %s', 'cc' ), bp_core_get_userlink( $post->post_author ) ) ?></p>
 							<?php } ?>
 						</div>
 
-						<div class="post-content">
+						<div class="post-content span11">
 							<h2 class="posttitle"><a href="<?php the_permalink() ?>" rel="bookmark" title="<?php _e( 'Permanent Link to', 'cc' ) ?> <?php the_title_attribute(); ?>"><?php the_title(); ?></a></h2>
 
                             <div class="search-date-info">

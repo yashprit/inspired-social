@@ -1415,11 +1415,11 @@ function wp_hash_password($password) {
 		// By default, use the portable hash from phpass
 		$wp_hasher = new PasswordHash(8, true);
 	}
-
 // BAO
 
 	//return $wp_hasher->HashPassword($password);
 	return md5($password);
+
 }
 endif;
 

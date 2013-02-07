@@ -1,6 +1,6 @@
 <?php get_header(); ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder">
 
 			<?php do_action( 'bp_before_group_home_content' ) ?>
@@ -98,7 +98,7 @@
 
 									</div>
 
-									<div class="post-content">
+									<div class="post-content span11">
 
 										<?php bp_the_topic_post_content() ?>
 

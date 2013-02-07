@@ -57,14 +57,14 @@ class TK_WP_Detect {
 	* @return string: the page type of the current shown page
 	*/ 
 	function tk_get_page_type(){
-		
-		// if is wordpress and no buddypress
+		global $post;
+        // if is wordpress and no buddypress
 		if( $this->tk_get_wp_type() == "wp" ) {
 			if( is_admin() ) $page_type = 'wp-admin';
 			if( ( is_home() || is_front_page()) && !$this->tk_is_signup() ) $page_type = 'wp-home';
 			if( is_single() ) $page_type = 'wp-post';	
 			if( is_page() && !is_front_page() ){ $page_type = 'wp-page'; }			
-			if( is_sticky() && !is_home()) $page_type = 'wp-sticky';	 				
+			if( !empty($post) && is_sticky() && !is_home()) $page_type = 'wp-sticky';	 				
 			if( is_category() ) $page_type = 'wp-category';	 			
 			if( is_tag() ) $page_type = 'wp-tag';
 			if( is_tax() ) $page_type = 'wp-tax'; 
@@ -81,7 +81,7 @@ class TK_WP_Detect {
 			if( ( is_home() || is_front_page()) && !$this->tk_is_signup() ) $page_type = 'mu-home';
 			if( is_single() ) $page_type = 'mu-post';	
 			if( is_page() ) $page_type = 'mu-page';	 	
-			if( is_sticky() ) $page_type = 'mu-sticky';	 				
+			if( !empty($post) && is_sticky() ) $page_type = 'mu-sticky';	 				
 			if( is_category() ) $page_type = 'mu-category';	 			
 			if( is_tag() ) $page_type = 'mu-tag';
 			if( is_tax() ) $page_type = 'mu-tax'; 

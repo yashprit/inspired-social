@@ -3,7 +3,7 @@
 	<?php while ( bp_group_members() ) : bp_group_the_member(); ?>
 
 		<li>
-			<a href="<?php bp_group_member_domain(); ?>">
+            <a href="<?php bp_group_member_domain(); ?>" class="hidden-phone">
 
 				<?php bp_group_member_avatar(); ?>
 

@@ -1,6 +1,6 @@
 <?php get_header() ?>
 
-	<div id="content">
+    <div id="content" class="span8">
 		<div class="padder one-column">
 			<?php do_action( 'bp_before_404' ); ?>
 			<div id="post-0" class="post page-404 error404 not-found" role="main">

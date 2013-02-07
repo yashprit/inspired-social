@@ -1,6 +1,6 @@
 <?php get_header() ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder">
 			<?php if ( bp_has_groups() ) : while ( bp_groups() ) : bp_the_group(); ?>
 

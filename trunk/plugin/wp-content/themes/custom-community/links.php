@@ -6,7 +6,7 @@ Template Name: Links
 
 <?php get_header() ?>
 
-	<div id="content">
+    <div id="content" class="span8">
 		<div class="padder">
 
 		<?php do_action( 'bp_before_blog_links' ) ?>

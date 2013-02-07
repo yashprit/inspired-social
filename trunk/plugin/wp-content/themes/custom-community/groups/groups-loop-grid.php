@@ -3,7 +3,7 @@
 	<?php while ( bp_groups() ) : bp_the_group(); ?>
 
 		<li>
-			<div class="item-avatar">
+			<div class="item-avatar hidden-phone">
 				<a href="<?php bp_group_permalink(); ?>"><?php bp_group_avatar( 'type=full&width=150&height=150' ); ?></a>
 			</div>
 

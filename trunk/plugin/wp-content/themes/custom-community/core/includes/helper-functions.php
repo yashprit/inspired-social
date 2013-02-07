@@ -1,4 +1,26 @@
-<?php 
+<?php
+
+/**
+ * options "Add scripts to head" and "add scripts to footer"
+ *
+ * @package Custom Community
+ * @since 1.12
+ */
+// add to head function - hooks the stuff to bp_head
+function cc_cap_add_to_head() {
+	global $cap;
+	echo $cap->add_to_head;
+}
+add_action('bp_head', 'cc_cap_add_to_head', 20); 
+
+// add to footer function - hooks the stuff to wp_footer
+function cc_cap_add_to_footer() {
+	global $cap;
+	echo $cap->add_to_footer;
+}
+add_action('wp_footer', 'cc_cap_add_to_footer', 20); 
+
+
 /**
  * check if it's a child theme or parent theme and return the correct path
  *
@@ -272,7 +294,7 @@ function cc_color_scheme(){
 function cc_slidertop(){
 	global $cc_page_options, $cap;
 
-	$cc_page_options = cc_get_page_meta();
+    $cc_page_options = cc_get_page_meta();
 	
 	$slidercat           = '0' ;
 	$slider_style        = 'default';
@@ -356,8 +378,13 @@ function cc_slidertop(){
             $is_allowed_direct_link = __('yes', 'cc');
         }
 	}
+    if($cap->cc_responsive_enable){
+        $slide_width = 1200;
+    } else {
+        $slide_width = $cap->website_width;
+    }
     $same_attrs = array(
-        'category_name'     => $slidercat,
+        'category__in'      => $slidercat,
         'caption'           => $caption,
         'id'                => 'slidertop',
         'time_in_ms'        => $slideshow_time,
@@ -370,8 +397,8 @@ function cc_slidertop(){
 		$atts = array(
 					'amount'            => $slideshow_amount,
 					'slider_nav'        => 'off',
-					'caption_width'     => '1000',
-					'width'             => '1000',
+					'caption_width'     => $slide_width,
+					'width'             => $slide_width,
 					'height'            => '250',
 					     
 				);
@@ -382,251 +409,15 @@ function cc_slidertop(){
                     );					
 	}
     $atts = array_merge($atts, $same_attrs);
-	$tmp = '<div id="cc_slider-top">';
-	$tmp .= slider($atts,$content = null);
+	$tmp = '<div id="cc_slider-top" class="hidden-phone row-fluid">';
+	$tmp .= slider($atts, $content = null);
 	$tmp .= '</div>';
 	if($cap->slideshow_shadow != "no shadow" && $cap->slideshow_shadow != __("no shadow",'cc')){
-		$tmp .= '<div class="slidershadow"><img src="'.get_template_directory_uri().'/images/slideshow/'.cc_slider_shadow().'"></img></div>';
+		$tmp .= '<div class="slidershadow hidden-phone span10"><img src="'.get_template_directory_uri().'/images/slideshow/'.cc_slider_shadow().'"></img></div>';
 	}
-	
+	$tmp .='<div class="clear"></div>';
 	return $tmp;
 
-}
-/**
- * Slider functions, used in slideshow parts
- * @global object $post post object
- * @global type $cc_js
- * @global type $cap
- * @global type $post
- * @param type $atts
- * @param type $content
- * @return type
- */
-function slider($atts,$content = null) {
-    global $post, $cc_js, $cap;
-    extract(shortcode_atts(array(
-        'amount'                    => '4',
-        'category_name'             => '0',
-        'page_id'                   => '',
-        'post_type'                 => 'post',
-        'orderby'                   => 'DESC',
-        'slider_nav'                => 'on',
-        'caption'                   => 'on',
-        'caption_height'            => '',
-        'caption_top'               => '',
-        'caption_width'             => '',
-        'reflect'                   => '',
-        'width'                     => '',
-        'height'                    => '',
-        'id'                        => '',
-        'background'                => '',
-        'slider_nav_color'          => '',
-        'slider_nav_hover_color'    => '',
-        'slider_nav_selected_color' => '',
-        'slider_nav_font_color'     => '',
-        'time_in_ms'                => '5000',
-        'allow_direct_link'         => __('no', 'cc')
-    ), $atts));
-
-    if($category_name == 'all-categories'){
-        $category_name = '0';
-    }
-    
-    if($page_id != '' && $post_type == 'post'){
-         $post_type = 'page';
-    }
-
-    if($page_id != ''){
-        $page_id = explode(',',$page_id);
-    }
-        
-    $tmp = chr(13);
-    
-    $tmp .= '<style type="text/css">'. chr(13);
-    $tmp .= 'div.post img {'. chr(13);
-    $tmp .= 'margin: 0 0 1px 0;'. chr(13);
-    $tmp .= '}'. chr(13);
-    
-    if($slider_nav == 'off'){
-        $tmp .= '#featured'.$id.' ul.ui-tabs-nav {'. chr(13);
-        $tmp .= 'visibility: hidden;'. chr(13);
-        $tmp .= '}'. chr(13);
-        $tmp .= '#featured'.$id.' {'. chr(13);
-        $tmp .= '    background: none;'. chr(13);
-        $tmp .= 'padding:0;';
-        $tmp .= '}'. chr(13);
-    
-    }
-    
-    if($width != ""){
-        $tmp .= '#featured'.$id.' ul.ui-tabs-nav {'. chr(13);
-        $tmp .= 'left:'.$width.'px;'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($caption_height != ""){
-        $tmp .= '#featured'.$id.' .ui-tabs-panel .info{'. chr(13);
-        $tmp .= 'height:'.$caption_height.'px;'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($caption_width != ""){
-        $tmp .= '#featured'.$id.' .ui-tabs-panel .info{'. chr(13);
-        $tmp .= 'width:'.$caption_width.'px;'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($caption_top != ""){
-        $tmp .= '#featured'.$id.' .ui-tabs-panel .info{'. chr(13);
-        $tmp .= 'top:'.$caption_top.'px;'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($background != ''){
-        $tmp .= '#featured'.$id.'{'. chr(13);
-        $tmp .= 'background: #'.$background.';'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($width != '' || $height != '' || $slider_nav == 'off'){
-        $tmp .= '#featured'.$id.'{'. chr(13);
-        $tmp .= 'width:'.$width.'px;'. chr(13);
-        $tmp .= 'height:'.$height.'px;'. chr(13);
-        $tmp .= '}'. chr(13);    
-        $tmp .= '#featured'.$id.' .ui-tabs-panel{'. chr(13);
-        $tmp .= 'width:'.$width.'px; height:'.$height.'px;'. chr(13);
-        $tmp .= 'background:none; position:relative;'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($slider_nav_color != '') {
-        $tmp .= '#featured'.$id.' li.ui-tabs-nav-item a{'. chr(13);
-        $tmp .= '    background: none repeat scroll 0 0 #'.$slider_nav_color.';'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    if($slider_nav_hover_color != '') {
-        $tmp .= '#featured'.$id.' li.ui-tabs-nav-item a:hover{'. chr(13);
-        $tmp .= '    background: none repeat scroll 0 0 #'.$slider_nav_hover_color.';'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-
-    if($slider_nav_selected_color != '') {
-        $tmp .= '#featured'.$id.' .ui-tabs-selected {'. chr(13);
-        $tmp .= 'padding-left:0;'. chr(13);
-        $tmp .= '}'. chr(13);
-        $tmp .= '#featured'.$id.' .ui-tabs-selected a{'. chr(13);
-        $tmp .= '    background: none repeat scroll 0 0 #'.$slider_nav_selected_color.' !important;'. chr(13);
-        $tmp .= 'padding-left:0;'. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    
-    if($slider_nav_font_color != ''){
-        $tmp .= '#featured'.$id.' ul.ui-tabs-nav li span{'. chr(13);
-        $tmp .= 'color:#'.$slider_nav_font_color. chr(13);
-        $tmp .= '}'. chr(13);
-    }
-    $tmp .= '</style>'. chr(13);
-    
-    $args = array(
-        'orderby'        => $orderby,
-        'post_type'      => $post_type,
-        'post__in'       => $page_id,
-        'category_name'  => $category_name,
-        'posts_per_page' => $amount
-    );
-    
-    remove_all_filters('posts_orderby');
-    query_posts($args);
-    if (have_posts()){
-        $shortcodeclass = '';
-        if ( $id == "top" )
-            $shortcodeclass = "cc_slider_shortcode"; 
-        
-        $tmp .='<div id="cc_slider'.$id.'" class="cc_slider '.$shortcodeclass.'">'. chr(13);
-        $tmp .='<div id="featured'.$id.'" class="featured">'. chr(13);
-        
-        $i = 1; 
-        while (have_posts()) : the_post();
-            global $post;
-            $url = get_permalink();
-            $theme_fields = get_post_custom_values('my_url');
-            if(isset($theme_fields[0])){
-                 $url = $theme_fields[0];
-            }
-               
-            $tmp .='<div id="fragment-'.$id.'-'.$i.'" class="ui-tabs-panel">'. chr(13);
-            
-            if($width != '' || $height != ''){
-                $ftrdimg = get_the_post_thumbnail( $post->ID, array($width + 10,$height),"class={$reflect}" ); 
-                if (empty($ftrdimg)) {
-					if($cap->slideshow_img){ 
-						$ftrdimg = '<img src="' . $cap->slideshow_img .'" />'; 
-					} else {
-	                    $ftrdimg = '<img src="'.get_template_directory_uri().'/images/slideshow/noftrdimg-1006x250.jpg" />'; 
-					}
-                }
-            } else {
-                $ftrdimg = get_the_post_thumbnail( $post->ID, array(756,250),"" );
-                if (empty($ftrdimg)) {
-                    if($cap->slideshow_img){
-						$ftrdimg = '<img src="' . $cap->slideshow_img .'" width="756" height="250"/>'; 
-					} else {
-						$ftrdimg = '<img src="'.get_template_directory_uri().'/images/slideshow/noftrdimg.jpg" />'; 
-					}
-                }
-            }
-            
-            $tmp .='    <a class="reflect" href="'.$url.'">'.$ftrdimg.'</a>'. chr(13);
-
-            if($caption == 'on'){
-                $tmp .=' <div class="info" >'. chr(13);
-                $tmp .='    <h2><a href="'.$url.'" >'.get_the_title().'</a></h2>'. chr(13);
-                $tmp .='    <p>'.get_the_excerpt().'</p>'. chr(13);
-                $tmp .=' </div>'. chr(13);
-            }
-            $tmp .='</div>'. chr(13);
-            $i++;
-        endwhile;
-        
-        $tmp .='<ul class="ui-tabs-nav">'. chr(13);
-        $i = 1; 
-        while (have_posts()) : the_post();
-            if (get_the_post_thumbnail( $post->ID, 'slider-thumbnail' ) == '') {
-					if(!empty($cap->slideshow_small_img) || $cap->slideshow_small_img != ''){
-						$ftrdimgs = '<img src="'.$cap->slideshow_small_img.'" width="80" height="50"/>'; 
-					} else {
-						$ftrdimgs = '<img src="'.get_template_directory_uri().'/images/slideshow/noftrdimg-80x50.jpg" />'; 
-					}
-				} else { 
-					$ftrdimgs = get_the_post_thumbnail( $post->ID, 'slider-thumbnail' );
-				}
-            if($allow_direct_link == __('yes', 'cc')){
-                $ftrdimgs = '<a href="'.  get_permalink($post->ID).'" class="allow-dirrect-links" data-url="'.get_permalink($post->ID).'">'. $ftrdimgs . '<span>'.get_the_title().'</span></a>';
-            } else {
-                $ftrdimgs = '<a href="#fragment-'.$id.'-'.$i.'">'.$ftrdimgs.'<span>'.get_the_title().'</span></a>';
-            }
-            $tmp .='<li class="ui-tabs-nav-item ui-tabs-selected" id="nav-fragment-'.$id.'-'.$i.'">'.$ftrdimgs.'</li>'. chr(13);
-            $i++;
-        endwhile;
-        $tmp .='</ul>'. chr(13);
-        
-        $tmp .= '</div></div>'. chr(13);
-    }else{
-        $tmp .='<div id="cc_slider_prev" class="cc_slider">'. chr(13);
-        $tmp .='<div id="featured_prev" class="featured">'. chr(13);
-        $tmp .='<h2 class="center">'.__( 'Empty Slideshow', 'cc' ).'</h2>'. chr(13);
-        $tmp .='<p class="center">'.__( 'You have no posts selected for your slideshow! <br>Check your theme settings for the global slideshow or the page settings for page slideshows... <br>and write a post! Check the <a href="http://themekraft.com/faq/slideshow/" target="_blank">FAQ</a> for more.', 'cc' ).'</p>'. chr(13);
-        $tmp .='</div></div>'. chr(13);
-    }
-    wp_reset_query();
-    
-    // js vars
-    $cc_js['slideshow'][] = array(
-                                'id'         => $id,
-                                'time_in_ms' => $time_in_ms
-                            );
-    
-    return $tmp . chr(13);
 }
 /**
  * load the array for the list posts depending on the page settings or theme settings
@@ -637,49 +428,29 @@ function slider($atts,$content = null) {
 function cc_list_posts_on_page(){
 	$cc_page_options = cc_get_page_meta(); 
     if(isset($cc_page_options) && $cc_page_options['cc_page_template_on'] == 1){
+    $atts = array(
+                'amount'        => $cc_page_options['cc_page_template_amount'],
+                'category__in' => $cc_page_options['cc_page_template_cat']
+            );
     
     switch ($cc_page_options['cc_posts_on_page_type']){
         case 'img-mouse-over':
-	    	$atts = array(
-						'amount'        => $cc_page_options['cc_page_template_amount'],
-						'category_name' => $cc_page_options['cc_page_template_cat'],
-						'img_position'  => 'mouse_over',
-					);
-	        echo cc_list_posts($atts,$content = null); 
+	    	$atts['img_position'] = 'mouse_over'; 
 	        break;
         case 'img-left-content-right':
-			$atts = array(
-						'amount'        => $cc_page_options['cc_page_template_amount'],
-						'category_name' => $cc_page_options['cc_page_template_cat'],
-						'img_position'  => 'left',
-					);
-	        echo cc_list_posts($atts,$content = null); 
+            $atts['img_position'] = 'left'; 
 	        break;
         case 'img-right-content-left':
-			$atts = array(
-						'amount'        => $cc_page_options['cc_page_template_amount'],
-						'category_name' => $cc_page_options['cc_page_template_cat'],
-						'img_position'  => 'right',
-					);
-	        echo cc_list_posts($atts,$content = null); 
+            $atts['img_position'] = 'right';
 	        break;
         case 'img-over-content':
-			$atts = array(
-						'amount'        => $cc_page_options['cc_page_template_amount'],
-						'category_name' => $cc_page_options['cc_page_template_cat'],
-						'img_position'  => 'over',
-					);
-	        echo cc_list_posts($atts,$content = null); 
+             $atts['img_position'] = 'over';
 	        break;
         case 'img-under-content':
-			$atts = array(
-						'amount'        => $cc_page_options['cc_page_template_amount'],
-						'category_name' => $cc_page_options['cc_page_template_cat'],
-						'img_position'  => 'under',
-					);
-	        echo cc_list_posts($atts,$content = null); 
+            $atts['img_position'] = 'under';
 	        break;
         }
+        echo cc_list_posts($atts,$content = null); 
 	}
 }
 
@@ -746,4 +517,31 @@ function cc_footer_js(){
 	}
 
 	echo $js;
+}
+
+/**
+ * Get style from option
+ */
+function cc_get_magazine_style($magazine_style = FALSE){
+    if($magazine_style){
+        $args = '';
+        switch ($magazine_style){
+            case __('img-right-content-left', 'cc'):
+                $args = 'right';                            
+            break;
+            case __('img-left-content-right', 'cc'):
+                $args = 'left';                            
+            break;
+            case __('img-over-content', 'cc'):
+                $args = 'over';                            
+            break;
+            case __('img-under-content', 'cc'):
+                $args = 'under';                            
+            break;
+            case __('img-mouse-over', 'cc'):
+                $args = 'mouse_over';                            
+            break;
+        }
+    }
+    return $args;
 }
