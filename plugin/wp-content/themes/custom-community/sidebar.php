@@ -1,7 +1,7 @@
 <?php do_action( 'bp_before_sidebar' ) ?>
-<div class="v_line v_line_right"></div>
-<div id="sidebar" class="widgetarea">
-	<div class="right-sidebar-padder">
+<div class="v_line v_line_right visible-desktop"></div>
+<div id="sidebar" class="span4 widgetarea">
+	<div class="paddersidebar right-sidebar-padder">
 
 	<?php do_action( 'bp_before_after_sidebar' ) ?>
 	<?php if( ! dynamic_sidebar( 'sidebar' )): ?>    

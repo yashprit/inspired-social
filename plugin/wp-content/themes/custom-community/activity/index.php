@@ -13,7 +13,7 @@
 
 	<?php do_action( 'bp_before_directory_activity_page' ); ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder">
 
 			<?php do_action( 'bp_before_directory_activity' ); ?>
@@ -90,7 +90,7 @@
 
 					<?php do_action( 'bp_activity_syndication_options' ); ?>
 
-					<li id="activity-filter-select" class="last">
+					<li id="activity-filter-select" class="last span4">
 						<label for="activity-filter-by"><?php _e( 'Show:', 'cc' ); ?></label> 
 						<select id="activity-filter-by">
 							<option value="-1"><?php _e( 'Everything', 'cc' ); ?></option>

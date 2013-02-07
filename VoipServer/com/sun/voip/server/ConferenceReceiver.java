@@ -46,11 +46,6 @@ import java.util.Vector;
 
 import com.sun.stun.StunServerImpl;
 
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
-
 /**
  * Receive data from each member in a conference and dispatch it to
  * the appropriate ConferenceMember so the data can be given to the mixer.
@@ -60,15 +55,20 @@ public class ConferenceReceiver extends Thread {
      * For debugging
      */
     private static int receiverPause = 0;   // ms to pause
-    private String conferenceId;
-    private Selector selector;
-    private boolean done;
-    private static int loneReceiverPort = 0;
-    private static DatagramChannel loneReceiverChannel;
-    private int memberCount = 0;
-	private StunServerImpl stunServerImpl;
-	private ExecutorService executor;
 
+    private String conferenceId;
+
+    private Selector selector;
+
+    private StunServerImpl stunServerImpl;
+
+    private boolean done;
+
+    private static int loneReceiverPort = 0;
+
+    private static DatagramChannel loneReceiverChannel;
+
+    private int memberCount = 0;
 
     ConferenceReceiver(String conferenceId, int loneReceiverPort) throws SocketException {
 	if (loneReceiverPort != 0) {
@@ -83,7 +83,6 @@ public class ConferenceReceiver extends Thread {
 	initLoneReceiverChannel(loneReceiverPort);
 
 	stunServerImpl = new StunServerImpl();
-	executor = Executors.newCachedThreadPool();
 
 	start();
     }
@@ -360,6 +359,11 @@ public class ConferenceReceiver extends Thread {
 
 			dataLength = byteBuffer.position();
 
+	    	    	if (isStunBindingRequest(data) == true) {
+			    //stunServerImpl.processStunRequest(datagramChannel, isa, data);
+			    continue;
+	    	    	}
+
                         memberReceiver = (MemberReceiver) sk.attachment();
 
                         if (memberReceiver == null) {
@@ -367,40 +371,14 @@ public class ConferenceReceiver extends Thread {
 
 			    if (memberReceiver == null) {
 			        if (Logger.logLevel > Logger.LOG_DETAILINFO) {
-			            Logger.println("ConferenceReceiver couldn't find member associated with packet! " + isa);
+			            Logger.println("ConferenceReceiver couldn't find "
+				        + "member associated with packet! " + isa);
 				}
 			        continue;
 			    }
 			}
 
-			if (isStunBindingRequest(data) == true)
-			{
-				final DatagramChannel dc = datagramChannel;
-				final InetSocketAddress sockAddr = isa;
-				final byte[] stunData = data;
-				final CallParticipant cp = memberReceiver.getMember().getCallParticipant();
-
-				executor.submit(new Callable<Boolean>()
-				{
-					public Boolean call() throws Exception {
-						try {
-							//Logger.println("ConferenceReceiver STUN packet for " + cp);
-							stunServerImpl.processStunRequest(dc, sockAddr, stunData, cp);
-						}
-						catch (Exception e) {
-							Logger.println("Error stunServerImpl.processStunRequest" + e);
-						}
-
-						return true;
-					}
-				});
-
-				continue;
-			}
-
-
-		        if (memberReceiver.readyToReceiveData() == false)
-		        {
+		        if (memberReceiver.readyToReceiveData() == false) {
 			    if (memberReceiver.traceCall() || Logger.logLevel == -11) {
 			        Logger.println("receiver not ready, conference "
 				    + conferenceId + " " + memberReceiver
@@ -434,8 +412,6 @@ public class ConferenceReceiver extends Thread {
 		    if (memberReceiver.traceCall()) {
 		        start = System.nanoTime();
 		    }
-
-			//Logger.println("ConferenceReceiver media packet for " + memberReceiver.getMember().getCallParticipant());
 
 		    /*
 		     * Dispatch to member
@@ -496,8 +472,7 @@ public class ConferenceReceiver extends Thread {
 	 * If byte 0 is 0 and byte 1 is 1, then we
 	 * assume this packet is a STUN Binding request.
          */
-
-        return (0x00C0 & data[0]) == 0 && data[1] == 1;
+        return data[0] == 0 && data[1] == 1;
     }
 
     public static void setReceiverPause(int receiverPause) {
@@ -511,7 +486,6 @@ public class ConferenceReceiver extends Thread {
 	Logger.writeFile("Conference receiver done " + conferenceId);
 
         done = true;
-        executor.shutdown();
 
 	close();
     }

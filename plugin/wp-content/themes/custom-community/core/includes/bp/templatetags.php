@@ -94,24 +94,7 @@ function bp_dtheme_enqueue_scripts() {
 add_action( 'wp_enqueue_scripts', 'bp_dtheme_enqueue_scripts' );
 endif;
 
-if ( !function_exists( 'admin_dtheme_enqueue_scripts' ) ) :
-/**
- * Enqueue theme javascript safely for admin console
- *
- * @see http://codex.wordpress.org/Function_Reference/wp_enqueue_script
- * @since 1.9.1
- */
-function admin_dtheme_enqueue_scripts() {
 
-	// Enqueue the global JS - Ajax will not work without it
-	wp_enqueue_script( 'dtheme-admin-js', get_template_directory_uri() . '/_inc/js/admin.js', array( 'jquery' ));
-    wp_localize_script('dtheme-admin-js', 'admin_params', array(
-            'ajax_url' => site_url('/wp-admin/admin-ajax.php') 
-        )
-    );
-}
-add_action( 'admin_enqueue_scripts', 'admin_dtheme_enqueue_scripts' );
-endif;
 
 if ( !function_exists( 'bp_dtheme_blog_comments' ) ) :
 /**

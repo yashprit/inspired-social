@@ -1,7 +1,7 @@
 <?php do_action( 'bp_before_sidebar' ) ?>
-<div class="v_line v_line_right"></div>
+<div class="v_line v_line_right visible-desktop"></div>
 <div id="sidebar" class="widgetarea">
-	<div class="right-sidebar-padder">
+	<div class="paddersidebar right-sidebar-padder">
 	<?php if( ! dynamic_sidebar( 'membersidebarright' )) : ?>		
   		<?php locate_template( array( 'members/single/member-header-sidebar.php' ), true, false ); ?>
 	<?php endif ?>

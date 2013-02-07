@@ -160,4 +160,3 @@ class Custom_Community{
     endif;
 	}
 }
-

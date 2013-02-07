@@ -11,7 +11,7 @@
 
 	<?php do_action( 'bp_before_directory_blogs_content' ); ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder" role="main">
 
 		<?php do_action( 'template_notices' ); ?>

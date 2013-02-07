@@ -3,7 +3,7 @@
 <?php while ( bp_members() ) : bp_the_member(); ?>
 
 	<li>
-		<div class="item-avatar">
+		<div class="item-avatar hidden-phone">
 			<a href="<?php bp_member_permalink(); ?>"><?php bp_member_avatar(); ?></a>
 		</div>
 

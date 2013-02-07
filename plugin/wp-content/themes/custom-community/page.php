@@ -1,6 +1,6 @@
-<?php get_header() ?>
+<?php get_header(); ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder">
 
 		<?php do_action( 'bp_before_blog_page' ) ?>
@@ -8,9 +8,11 @@
 		<div class="page" id="blog-page">
 
 			<?php if (have_posts()) : while (have_posts()) : the_post(); ?>
-
-				<h2 class="pagetitle"><?php the_title(); ?></h2>
-
+                <?php $is_title_hidden = get_post_meta(get_the_ID(), '_cc_hide_title', TRUE); ?>
+                <?php if(empty($is_title_hidden) || $is_title_hidden == 'no'):
+                            $center_title    = get_post_meta(get_the_ID(), '_cc_center_title', TRUE); ?>
+                            <h2 class="pagetitle <?php if(!empty($center_title) && $center_title == 'yes') echo 'title-center'?>"><?php the_title(); ?></h2>
+                <?php endif;?>
 				<div id="post-<?php the_ID(); ?>" <?php post_class(); ?>>
 					<div class="entry">
 

@@ -13,7 +13,7 @@
 
 	<?php do_action( 'bp_before_activity_post_form' ); ?>
 
-	<div id="whats-new-avatar">
+    <div id="whats-new-avatar" class="hidden-phone">
 		<a href="<?php echo bp_loggedin_user_domain(); ?>">
 			<?php bp_loggedin_user_avatar( 'width=' . bp_core_avatar_thumb_width() . '&height=' . bp_core_avatar_thumb_height() ); ?>
 		</a>

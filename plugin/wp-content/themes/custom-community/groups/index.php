@@ -13,7 +13,7 @@
 
 	<?php do_action( 'bp_before_directory_groups_page' ); ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder">
 
 		<?php do_action( 'bp_before_directory_groups' ); ?>
@@ -47,12 +47,12 @@
                     </ul>
 			</div><!-- .item-list-tabs -->
 
-			<div class="item-list-tabs" id="subnav" role="navigation">
+			<div class="item-list-tabs row-fluid" id="subnav" role="navigation">
 				<ul>
 
 					<?php do_action( 'bp_groups_directory_group_types' ); ?>
 
-					<li id="groups-order-select" class="last filter">
+					<li id="groups-order-select" class="span5">
 
 						<label for="groups-order-by"><?php _e( 'Order By:', 'cc' ); ?></label>
 						<select id="groups-order-by">
@@ -66,7 +66,7 @@
 						</select>
 					</li>
 					
-					<li id="groups-displaymode-select" class="no-ajax displaymode">
+					<li id="groups-displaymode-select" class="span4 displaymode">
 
 						<label for="groups-displaymode"><?php _e( 'Display mode:', 'cc' ); ?></label>
 						<select id="groups-displaymode">

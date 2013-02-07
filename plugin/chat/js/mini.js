@@ -90,7 +90,7 @@ function handleMuteSignal(peer, type, muc, audioMuted, videoMuted, videoRequeste
 				
 	displayMessageMini(muc ? "groupchat" : "chat", message, xid, nick, hash, time, stamp, 'user-message');
 	
-	if (audioMuted || (videoMuted && videoRequested))
+	if (audioMuted || (videoMuted && videoRequested && audioMuted))
 		clearAudioVideo(hash);	
 	else
 		notifyAudioVideo(hash, xid, muc, videoRequested);
@@ -1823,11 +1823,11 @@ function chatMini(type, xid, nick, hash, pwd, show_pane)
 		if(type != 'groupchat' || (type == 'groupchat' && !groupchat_exists && !workgroup_exists))
 			html += '<a class="jm_one-action jm_close jm_images" title="' + _e("Close") + '" href="#"></a>';
 
-		var webrtcHtml = '<td><a title="Add voice to conversation" href="javascript:doWebRtcAudioToggle(&quot;' + xid + '&quot;,&quot;' + type + '&quot;)"><img style="width:24px;" onclick="changeAudioImage(this)" src="chat/img/others/call_on.png"/></a></td>';
+		var webrtcHtml = '<td><a title="Add voice to conversation" href="#"><img style="width:24px;" onclick="changeAudioImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/call_on.png"/></a></td>';
 		
 		if (type != 'groupchat')
 		{
-			webrtcHtml = webrtcHtml + '<td><a title="Add video to conversation" href="javascript:doWebRtcVideoToggle(&quot;' + xid + '&quot;,&quot;' + type + '&quot;)"><img style="width:24px;" onclick="changeVideoImage(this)" src="chat/img/others/video_on.png"/></a></td>';
+			webrtcHtml = webrtcHtml + '<td><a title="Add video to conversation" href="#"><img style="width:24px;" onclick="changeVideoImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/video_on.png"/></a></td>';
 		}
 		
 		webrtcHtml = webrtcHtml + '<td><a title="Add screen share to conversation"><img style="width:24px;" onclick="doScreenShareImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/share_on.png"/></a></td>';
@@ -1898,24 +1898,61 @@ function chatMini(type, xid, nick, hash, pwd, show_pane)
 	return false;
 }
 
-function changeAudioImage(img)
+function changeAudioImage(img, xid, type)
 {
-	console.log("changeAudioImage " + img.src)
+	console.log("changeAudioImage " + img.src + " " + xid + " " + type)
 	
-	if (img.src.indexOf("call_on.png") > -1)
-		img.src = "chat/img/others/call_off.gif";
-	else
-		img.src = "chat/img/others/call_on.png";	
+	if (type == "groupchat")
+	{
+		var room = getXIDNick(xid); 
+		WebRtc.toggleRoomMute(room);
+		var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending audio";	
+		
+		img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";		
+		
+	} else {
+		var user = bareXID(xid);
+		WebRtc.toggleUserMute(user, false);
+		var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending audio";	
+		
+		img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";			
+	}
+	
+		
 }
 
-function changeVideoImage(img)
+function changeVideoImage(img, xid, type)
 {
-	console.log("changeVideoImage " + img.src)
+	console.log("changeVideoImage " + img.src + " " + xid + " " + type)
+
+	if (type == "groupchat")
+	{
+		var room = getXIDNick(xid); 
+		WebRtc.toggleRoomMute(room);
+		var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";
+		
+		img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
+		
+	} else {
+		var user = bareXID(xid);
+		WebRtc.toggleUserMute(user, true);
+		var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
+		
+		img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
+	}	
 	
-	if (img.src.indexOf("video_on.png") > -1)
-		img.src = "chat/img/others/video_off.gif";
-	else
-		img.src = "chat/img/others/video_on.png";	
+	displayThreadMessage(xid, type, message)
+				
+	if (WebRtc.isUserMuted(user) == false)
+	{
+		openWindow(380, 315);
+	} else {
+	
+		jQuery('#window').hide();
+	}
+	
+	videoXid = xid;
+
 }
 
 // Events on the chat tool
@@ -2307,7 +2344,7 @@ function launchMini(autoconnect, show_pane, domain, user, password)
 	
 	WebRtc.mediaHints = {audio:true, video:false};
 
-	navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.vide}, function(stream) 
+	navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.video}, function(stream) 
 	{
 		WebRtc.localStream = stream;	
 		createMini(domain, user, password);

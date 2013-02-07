@@ -45,7 +45,6 @@ import com.sun.voip.SpeexException;
 import com.sun.voip.TreatmentDoneListener;
 import com.sun.voip.TreatmentManager;
 import com.sun.voip.Util;
-import com.sun.voip.SRTPSecContext;
 
 import java.io.IOException;
 
@@ -58,11 +57,9 @@ import java.nio.channels.DatagramChannel;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
-import java.nio.ByteBuffer;
 
 import java.util.ArrayList;
 import java.util.NoSuchElementException;
-import java.util.Properties;
 
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
@@ -86,6 +83,7 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
     private boolean traceCall = false;
 
     private boolean isAutoMuted;	       // to suppress dtmf sounds
+
 
     /*
      * Each member can only be whispering in one group at a time.
@@ -148,15 +146,9 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
     private static String joinConfirmationKey = "1";
 
     private Cipher decryptCipher;
+
     private String encryptionKey;
     private String encryptionAlgorithm;
-    private String encryptionParams;
-    private SRTPSecContext srtpSecurityContext;
-
-	private int srtpTailPayload;
-    private long _roc = 0;
-    private char _s_l;
-    private long _index;
 
     private SampleRateConverter inSampleRateConverter;
 
@@ -177,7 +169,6 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 	this.member = member;
 	this.cp = cp;
 	this.datagramChannel = datagramChannel;
-	this.timePreviousPacketReceived = 0;
 
 	synchronized (memberNumberLock) {
 	    myMemberNumber = memberNumber++;
@@ -185,51 +176,34 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 
 	encryptionKey = cp.getEncryptionKey();
 	encryptionAlgorithm = cp.getEncryptionAlgorithm();
-	encryptionParams = cp.getEncryptionParams();
 
-	if (encryptionKey != null)
-	{
+	if (encryptionKey != null) {
 	    try {
+		if (encryptionKey.length() < 8) {
+		    encryptionKey +=
+			String.valueOf(System.currentTimeMillis());
+		}
 
-			if (encryptionAlgorithm.startsWith("AES_CM_128_HMAC_SHA1_"))
-			{
-				Properties cryptoProps = new Properties();
-				cryptoProps.setProperty("crypto-suite", encryptionAlgorithm);
-				cryptoProps.setProperty("key-params", encryptionKey);
-				cryptoProps.setProperty("session-params", encryptionParams);
+		if (encryptionKey.length() > 8 &&
+			encryptionAlgorithm.equals("DES")) {
 
-                srtpSecurityContext = new SRTPSecContext(true);
-                srtpSecurityContext.parseCryptoProps(cryptoProps);
-                srtpTailPayload = srtpSecurityContext.getAuthTail();
+		    encryptionKey = encryptionKey.substring(0, 8);
+		}
 
-			} else {
+		byte[] keyBytes = encryptionKey.getBytes();
+		SecretKeySpec secretKey = new SecretKeySpec(keyBytes,
+		    encryptionAlgorithm);
 
-				if (encryptionKey.length() < 8) {
-					encryptionKey +=
-					String.valueOf(System.currentTimeMillis());
-				}
+	        decryptCipher = Cipher.getInstance(encryptionAlgorithm);
+	        decryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
 
-				if (encryptionKey.length() > 8 &&
-					encryptionAlgorithm.equals("DES")) {
-
-					encryptionKey = encryptionKey.substring(0, 8);
-				}
-
-				byte[] keyBytes = encryptionKey.getBytes();
-				SecretKeySpec secretKey = new SecretKeySpec(keyBytes, encryptionAlgorithm);
-
-				decryptCipher = Cipher.getInstance(encryptionAlgorithm);
-				decryptCipher.init(Cipher.DECRYPT_MODE, secretKey);
-
-			}
-
-			Logger.println("Call " + cp + " Voice data will be decrypted using " + encryptionAlgorithm);
-
-
+		Logger.println("Call " + cp + " Voice data will be decrypted "
+		    + "using " + encryptionAlgorithm);
 	    } catch (Exception e) {
-
-			Logger.println("Call " + cp  + " Crypto initialization failed " + e.getMessage());
-            throw new IOException(" Crypto initialization failed " + e.getMessage());
+		Logger.println("Call " + cp
+		    + " Crypto initialization failed " + e.getMessage());
+                throw new IOException(" Crypto initialization failed "
+		    + e.getMessage());
 	    }
 	}
 
@@ -390,7 +364,7 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 
 
 
-	if (cp.getProtocol() != null && ("RTMP".equals(cp.getProtocol()) || "RTMFP".equals(cp.getProtocol())))
+	if (cp.getProtocol() != null && "RTMP".equals(cp.getProtocol()) && "RTMFP".equals(cp.getProtocol()) == false)
 	{
 	    conferenceManager.getConferenceReceiver().addMember(this);
 
@@ -870,7 +844,7 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 
     private boolean callIsDead() {
 
-	if (cp.getProtocol() != null && ("RTMP".equals(cp.getProtocol()) || "RTMFP".equals(cp.getProtocol())))
+	if (cp.getProtocol() != null && "RTMP".equals(cp.getProtocol()) && "RTMFP".equals(cp.getProtocol()) == false)
 	{
 		return false;
 	}
@@ -986,192 +960,184 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 	}
     }
 
-    public void receive(InetSocketAddress fromAddress, byte[] receivedData, int length)
-    {
-		//member.getMemberSender().setSendAddress(fromAddress);
+    public void receive(InetSocketAddress fromAddress, byte[] receivedData, int length) {
 
-		/*
-		 * receivedData has a 12 byte RTP header at the beginning
-		 * and length includes the RTP header.
-		 */
+	member.getMemberSender().setSendAddress(fromAddress);
 
-		timeCurrentPacketReceived = System.currentTimeMillis();
-		packetsReceived++;
+	/*
+	 * receivedData has a 12 byte RTP header at the beginning
+	 * and length includes the RTP header.
+	 */
+	timeCurrentPacketReceived = System.currentTimeMillis();
 
-		if (packetsReceived == 1)
-		{
-			Logger.println("Call " + cp + " got first packet, length " + length);
-			packet.setBuffer(receivedData);
+	packetsReceived++;
+
+	if (packetsReceived == 1) {
+	    Logger.println("Call " + cp + " got first packet, length "
+		+ length);
+
+	    packet.setBuffer(receivedData);
+
+	    /*
+	     * TODO:  Get the synchonization source for this call.
+	     */
+	}
+
+	if (cp.getInputTreatment() != null) {
+	    return;
+	}
+
+	if (dropPackets != 0) {
+	    if ((packetsReceived % dropPackets) == 0) {
+		return;
+	    }
+	}
+
+	/*
+	 * For debugging
+	 */
+	if (traceCall || Logger.logLevel == -11) {
+	    Logger.writeFile("Call " + cp + " got packet, len " + length);
+	}
+
+	/*
+	 * Decrypt data if it's encrypted
+	 */
+	long start = 0;
+
+	if (decryptCipher != null) {
+	    if (traceCall || Logger.logLevel == -1) {
+	        start = System.nanoTime();
+	    }
+
+	    receivedData = decrypt(receivedData);
+
+	    if (traceCall || Logger.logLevel == -1) {
+		Logger.println("Call " + cp + " decrypt time "
+		    + ((System.nanoTime() - start) / 1000000000.)
+		    + " seconds");
+	    }
+	}
+
+	recordPacket(receivedData, length);
+
+	packet.setBuffer(receivedData);
+	packet.setLength(length);
+
+	byte payload = packet.getRtpPayload();
+
+	int elapsedTime = (int)
+	    (timeCurrentPacketReceived - timePreviousPacketReceived);
+
+	if (gotComfortPayload || packetsReceived == 1) {
+	    /*
+	     * We don't want to count the time when the remote stopped
+	     * sending to us.
+	     */
+	    packet.setMark();    // make sure MARK bit is set
+
+	    if (gotComfortPayload) {
+	        gotComfortPayload = false;
+
+	        if (traceCall || Logger.logLevel >= Logger.LOG_MOREINFO) {
+	            Logger.println("Call " + cp
+	                + "  received packet after comfort payload");
+	        }
+	    }
+	}
+
+ 	if (packet.isMarkSet() == true) {
+	    elapsedTime = RtpPacket.PACKET_PERIOD;
+	}
+
+        totalTime += elapsedTime;
+
+	synchronized (jitterManager) {
+	    /*
+	     * Insert place holder for this packet
+	     */
+            jitterManager.insertPacket(packet.getRtpSequenceNumber(),
+		elapsedTime);
+	}
+
+	int rtpTimestampAdjustment = length - RtpPacket.HEADER_SIZE;
+
+	if (payload == RtpPacket.COMFORT_PAYLOAD || payload == 19) {
+	    /*
+	     * Asterisk seems to have a bug in which the bridge offers
+	     * 13 decimal as the comfort payload and asterisk replies with
+	     * 13 hex (19 decimal).
+	     * For now, we'll treat 19 as the comfort noise payload as well.
+	     */
+	    receiveComfortPayload(packet, elapsedTime);
+
+	    if (inSampleRateConverter != null) {
+		inSampleRateConverter.reset();
+	    }
+
+	    if (speechDetector != null) {
+		if (speechDetector.isSpeaking()) {
+	            callHandler.speakingChanged(false);
 		}
+	        speechDetector.reset();
+	    }
+	} else if (payload == 18) {
+	    /*
+	     * We sometimes get payload 18 which is undefined according to
+	     * the RFC.  The data looks like audio data.
+	     * But for now, we just drop the packet.
+	     */
+	     Logger.error("Call " + cp + " unexpected payload " + payload
+		+ " dropping packet ");
 
-		if (cp.getInputTreatment() != null) {
-			return;
-		}
+	     Util.dump("bad payload 18 data", packet.getData(), 0, 16);
+	} else if (payload == myMediaInfo.getPayload()) {
+	    if (traceCall || Logger.logLevel == -1) {
+		start = System.nanoTime();
+	    }
 
-		if (dropPackets != 0) {
-			if ((packetsReceived % dropPackets) == 0) {
-			return;
-			}
-		}
+	    try {
+	        rtpTimestampAdjustment = receiveMedia(receivedData, length);
+	    } catch (SpeexException e) {
+                Logger.println("speex decorder failed: " + e.getMessage());
+                e.printStackTrace();
+	        callHandler.cancelRequest("Call " + cp + e.getMessage());
+		return;
+	    }
 
-		/*
-		 * For debugging
-		 */
-		if (traceCall || Logger.logLevel == -11) {
-			Logger.writeFile("Call " + cp + " got packet, len " + length);
-		}
+            if (traceCall || Logger.logLevel == -1) {
+                Logger.println("Call " + cp + " receiveMedia time "
+                    + ((System.nanoTime() - start) / 1000000000.)
+		    + " seconds");
+            }
 
-		/*
-		 * Decrypt data if it's encrypted
-		 */
-		long start = 0;
+	    int processTime = (int)
+		(System.currentTimeMillis() - timeCurrentPacketReceived);
 
-		if (decryptCipher != null) {
-			if (traceCall || Logger.logLevel == -1) {
-				start = System.nanoTime();
-			}
+	    timeToProcessMediaPackets += processTime;
+	    mediaPacketsReceived++;
+	} else if (payload != 0 && payload == telephoneEventPayload) {
+	    if (cp.ignoreTelephoneEvents() == false) {
+	        receiveDtmfPayload(packet);
+	    }
+	} else {
+	    if ((badPayloads % 1000) == 0) {
+		badPayloads++;
 
-			receivedData = decrypt(receivedData);
+	        Logger.error("Call " + cp + " unexpected payload " + payload
+		    + " length " + length);
+	        Util.dump("unexpected payload", receivedData, 0, 16);
+	    }
 
-			if (traceCall || Logger.logLevel == -1) {
-			Logger.println("Call " + cp + " decrypt time "
-				+ ((System.nanoTime() - start) / 1000000000.)
-				+ " seconds");
-			}
-		}
+	    if (badPayloads >= 1000 && mediaPacketsReceived == 0) {
+		callHandler.cancelRequest("Call " + cp
+		    + " bad media payload being sent by call");
+	    }
+	}
 
-		byte payload = packet.getRtpPayload();
-
-		if (srtpSecurityContext != null && payload == myMediaInfo.getPayload())
-		{
-			receivedData = decryptSrtp(receivedData, length);
-
-			if (receivedData == null) return;
-
-			length = receivedData.length;
-		}
-
-
-		recordPacket(receivedData, length);
-
-		packet.setBuffer(receivedData);
-		packet.setLength(length);
-
-		//payload = packet.getRtpPayload();
-
-		int elapsedTime = (int)
-			(timeCurrentPacketReceived - timePreviousPacketReceived);
-
-		if (gotComfortPayload || packetsReceived == 1) {
-			/*
-			 * We don't want to count the time when the remote stopped
-			 * sending to us.
-			 */
-			packet.setMark();    // make sure MARK bit is set
-
-			if (gotComfortPayload) {
-				gotComfortPayload = false;
-
-				if (traceCall || Logger.logLevel >= Logger.LOG_MOREINFO) {
-					Logger.println("Call " + cp
-						+ "  received packet after comfort payload");
-				}
-			}
-		}
-
-		if (packet.isMarkSet() == true) {
-			elapsedTime = RtpPacket.PACKET_PERIOD;
-		}
-
-			totalTime += elapsedTime;
-
-		synchronized (jitterManager) {
-			/*
-			 * Insert place holder for this packet
-			 */
-				jitterManager.insertPacket(packet.getRtpSequenceNumber(), elapsedTime);
-		}
-
-		int rtpTimestampAdjustment = length - RtpPacket.HEADER_SIZE;
-
-		if (payload == RtpPacket.COMFORT_PAYLOAD || payload == 19) {
-			/*
-			 * Asterisk seems to have a bug in which the bridge offers
-			 * 13 decimal as the comfort payload and asterisk replies with
-			 * 13 hex (19 decimal).
-			 * For now, we'll treat 19 as the comfort noise payload as well.
-			 */
-			receiveComfortPayload(packet, elapsedTime);
-
-			if (inSampleRateConverter != null) {
-			inSampleRateConverter.reset();
-			}
-
-			if (speechDetector != null) {
-			if (speechDetector.isSpeaking()) {
-					callHandler.speakingChanged(false);
-			}
-				speechDetector.reset();
-			}
-		} else if (payload == 18) {
-			/*
-			 * We sometimes get payload 18 which is undefined according to
-			 * the RFC.  The data looks like audio data.
-			 * But for now, we just drop the packet.
-			 */
-			 Logger.error("Call " + cp + " unexpected payload " + payload
-			+ " dropping packet ");
-
-			 Util.dump("bad payload 18 data", packet.getData(), 0, 16);
-		} else if (payload == myMediaInfo.getPayload()) {
-			if (traceCall || Logger.logLevel == -1) {
-			start = System.nanoTime();
-			}
-
-			try {
-				rtpTimestampAdjustment = receiveMedia(receivedData, length);
-			} catch (SpeexException e) {
-					Logger.println("speex decorder failed: " + e.getMessage());
-					e.printStackTrace();
-				callHandler.cancelRequest("Call " + cp + e.getMessage());
-			return;
-			}
-
-				if (traceCall || Logger.logLevel == -1) {
-					Logger.println("Call " + cp + " receiveMedia time "
-						+ ((System.nanoTime() - start) / 1000000000.)
-				+ " seconds");
-				}
-
-			int processTime = (int)
-			(System.currentTimeMillis() - timeCurrentPacketReceived);
-
-			timeToProcessMediaPackets += processTime;
-			mediaPacketsReceived++;
-		} else if (payload != 0 && payload == telephoneEventPayload) {
-			if (cp.ignoreTelephoneEvents() == false) {
-				receiveDtmfPayload(packet);
-			}
-		} else {
-			if ((badPayloads % 1000) == 0) {
-			badPayloads++;
-
-				Logger.error("Call " + cp + " unexpected payload " + payload
-				+ " length " + length);
-				Util.dump("unexpected payload", receivedData, 0, 16);
-			}
-
-			if (badPayloads >= 1000 && mediaPacketsReceived == 0) {
-			callHandler.cancelRequest("Call " + cp
-				+ " bad media payload being sent by call");
-			}
-		}
-
-		packet.updateRtpHeader(rtpTimestampAdjustment);
-		timePreviousPacketReceived = timeCurrentPacketReceived;
+	packet.updateRtpHeader(rtpTimestampAdjustment);
+	timePreviousPacketReceived = timeCurrentPacketReceived;
     }
-
-
 
     private void receiveComfortPayload(RtpReceiverPacket packet,
 	    int elapsedTime) {
@@ -1202,7 +1168,9 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 	    callHandler.getMember().adjustVolume(data, inputVolume);
 	}
 
-	//Logger.println("Call " + cp + " receiveMedia length " + length + " decoded int length "  + data.length + "\n" + getMemberState());
+	//Logger.println("Call " + cp
+	//    + " receiveMedia length " + length + " decoded int length "
+	//    + data.length);
 
 	int numberOfSamples = data.length;
 
@@ -1298,9 +1266,8 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 	     * If the incoming packet is shorter, than we expect,
 	     * the rest of <data> will be filled with 0 * which is PCM_SILENCE.
              */
-         try {
-            AudioConversion.ulawToLinear(receivedData, RtpPacket.HEADER_SIZE, length - RtpPacket.HEADER_SIZE, data);
-	  	} catch (Exception e) {}
+            AudioConversion.ulawToLinear(receivedData, RtpPacket.HEADER_SIZE,
+		length - RtpPacket.HEADER_SIZE, data);
 
 	    if (length < 172 && Logger.logLevel >= Logger.LOG_DETAIL) {
 		Logger.println("Call " + cp + " received short packet "
@@ -1341,8 +1308,6 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
     public void handleRTMPMedia(int[] data, short sequenceNumber)
     {
 		timeCurrentPacketReceived = System.currentTimeMillis();
-		if (timePreviousPacketReceived == 0) timePreviousPacketReceived = timeCurrentPacketReceived;
-
 		int elapsedTime = (int) (timeCurrentPacketReceived - timePreviousPacketReceived);
 
 		synchronized (jitterManager) {
@@ -2304,164 +2269,22 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
     private long decryptCount;
     private long decryptTime;
 
-    private byte[] decrypt(byte[] data)
-    {
-		try {
-			decryptCount++;
-			long start = System.currentTimeMillis();
+    private byte[] decrypt(byte[] data) {
+	try {
+	    decryptCount++;
+	    long start = System.currentTimeMillis();
 
-			byte[]clearText = decryptCipher.doFinal(data, 0, data.length);
+	    byte[]clearText = decryptCipher.doFinal(data, 0, data.length);
 
-			decryptTime += (System.currentTimeMillis() - start);
-			return clearText;
-
-		} catch (Exception e) {
-			Logger.println("Call " + cp + " Decryption failed, length "
-			+ data.length + ": " + e.getMessage());
-			callHandler.cancelRequest("Decryption failed: "
-			+ e.getMessage());
-			return data;
-		}
-    }
-
-    private byte[] decryptSrtp(byte[] packet, int plen)
-    {
-        int ver = SRTPSecContext.copyBits(packet, 0, 2);
-        int pad = SRTPSecContext.copyBits(packet, 2, 1);
-        int csrcn = SRTPSecContext.copyBits(packet, 4, 4);
-        int ptype = SRTPSecContext.copyBits(packet, 9, 7);
-
-        ByteBuffer pbReceivedData = ByteBuffer.wrap(packet);
-
-        char seqno = pbReceivedData.getChar(2);
-        long stamp = pbReceivedData.getInt(4);
-        int ssrc = pbReceivedData.getInt(8);
-        int offs = RtpPacket.HEADER_SIZE;
-
-
-        if (plen < (RtpPacket.HEADER_SIZE + 4 * csrcn))
-        {
-            Logger.println("Packet too short. CSRN =" + csrcn + " but packet only " + plen);
-            return null;
-        }
-
-/*
-        long[] csrc = new long[csrcn];
-
-
-        for (int i = 0; i < csrcn; i++)
-        {
-            csrc[i] = pbReceivedData.getInt(offs);
-            offs += 4;
-        }
-
-        //int paylen = (pad == 0) ? (plen - offs) : ((plen - offs) - (0xff) & packet[plen - 1]);
-
-*/
-        int paylen = plen - offs;
-        int endhead = offs;	// if padding set then last byte tells you how much to skip
-
-        paylen -= srtpTailPayload;	// SRTP packets have a tail auth section and potentially an MKI
-
-        byte[] payload = new byte[paylen];
-        int o = 0;
-
-        while (offs - endhead < paylen)
-        {
-            payload[o++] = packet[offs++];
-        }
-
-		if (packetsReceived < 10)
-		{
-			Logger.println("SRTP Decryption lengths "	+ packet.length + ": " + plen + " " + paylen + " " + offs + " " + endhead );
-		}
-
-		try {
-			decryptCount++;
-			long start = System.currentTimeMillis();
-
-			_index = getIndex(seqno);
-			updateCounters(seqno);
-
-			srtpSecurityContext.deriveKeys(0);
-
-			ByteBuffer in = ByteBuffer.wrap(payload);
-			int pl = (((payload.length / 32) + 2) * 32); // aes likes the buffer a multiple of 32 and longer than the input.
-			ByteBuffer out = ByteBuffer.allocate(pl);
-			ByteBuffer pepper = getPepper(ssrc, (long) seqno/*_index*/);
-
-			byte[] output = new byte[plen - srtpTailPayload];
-			System.arraycopy(packet, 0, output, 0, endhead);
-
-			srtpSecurityContext.decipher(in, out, pepper);
-			decryptTime += (System.currentTimeMillis() - start);
-			System.arraycopy(out.array(), 0, output, endhead, payload.length);
-
-			return output;
-
-		} catch (Exception e) {
-			Logger.println("Call " + cp + " SRTP Decryption failed, length "	+ packet.length + ": " + plen + " " + e);
-			callHandler.cancelRequest("SRTP Decryption failed: "	+ e);
-			e.printStackTrace();
-			return null;
-		}
-    }
-
-    private long getIndex(char seqno)
-    {
-        long v = _roc; // default assumption
-
-        // detect wrap(s)
-        int diff = seqno - _s_l; // normally we expect this to be 1
-        if (diff < Short.MIN_VALUE) {
-            // large negative offset so
-            v = _roc + 1; // if the old value is more than 2^15 smaller
-            // then we have wrapped
-        }
-        if (diff > Short.MAX_VALUE) {
-            // big positive offset
-            v = _roc - 1; // we  wrapped recently and this is an older packet.
-        }
-        if (v < 0) {
-            v = 0; // trap odd initial cases
-        }
-        /*
-        if (_s_l < 32768) {
-        v = ((seqno - _s_l) > 32768) ? (_roc - 1) % (1 << 32) : _roc;
-        } else {
-        v = ((_s_l - 32768) > seqno) ? (_roc + 1) % (1 << 32) : _roc;
-        }*/
-        long low = (long) seqno;
-        long high = ((long) v << 16);
-        long ret = low | high;
-        return ret;
-    }
-
-    void updateCounters(char seqno)
-    {
-        // note that we have seen it.
-        int diff = seqno - _s_l; // normally we expect this to be 1
-
-    	if (seqno == 0) {
-            Logger.println("seqno = 0 _index =" + _index + " _roc =" + _roc + " _s_l= " + (0 + _s_l) + " diff = " + diff + " mins=" + Short.MIN_VALUE);
-        }
-        if (diff < Short.MIN_VALUE) {
-            // large negative offset so
-            _roc++; // if the old value is more than 2^15 smaller
-            // then we have wrapped
-        }
-        _s_l = seqno;
-    }
-
-    private ByteBuffer getPepper(int ssrc, long idx)
-    {
-        //(SSRC * 2^64) XOR (i * 2^16)
-        ByteBuffer pepper = ByteBuffer.allocate(16);
-        pepper.putInt(4, ssrc);
-        long sindex = idx << 16;
-        pepper.putLong(8, sindex);
-
-        return pepper;
+	    decryptTime += (System.currentTimeMillis() - start);
+	    return clearText;
+	} catch (Exception e) {
+	    Logger.println("Call " + cp + " Decryption failed, length "
+		+ data.length + ": " + e.getMessage());
+	    callHandler.cancelRequest("Decryption failed: "
+		+ e.getMessage());
+	    return data;
+	}
     }
 
     public String toString() {
@@ -2477,10 +2300,5 @@ public class MemberReceiver implements MixDataSource, TreatmentDoneListener {
 
 	return callId.substring(0, 13);
     }
-
-    public int getPacketsReceived()
-    {
-    	return packetsReceived;
-	}
 
 }

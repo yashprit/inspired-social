@@ -785,18 +785,18 @@ WebRtc.prototype.onRemoteStreamAdded = function (event)
 		
 	} else {
 	
-	   var uniqueId = "webrtc_" + WebRtc.escape(this.farParty);
-	   
-	   if (!document.getElementById(uniqueId))	   
-	   {
-	   	var ifrm = document.createElement("video"); 
-	   	ifrm.setAttribute("id", uniqueId); 	   
-		ifrm.setAttribute("autoplay", "autoplay"); 	   	
-	   	ifrm.style.display = "none"; 
-	   	document.body.appendChild(ifrm);	   
-	   } 
+		var uniqueKey = "webrtc_" + WebRtc.escape(this.farParty);
 
- 	   document.getElementById(uniqueId).src = url; 	
+		if (!document.getElementById(uniqueKey))
+		{
+			var ifrm = document.createElement("video"); 
+			ifrm.setAttribute("id", uniqueKey); 			
+			ifrm.setAttribute("autoplay", "autoplay"); 	   
+			ifrm.style.display = "none"; 
+			document.body.appendChild(ifrm); 	
+		}
+
+		document.getElementById(uniqueKey).src = url; 		
 	}
 }
 

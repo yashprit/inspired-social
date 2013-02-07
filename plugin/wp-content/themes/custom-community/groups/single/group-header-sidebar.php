@@ -2,7 +2,7 @@
 <?php do_action( 'bp_before_group_header' ) ?>
 <?php if ( bp_has_groups() ) : while ( bp_groups() ) : bp_the_group(); ?>
 
-	<div id="item-header-avatar">
+	<div id="item-header-avatar" class="hidden-phone">
 		<a href="<?php bp_group_permalink() ?>" title="<?php bp_group_name() ?>">
 			<?php $asize = '150';
 			if($cap->bp_groups_avatar_size !=  '') 

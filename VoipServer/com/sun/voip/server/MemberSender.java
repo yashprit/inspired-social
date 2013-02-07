@@ -36,9 +36,6 @@ import com.sun.voip.SpeexEncoder;
 import com.sun.voip.SpeexException;
 import com.sun.voip.TreatmentManager;
 import com.sun.voip.Util;
-import com.sun.voip.SRTPSecContext;
-
-import java.security.SecureRandom;
 
 import java.io.IOException;
 
@@ -47,19 +44,13 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.ArrayList;
-import java.util.Properties;
+
 import javax.crypto.*;
 import javax.crypto.spec.SecretKeySpec;
 
 import java.text.ParseException;
-import com.milgra.server.ThirdParty;
-import org.red5.server.webapp.voicebridge.Application;
-
-import com.sun.stun.StunServerImpl;
-
+import org.red5.server.webapp.voicebridge.RtmpParticipant;
 
 /**
  * Send RTP data to this ConferenceMember,
@@ -89,24 +80,15 @@ public class MemberSender {
     private double totalTimeToGetData;
     private int comfortPayloadsSent = 0;
     private Cipher encryptCipher;
-    private String encryptionKey = null;
+    private String encryptionKey;
     private String encryptionAlgorithm;
-    private String encryptionParams;
-    private SRTPSecContext srtpSecurityContext;
-	private int srtpTailPayload = 0;
-	private long srtpSequenceNo;
-	private SecureRandom srtpRandom = new SecureRandom();
-	private long ssrc = 0;
-
     private int mySamplesPerPacket;
     private SampleRateConverter outSampleRateConverter;
     private int outSampleRate;
     private int outChannels;
     private DatagramChannel datagramChannel;
     private boolean initializationDone = false;
-    private ThirdParty rtmpParticipant;
-	private StunServerImpl stunServerImpl;
-	private Timer timer;
+    private RtmpParticipant rtmpParticipant;
 
 
     public MemberSender(CallParticipant cp, DatagramChannel datagramChannel)
@@ -118,63 +100,31 @@ public class MemberSender {
 
 	encryptionKey = cp.getEncryptionKey();
 	encryptionAlgorithm = cp.getEncryptionAlgorithm();
-	encryptionParams = cp.getEncryptionParams();
 
-	if (encryptionKey != null)
-	{
+	if (encryptionKey != null) {
 	    try {
-			if (encryptionAlgorithm.startsWith("AES_CM_128_HMAC_SHA1_"))
-			{
-				Properties cryptoProps = new Properties();
-				cryptoProps.setProperty("crypto-suite", encryptionAlgorithm);
-				cryptoProps.setProperty("key-params", encryptionKey);
-				cryptoProps.setProperty("session-params", encryptionParams);
+		if (encryptionKey.length() < 8) {
+		    encryptionKey +=
+			String.valueOf(System.currentTimeMillis());
+		}
 
-                srtpSecurityContext = new SRTPSecContext(false);
-                srtpSecurityContext.parseCryptoProps(cryptoProps);
-                srtpTailPayload = srtpSecurityContext.getAuthTail();
-                srtpSequenceNo = 0;
+		if (encryptionKey.length() > 8 &&
+			encryptionAlgorithm.equals("DES")) {
 
-                if (cp.getSsrc() == null)
-                {
-                	ssrc = srtpRandom.nextInt();
-                	cp.setSsrc(String.valueOf(ssrc));
+		    encryptionKey = encryptionKey.substring(0, 8);
+		}
 
-				} else {
+		byte[] keyBytes = encryptionKey.getBytes();
+		SecretKeySpec secretKey = new SecretKeySpec(keyBytes,
+		    encryptionAlgorithm);
 
-					try {
-						ssrc = Long.parseLong(cp.getSsrc());
+	        encryptCipher = Cipher.getInstance(encryptionAlgorithm);
+	        encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-					} catch (Exception e) {
-						ssrc = srtpRandom.nextInt();
-                		cp.setSsrc(String.valueOf(ssrc));
-					}
-				}
-
-			} else {
-
-				if (encryptionKey.length() < 8) {
-					encryptionKey +=
-					String.valueOf(System.currentTimeMillis());
-				}
-
-				if (encryptionKey.length() > 8 &&
-					encryptionAlgorithm.equals("DES")) {
-
-					encryptionKey = encryptionKey.substring(0, 8);
-				}
-
-				byte[] keyBytes = encryptionKey.getBytes();
-				SecretKeySpec secretKey = new SecretKeySpec(keyBytes, encryptionAlgorithm);
-
-				encryptCipher = Cipher.getInstance(encryptionAlgorithm);
-				encryptCipher.init(Cipher.ENCRYPT_MODE, secretKey);
-			}
-
-			Logger.println("Call " + cp + " Voice data will be encrypted using " + encryptionAlgorithm);
-
+		Logger.println("Call " + cp + " Voice data will be encrypted "
+		    + "using " + encryptionAlgorithm);
 	    } catch (Exception e) {
-			Logger.println("Call " + cp
+		Logger.println("Call " + cp
 		    + " Crypto initialization failed " + e.getMessage());
                 throw new IOException(" Crypto initialization failed "
 		    + e.getMessage());
@@ -183,12 +133,12 @@ public class MemberSender {
     }
 
 
-	public void setRtmpParticipant(ThirdParty rtmpParticipant)
+	public void setRtmpParticipant(RtmpParticipant rtmpParticipant)
 	{
 		this.rtmpParticipant = rtmpParticipant;
 	}
 
-	public ThirdParty getRtmpParticipant()
+	public RtmpParticipant getRtmpParticipant()
 	{
 		return rtmpParticipant;
 	}
@@ -201,6 +151,7 @@ public class MemberSender {
 	if (memberAddress == null || memberAddress.equals(sendAddress)) {
 	    return;
 	}
+/*	BAO not sure why this is here
 
 	if (memberAddress.getAddress().equals(sendAddress.getAddress()) == false) {
 	    Logger.println("Call " + cp
@@ -209,6 +160,7 @@ public class MemberSender {
 		+ sendAddress.getAddress() + " rejected!");
 	    return;
 	}
+*/
 
 	Logger.println("Call " + cp + " member address changed from " + memberAddress + " to " + sendAddress);
 	memberAddress = sendAddress;
@@ -264,7 +216,7 @@ public class MemberSender {
 	outChannels = conferenceMediaInfo.getChannels();
 
 
-	if (cp.getProtocol() != null && ("RTMP".equals(cp.getProtocol()) || "RTMFP".equals(cp.getProtocol())))
+	if (cp.getProtocol() != null && "RTMP".equals(cp.getProtocol()) && "RTMFP".equals(cp.getProtocol()) == false)
 	{
 
 	} else {
@@ -303,7 +255,8 @@ public class MemberSender {
 			}
 		}
 
-		senderPacket = new RtpSenderPacket(myMediaInfo.getEncoding(), inSampleRate, inChannels);
+		senderPacket = new RtpSenderPacket(myMediaInfo.getEncoding(),
+			inSampleRate, inChannels);
 
 		if (myMediaInfo.getEncoding() == RtpPacket.SPEEX_ENCODING) {
 			try {
@@ -318,16 +271,6 @@ public class MemberSender {
 				}
 		}
 	}
-
-	if (needToEncrypt())
-	{
-		Logger.writeFile("Call " + cp + " MemberSender stun monitor started...");
-
-		stunServerImpl = new StunServerImpl();
-		timer = new Timer();
-		timer.scheduleAtFixedRate(new BindingRequestTask(), 0, 3000);
-	}
-	else Logger.writeFile("Call " + cp + " MemberSender NO stun monitor");
 
 	initializationDone = true;
 
@@ -351,7 +294,6 @@ public class MemberSender {
 
     public synchronized boolean sendData(int[] dataToSend)
     {
-
 	if (getRtmpParticipant() != null)	// we got RTMP member
 	{
 		try {
@@ -365,16 +307,6 @@ public class MemberSender {
 					callHandler.getMember().adjustVolume(dataToSend, outputVolume);
 				}
 
-				try {
-					if (outSampleRateConverter != null) {
-						dataToSend = outSampleRateConverter.resample(dataToSend);
-					}
-
-				} catch (Exception e) {
-					Logger.println("Call " + cp + " can't resample data to send! " + e.getMessage());
-					callHandler.cancelRequest("Call " + cp + " can't resample data to send! " + e.getMessage());
-					return false;
-				}
 				getRtmpParticipant().pushAudio(dataToSend);
 				return true;
 			}
@@ -474,7 +406,8 @@ public class MemberSender {
         if (Logger.logLevel == -37) {
             boolean silence = true;
 
-            for (int i = RtpPacket.HEADER_SIZE; i < rtpData.length - RtpPacket.HEADER_SIZE; i++) {
+            for (int i = RtpPacket.HEADER_SIZE;
+		    i < rtpData.length - RtpPacket.HEADER_SIZE; i++) {
 
                 if (rtpData[i] != 0) {
                     silence = false;
@@ -497,8 +430,8 @@ public class MemberSender {
 	    /*
 	     * Convert to ulaw
 	     */
-	    AudioConversion.linearToUlaw(dataToSend, rtpData, RtpPacket.HEADER_SIZE);
-
+	    AudioConversion.linearToUlaw(dataToSend, rtpData,
+		RtpPacket.HEADER_SIZE);
 	    //Util.dump("Call " + cp + " sending ulaw data " + rtpData.length,
 	    //    rtpData, 0, 16);
 	} else if (myMediaInfo.getEncoding() == RtpPacket.SPEEX_ENCODING) {
@@ -521,22 +454,17 @@ public class MemberSender {
 	}
 
 	recordPacket(rtpData, senderPacket.getLength());
-	recordAudio(rtpData, RtpPacket.HEADER_SIZE,	senderPacket.getLength() - RtpPacket.HEADER_SIZE);
+	recordAudio(rtpData, RtpPacket.HEADER_SIZE,
+	    senderPacket.getLength() - RtpPacket.HEADER_SIZE);
 
 	/*
 	 * Encrypt data if required
 	 */
-	if (needToEncrypt())
-	{
-	    rtpData = encrypt(rtpData, rtpData.length);
+	if (needToEncrypt()) {
+	    encrypt(rtpData, senderPacket.getLength());
 	}
 
-	senderPacket.setBuffer(rtpData);
-	senderPacket.setLength(rtpData.length);
-
-
-    if (Logger.logLevel == -78)
-    {
+        if (Logger.logLevel == -78) {
 	    Logger.println("Call " + cp + " sending data from socket "
 		+ datagramChannel.socket().getLocalAddress()
 		+ ":" + datagramChannel.socket().getLocalPort()
@@ -554,13 +482,13 @@ public class MemberSender {
 	    try {
 	        senderPacket.setSocketAddress(memberAddress);
 
-	        datagramChannel.send(ByteBuffer.wrap(senderPacket.getData(), 0, senderPacket.getLength()), memberAddress);
+	        datagramChannel.send(
+		    ByteBuffer.wrap(senderPacket.getData(), 0,
+		        senderPacket.getLength()), memberAddress);
 
-			if (Logger.logLevel >= Logger.LOG_MOREDETAIL)
-			{
-				Logger.writeFile("Call " + cp + " back from sending data");
-			}
-
+                if (Logger.logLevel >= Logger.LOG_MOREDETAIL) {
+	            Logger.writeFile("Call " + cp + " back from sending data");
+	        }
 	    } catch (IOException e) {
 	        if (!done) {
 		    Logger.error("Call " + cp + " sendData " + e.getMessage());
@@ -569,6 +497,9 @@ public class MemberSender {
 	        return false;
 	    }
 	}
+
+	senderPacket.setBuffer(rtpData);
+	senderPacket.setLength(rtpData.length);
 
 	if (Logger.logLevel >= Logger.LOG_DEBUG) {
 	    log(true);
@@ -582,7 +513,7 @@ public class MemberSender {
 
 	totalTimeToGetData += (System.nanoTime() - start);
 	packetsSent++;
-	senderPacket.updateRtpHeader(rtpData.length - srtpTailPayload);
+	senderPacket.updateRtpHeader(rtpData.length);
 	return true;
     }
 
@@ -778,37 +709,57 @@ public class MemberSender {
         return comfortNoiseType;
     }
 
-    public boolean sendComfortNoisePayload()
-    {
-		/*
-		 * Set payload and packet size
-		 */
-		senderPacket.setComfortPayload();
+    public boolean sendComfortNoisePayload() {
+	/*
+	 * Set payload and packet size
+	 */
+	senderPacket.setComfortPayload();
 
-		try {
-			datagramChannel.send(ByteBuffer.wrap(senderPacket.getData()), memberAddress);
+	int len = senderPacket.getLength();
 
-		} catch (IOException e) {
+        /*
+	 * A packet with COMFORT_PAYLOAD has one byte of data to
+	 * indicate the noise volume level to generate.
+	 */
+	senderPacket.setComfortNoiseLevel(RtpPacket.comfortNoiseLevel);
 
-			if (!done) {
-				Logger.println("Call " + cp + " sendComfortNoisePayload " + e.getMessage());
-				e.printStackTrace();
-			}
-			return false;
-		}
+	byte[] data = senderPacket.getData();
 
+	if (needToEncrypt()) {
+            senderPacket.setLength(RtpPacket.DATA + 1);
 
-		if (Logger.logLevel >= Logger.LOG_DETAIL) {
-			Logger.println("Call " + cp + " Sent comfort noise payload "
-				+ "with level " + RtpPacket.comfortNoiseLevel);
-		}
+	    encrypt(data, senderPacket.getLength());
+	}
 
-		if (Logger.logLevel >= Logger.LOG_DEBUG) {
-			log(false);
-		}
+        senderPacket.setSocketAddress(memberAddress);
 
-		comfortPayloadsSent++;
-		return true;
+	try {
+	    datagramChannel.send(
+		ByteBuffer.wrap(senderPacket.getData()), memberAddress);
+	} catch (IOException e) {
+	    if (!done) {
+		Logger.println("Call " + cp + " sendComfortNoisePayload "
+		    + e.getMessage());
+	        e.printStackTrace();
+	    }
+	    return false;
+	}
+
+	senderPacket.setBuffer(data);
+
+        senderPacket.updateRtpHeader(len);
+
+	if (Logger.logLevel >= Logger.LOG_DETAIL) {
+	    Logger.println("Call " + cp + " Sent comfort noise payload "
+	        + "with level " + RtpPacket.comfortNoiseLevel);
+	}
+
+	if (Logger.logLevel >= Logger.LOG_DEBUG) {
+	    log(false);
+	}
+
+	comfortPayloadsSent++;
+	return true;
     }
 
     /*
@@ -882,7 +833,6 @@ public class MemberSender {
 	}
 
         done = true;
-        if (timer != null) timer.cancel();
 
 	synchronized (recordingLock) {
             if (recorder != null) {
@@ -1105,119 +1055,29 @@ public class MemberSender {
 
     private long encryptCount;
     private long encryptTime;
-    private int length = -1;
 
-    public boolean needToEncrypt()
-    {
-        return encryptCipher != null || srtpSecurityContext != null;
+    public boolean needToEncrypt() {
+        return encryptCipher != null;
     }
 
-    public byte[] encrypt(byte[] data, int newLength)
-    {
-		long stamp = senderPacket.getRtpTimestamp();
+    public void encrypt(byte[] data, int length) {
 
-		if (length == -1)
-		{
-			length = newLength;
-		}
-
-		byte[] cipherText = null;
-
-		try {
-			encryptCount++;
-			long start = System.currentTimeMillis();
-
-			if (encryptCipher != null)
-			{
-				cipherText = encryptCipher.doFinal(data, 0, length);
-
-			} else {	// AES
-
-				srtpSecurityContext.deriveKeys(stamp);
-
-            	cipherText = new byte[length + srtpTailPayload];
-            	System.arraycopy(data, 0, cipherText, 0, 12);
-
-				byte[] data2 = new byte[length - 12];
-            	System.arraycopy(data, 12, data2, 0, length - 12);
-
-				ByteBuffer in = ByteBuffer.wrap(data2);
-				int pl = (((data2.length / 32) + 2) * 32);
-				ByteBuffer out = ByteBuffer.allocate(pl);
-				ByteBuffer pepper = getPepper((int)ssrc, srtpSequenceNo);
-				srtpSecurityContext.decipher(in, out, pepper);
-
-            	System.arraycopy(out.array(), 0, cipherText, 12, length - 12);
-
-        		cipherText[2] = (byte)(srtpSequenceNo >> 8);
-        		cipherText[3] = (byte)(srtpSequenceNo );
-
-				cipherText[8] = (byte) (ssrc >> 24);
-				cipherText[9] = (byte) (ssrc >> 16);
-				cipherText[10] = (byte) (ssrc >> 8);
-				cipherText[11] = (byte) (ssrc);
-
-				long rtpTimestamp = (System.currentTimeMillis() - start) + stamp;
-
-				cipherText[4] = (byte)((rtpTimestamp >> 24) & 0xff);
-				cipherText[5] = (byte)((rtpTimestamp >> 16) & 0xff);
-				cipherText[6] = (byte)((rtpTimestamp >> 8) & 0xff);
-				cipherText[7] = (byte)(rtpTimestamp & 0xff);
-
-            	Mac mac = srtpSecurityContext.getAuthMac();
-            	int offs = length;
-
-                ByteBuffer m = ByteBuffer.allocate(offs + 4);
-                m.put(cipherText, 0, offs);
-                int oroc = (int) (srtpSequenceNo >>> 16);
-
-                if ((srtpSequenceNo & 0xffff)== 0)
-                {
-                    Logger.println("seqno = 0 outgoing roc ="+oroc);
-                }
-
-                m.putInt(oroc);
-
-                m.position(0);
-
-                mac.update(m);
-                byte[] auth = mac.doFinal();
-                int len = srtpTailPayload;
-
-                System.arraycopy(auth, 0, cipherText, length, len);
-
-				if (packetsSent < 10)
-				{
-					Logger.println("MemberSender encrypt " + length + " " + srtpTailPayload + " " + ssrc);
-					Logger.println("MemberSender auth body " + SRTPSecContext.getHex(cipherText));
-				}
-
-                srtpSequenceNo++;
-			}
-
-			encryptTime += (System.currentTimeMillis() - start);
-
-		} catch (Exception e) {
-			Logger.println("Call " + cp + " Encryption failed, length "	+ length + ": " + e.getMessage());
-			callHandler.cancelRequest("Encryption failed: " + e.getMessage());
-		}
-
-		return cipherText;
-    }
-
-    private ByteBuffer getPepper(int ssrc, long idx)
-    {
-        //(SSRC * 2^64) XOR (i * 2^16)
-        ByteBuffer pepper = ByteBuffer.allocate(16);
-        pepper.putInt(4, ssrc);
-        long sindex = idx << 16;
-        pepper.putLong(8, sindex);
-
-        return pepper;
+	try {
+	    encryptCount++;
+	    long start = System.currentTimeMillis();
+	    byte[] cipherText = encryptCipher.doFinal(data, 0, length);
+	    encryptTime += (System.currentTimeMillis() - start);
+	    senderPacket.setBuffer(cipherText);
+	} catch (Exception e) {
+            Logger.println("Call " + cp + " Encryption failed, length "
+		+ data.length + ": " + e.getMessage());
+            callHandler.cancelRequest("Encryption failed: " +
+		e.getMessage());
+	}
     }
 
     public String toString() {
-		return cp.toString();
+	return cp.toString();
     }
 
     public String toAbbreviatedString() {
@@ -1230,10 +1090,4 @@ public class MemberSender {
 	return cp.getCallId().substring(0, 13);
     }
 
-    private class BindingRequestTask extends TimerTask {
-
-        public void run() {
-			stunServerImpl.makeStunRequest(datagramChannel, memberAddress, cp);
-        }
-    }
 }

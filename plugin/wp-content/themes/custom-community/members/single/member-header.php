@@ -1,6 +1,6 @@
 <?php do_action( 'bp_before_member_header' ) ?>
 <?php global $cap ?>
-<div id="item-header-avatar">
+<div id="item-header-avatar" class="hidden-phone">
 	<a href="<?php bp_user_link() ?>">
 		<?php $asize = '150';
 		if($cap->bp_profiles_avatar_size !=  '') 

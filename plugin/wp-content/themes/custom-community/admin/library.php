@@ -19,7 +19,7 @@ class Group {
 		$this->options = apply_filters('cc_cap_get_options', $_options, $_id);
 	}
 	
-	function WriteHtml() {
+    function WriteHtml() {
 
 					 
 			echo '<div class="accordion">';
@@ -58,7 +58,7 @@ class Option {
 	function Import( $data ) {
 		if ( array_key_exists( $this->id, $data->dict ) )
 				$cap = get_option('custom_community_theme_options');
-				$cap[$this->id] = $data->dict[$this->id];
+				$cap[$this->id] = isset($data->dict[$this->id]) ? $data->dict[$this->id] : '';
 				update_option( 'custom_community_theme_options', $cap );
 	}
 	
@@ -69,7 +69,7 @@ class Option {
 
 	function get() {
 		$value = get_option('custom_community_theme_options');
-		return $value[$this->id];
+		return isset($value[$this->id]) ? $value[$this->id] : '';
 	}
 }
 
@@ -92,26 +92,26 @@ class TextOption extends Option {
 	
 			if($this->accordion == 'on' || $this->accordion == 'start'){ ?>	
 				<?php if($this->accordion_name != 'off' && $this->accordion_name != __('off','cc') ) { ?>
-					<h3><a href="#"><?php echo $this->accordion_name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->accordion_name; ?></a></h3>
 					<div>
-					<p><b><?php echo $this->name; ?></b></p>
+					<p class="option-title"><b><?php echo $this->name; ?></b></p>
 				<?php } else {?>
-					<h3><a href="#"><?php echo $this->name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->name; ?></a></h3>
 					<div>
 				<?php }?>
 			<?php } else { ?>
-				<p><b><?php echo $this->name; ?></b></p>
+				<p class="option-title"><b><?php echo $this->name; ?></b></p>
 			<?php } ?>
-			<?php echo $this->desc.'<br />'; 
-			$commentWidth = 2;
+			<p class="desc"><?php echo $this->desc; ?></p> 
+			<?php $commentWidth = 2;
 			if ( $this->useTextArea ) :
 				$commentWidth = 1;
 				?>
-				<textarea onfocus="jQuery('textarea').elastic();" class="text_option_teaxarea" name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>"><?php echo esc_attr( $stdText ); ?></textarea>
+                <textarea class="text_option_teaxarea" name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>"><?php echo esc_attr( stripcslashes($stdText) ); ?></textarea>
 				<?php
 			else :
 				?>
-				<input name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>" type="text" value="<?php echo esc_attr( $stdText ); ?>" size="40" />
+				<input name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>" type="text" value="<?php echo esc_attr( stripcslashes($stdText) ); ?>" size="40" />
 				<?php
 			endif; 
 			
@@ -123,12 +123,64 @@ class TextOption extends Option {
 
 	function get() {
 		$value = get_option('custom_community_theme_options');
-		if(isset($value[$this->id])) $value = $value[$this->id]; else $value='';
+		$value = isset($value[$this->id]) ? $value[$this->id] : '';
 
 		if ( empty( $value ) )
 			return $this->std;
 		return $value;
 	}
+}
+
+class CheckboxGroupOptions extends Option{
+    public $options;
+    
+    function CheckboxGroupOptions($_name, $_desc, $_id, $_options, $_stdIndex = 0, $_accordion = 'on', $_accordion_name = "off"){
+        $this->Option( $_name, $_desc, $_id, $_stdIndex );
+		$this->options = $_options;
+		$this->accordion = $_accordion;
+		$this->accordion_name = $_accordion_name;
+    }
+    function WriteHtml() {
+        if($this->accordion == 'on' || $this->accordion == 'start'){ ?>	
+				<?php if($this->accordion_name != 'off') { ?>
+					<h3 class="option-title"><a href="#"><?php echo $this->accordion_name; ?></a></h3>
+					<div>
+					<p class="option-title"><b><?php echo $this->name; ?></b></p>
+				<?php } else {?>
+					<h3 class="option-title"><a href="#"><?php echo $this->name; ?></a></h3>
+					<div>
+				<?php }?>
+			<?php } else { ?>
+				<p class="option-title"><b><?php echo $this->name; ?></b></p>
+			<?php } ?>
+				<p class="desc"><?php echo $this->desc; ?></p>
+				<?php
+				
+                $value = get_option('custom_community_theme_options');
+                $value = (isset($value[$this->id]) && is_serialized($value[$this->id])) ? unserialize($value[$this->id]) : array($value[$this->id]);
+				foreach( $this->options as $option ) :
+                    // If standard value is given?>
+                    <label>
+                        <input type="checkbox" class="checkbox-group" name="custom_community_theme_options[<?php echo $this->id; ?>][]" <?php echo in_array($option['id'], $value) ? 'checked="checked"' : '';?> value="<?php echo $option['id'];?>"/><?php echo $option['name'];?><br />
+                    </label>
+                <?php
+				endforeach;
+				?>
+			<?php if( $this->accordion == 'on' || $this->accordion == 'end'){ ?>
+				</div>
+			<?php } 
+    }
+    
+    function get(){
+        $value = get_option('custom_community_theme_options');
+        if(isset($value[$this->id]) && is_serialized($value[$this->id])){
+            return unserialize($value[$this->id]);
+        } else if(isset($value[$this->id]) && !is_serialized($value[$this->id])){
+            return array($value[$this->id]);
+        } else {
+            return  array();
+        }
+    }
 }
 
 class DropdownOption extends Option {
@@ -145,32 +197,32 @@ class DropdownOption extends Option {
 
 			if($this->accordion == 'on' || $this->accordion == 'start'){ ?>	
 				<?php if($this->accordion_name != 'off') { ?>
-					<h3><a href="#"><?php echo $this->accordion_name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->accordion_name; ?></a></h3>
 					<div>
-					<p><b><?php echo $this->name; ?></b></p>
+					<p class="option-title"><b><?php echo $this->name; ?></b></p>
 				<?php } else {?>
-					<h3><a href="#"><?php echo $this->name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->name; ?></a></h3>
 					<div>
 				<?php }?>
 			<?php } else { ?>
-				<p><b><?php echo $this->name; ?></b></p>
+				<p class="option-title"><b><?php echo $this->name; ?></b></p>
 			<?php } ?>
-				<?php echo $this->desc; ?></br>
+				<p class="desc"><?php echo $this->desc; ?></p>
 				<select name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>">
 				<?php
 				
-				foreach( $this->options as $option ) :
+				foreach( $this->options as $key=>$option ) :
 					// If standard value is given
 			
 					$value = get_option('custom_community_theme_options');
 					$value = (isset($value[$this->id]))? $value[$this->id] : '';
 					if( $this->std != "" ){
 						?>
-						<option<?php if ( $value == $option || ( ! $value && (isset($this->options[ $this->std ]))? $this->options[ $this->std ] : '' == $option )) { echo ' selected="selected"'; } ?>><?php echo $option; ?></option>
+                        <option <?php if(!is_numeric($key)) echo 'value="'.$key.'"'?> <?php if ( $value == $key || $value == $option || ( ! $value && (isset($this->options[ $this->std ]))? $this->options[ $this->std ] : '' == $option )) { echo ' selected="selected"'; } ?>><?php echo $option; ?></option>
 						<?php
 					}else{ 
 						?>
-						<option<?php if ( $value == $option ) { echo ' selected="selected"'; } ?>><?php echo $option; ?></option>
+						<option <?php if(!is_numeric($key)) echo 'value="'.$key.'"'?> <?php if ($value == $key || $value == $option ) { echo ' selected="selected"'; } ?>><?php echo $option; ?></option>
 					<?php }
 				endforeach;
 				?>
@@ -183,10 +235,11 @@ class DropdownOption extends Option {
 
 	function get() {
 		$value = get_option('custom_community_theme_options');
-		$value = $value[$this->id];
-		//echo $value;
-	     	if ( strtolower( $value ) == 'disabled' )
-			return false;
+        $value = isset($value[$this->id]) ? $value[$this->id] : '';
+        
+        if ( strtolower( $value ) == 'disabled' ){
+            return false;
+        }
 		return $value;
 	}
 }
@@ -205,45 +258,48 @@ class DropdownCatOption extends Option {
 
 			if($this->accordion == 'on' || $this->accordion == 'start'){ ?>	
 				<?php if($this->accordion_name != 'off') { ?>
-					<h3><a href="#"><?php echo $this->accordion_name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->accordion_name; ?></a></h3>
 					<div>
-					<p><b><?php echo $this->name; ?></b></p>
+					<p class="option-title"><b><?php echo $this->name; ?></b></p>
 				<?php } else {?>
-					<h3><a href="#"><?php echo $this->name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->name; ?></a></h3>
 					<div>
 				<?php }?>
 			<?php } else { ?>
-				<p><b><?php echo $this->name; ?></b></p>
-			<?php } ?>
-				<?php echo $this->desc; ?></br>
-				<select name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>">
-				<?php
-				
-				foreach( $this->options as $option ) :
-					// If standard value is given
-			
-					$value = get_option('custom_community_theme_options');
-					$value = (isset($value[$this->id]))? $value[$this->id] : '';
-					if( $this->std != "" ){
-						?>
-						<option<?php if ( $value == $option['slug'] || ( ! $value && $this->options[ $this->std ] == $option['slug'] )) { echo ' selected="selected"'; } ?> value="<?php echo $option['slug'] ?>"><?php echo $option['name']; ?></option>
-						<?php
-					}else{ 
-						?>
-						<option<?php if ( $value == $option['slug'] ) { echo ' selected="selected"'; } ?> value="<?php echo $option['slug'] ?>"><?php echo $option['name']; ?></option>
-					<?php }
-				endforeach;
-				?>
-				</select>
+                <div class="option-item <?php echo $this->id; ?>">
+                    <p class="option-title"><b><?php echo $this->name; ?></b></p>
+                <?php } ?>
+                    <p class="desc"><?php echo $this->desc; ?></p>
+                    <select name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id; ?>">
+                    <?php
+
+                    foreach( $this->options as $option ) :
+                        // If standard value is given
+
+                        $value = get_option('custom_community_theme_options');
+                        $value = (isset($value[$this->id]))? $value[$this->id] : '';
+                        if( $this->std != "" ){
+                            ?>
+                            <option<?php if ( $value == $option['slug'] || ( ! $value && $this->options[ $this->std ] == $option['slug'] )) { echo ' selected="selected"'; } ?> value="<?php echo $option['slug'] ?>"><?php echo $option['name']; ?></option>
+                            <?php
+                        }else{ 
+                            ?>
+                            <option<?php if ( $value == $option['slug'] ) { echo ' selected="selected"'; } ?> value="<?php echo $option['slug'] ?>"><?php echo $option['name']; ?></option>
+                        <?php }
+                    endforeach;
+                    ?>
+                    </select>
 			<?php if( $this->accordion == 'on' || $this->accordion == 'end'){ ?>
 				</div>
-			<?php } ?>
+			<?php } else {?>
+                </div>
+            <?php } ?>
 			<?php
 	}
 
 	function get() {
 		$value = get_option('custom_community_theme_options');
-		$value = $value[$this->id];
+		$value = isset($value[$this->id]) ? $value[$this->id] : '';
 		//echo $value;
 	     	if ( strtolower( $value ) == 'disabled' )
 			return false;
@@ -264,7 +320,7 @@ class BooleanOption extends DropdownOption {
 
 	function get() {
 		$value = get_option('custom_community_theme_options');
-		if(isset($value[$this->id])) $value = $value[$this->id]; else $value='';
+		$value = isset($value[$this->id]) ? $value[$this->id] : '';
 		if ( is_bool( $value ) )
 			return $value;
 		switch ( strtolower( $value ) ) {
@@ -293,23 +349,23 @@ class ColorOption extends Option
 	
 		$stdText = $this->std;
 		$value = get_option('custom_community_theme_options');
-    	if ( $value[$this->id] != "" )
+    	if ( !empty($value[$this->id]) )
             $stdText =  $value[$this->id];
 
 			if($this->accordion == 'on' || $this->accordion == 'start'){ ?>	
 				<?php if($this->accordion_name != 'off') { ?>
-					<h3><a href="#"><?php echo $this->accordion_name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->accordion_name; ?></a></h3>
 					<div>
-					<p><b><?php echo $this->name; ?></b></p>
+					<p class="option-title"><b><?php echo $this->name; ?></b></p>
 				<?php } else {?>
-					<h3><a href="#"><?php echo $this->name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->name; ?></a></h3>
 					<div>
 				<?php }?>
 			<?php } else { ?>
-				<p><b><?php echo $this->name; ?></b></p>
+				<p class="option-title"><b><?php echo $this->name; ?></b></p>
 			<?php } ?>
-			<?php echo $this->desc.'<br />'; ?>
-        	<input name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id ?>" type="text" value="<?php echo htmlspecialchars($stdText) ?>" size="40" />
+			<p class="desc"><?php echo $this->desc; ?></p>
+                <input name="custom_community_theme_options[<?php echo $this->id; ?>]" id="<?php echo $this->id ?>" type="text" value="<?php echo htmlspecialchars(stripslashes($stdText)) ?>" size="40" />
 			<?php 
         	if($this->accordion == 'on' || $this->accordion == 'end'){ ?>
 				</div>
@@ -333,10 +389,9 @@ class ColorOption extends Option
 	<?php 
 	}
 
-    function get()
-    {
+    function get() {
 		$value = get_option('custom_community_theme_options');
-    	$value = $value[$this->id];
+    	$value = isset($value[$this->id]) ? $value[$this->id] : '';
         if (!$value)
             return $this->std;
         return $value;
@@ -364,23 +419,23 @@ class FileOption extends Option
 		   
 			if($this->accordion == 'on' || $this->accordion == 'start'){ ?>	
 				<?php if($this->accordion_name != 'off') { ?>
-					<h3><a href="#"><?php echo $this->accordion_name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->accordion_name; ?></a></h3>
 					<div>
-					<p><b><?php echo $this->name; ?></b></p>
+					<p class="option-title"><b><?php echo $this->name; ?></b></p>
 				<?php } else {?>
-					<h3><a href="#"><?php echo $this->name; ?></a></h3>
+					<h3 class="option-title"><a href="#"><?php echo $this->name; ?></a></h3>
 					<div>
 				<?php }?>
 			<?php } else { ?>
-				<p><b><?php echo $this->name; ?></b></p>
+				<p class="option-title"><b><?php echo $this->name; ?></b></p>
 			<?php } ?>
-			<?php echo $this->desc.'<br />'; ?>
+			<p class="desc"><?php echo $this->desc; ?></p>
 			
 			<div class="option-inputs">
 
 				<label for="image1">
-				<input id="#upload_image<?php echo $this->id ?>" type="text" size="36" name="custom_community_theme_options[<?php echo $this->id; ?>]" value="<?php echo htmlspecialchars($stdText) ?>" />
-				<input class="upload_image_button" type="button" value="<?php _e('Browse..','cc')?>" /><br></br>
+				<input id="#upload_image<?php echo $this->id ?>" type="text" size="36" name="custom_community_theme_options[<?php echo $this->id; ?>]" value="<?php echo htmlspecialchars(stripslashes($stdText)) ?>" />
+				<input class="upload_image_button" type="button" value="<?php _e('Browse..','cc')?>" />
 				<img class="cc_image_preview" id="image_<?php echo $this->id ?>" src="<?php echo htmlspecialchars($stdText);  ?>" />
 				
 				</label>
@@ -392,14 +447,13 @@ class FileOption extends Option
 		<?php 
 	}
 
-    function get()
-    {
+    function get() {
 		$value = get_option('custom_community_theme_options');
-		$value = $value[$this->id];
-    if (!$value)
-            return $this->std;
-        return $value;
-    }
+		$value = isset($value[$this->id]) ? $value[$this->id] : '';
+        if (!$value)
+                return $this->std;
+            return $value;
+        }
 }
 
 // This class is the handy short cut for accessing config options
@@ -420,14 +474,13 @@ class autoconfig {
 
 		foreach ($options as $group) {
 			foreach($group->options as $option) {
-				$this->data[$option->_key] = $option;
+                $this->data[$option->_key] = $option;
 			}
 		}
 	}
 
 	public function __get( $name ) {
 		$this->init();
-
 		if ( array_key_exists( $name, $this->cache ) )
 			return $this->cache[$name];
 
@@ -447,7 +500,7 @@ function cap_admin_css() {
 	wp_enqueue_style( 'colorpicker-css', get_template_directory_uri().'/admin/css/colorpicker.css', false );
 	//wp_enqueue_style( 'fileuploader-css', get_template_directory_uri().'/admin/css/fileuploader.css' );
 	wp_enqueue_style( 'jquery-ui-css', get_template_directory_uri().'/admin/css/jquery-ui.css' );
-	
+	wp_enqueue_style('cc_admin', get_template_directory_uri() . '/_inc/css/admin.css');
 }
 
 function cap_admin_js_libs() {
@@ -466,7 +519,7 @@ function cap_admin_js_libs() {
 	wp_enqueue_script( 'jquery-ui-accordion' );	
 	
 	wp_enqueue_script( 'colorpicker-js', get_template_directory_uri()."/admin/js/colorpicker.js", array(), true );
-	wp_enqueue_script( 'autogrow-textarea', get_template_directory_uri()."/admin/js/jquery.autogrow-textarea.js", array(), true );
+	wp_enqueue_script( 'autogrow-textarea');
 
 }
 
@@ -484,13 +537,20 @@ function cap_admin_js_footer() {
 }
 
 function top_level_settings() {
-	global $themename;
-	
-		if ( ! isset( $_REQUEST['updated'] ) )
+	global $themename, $cap;
+    $cap = new autoconfig();
+    if ( ! isset( $_REQUEST['updated'] ) )
 		$_REQUEST['updated'] = false;
-	
-	
-	
+
+	if(!empty($_POST) && !empty($_POST['custom_community_theme_options'])){
+		$options = get_option('custom_community_theme_options');
+		$options = array_merge((array)$options, $_POST['custom_community_theme_options']);
+        $options['cap_slideshow_cat'] = !empty($_POST['custom_community_theme_options']['cap_slideshow_cat']) ? serialize($options['cap_slideshow_cat']) : serialize(array());
+		update_option('custom_community_theme_options', $options);
+		$cap = new autoconfig();
+		do_action('cc_after_theme_settings_saved');
+	}
+    
 	if ( isset( $_REQUEST['saved'] ) )
 		echo "<div id='message' class='updated fade'><p><strong>$themename settings saved.</strong></p></div>";
 	if ( isset( $_REQUEST['reset'] ) )
@@ -500,23 +560,28 @@ function top_level_settings() {
 	
 		<h2><b><?php echo $themename; ?> <?php _e('Options','cc')?></b></h2>
         <p class="additional_info"><?php _e('Custom Community is proudly brought to you by ','cc')?><a class="themekraft-link" href="http://themekraft.com/" target="_blank">Themekraft</a>.
-		<br><?php _e('For support, check out the ','ee')?><a href="http://themekraft.com/forums/" target="_blank">FORUM</a> and <a href="http://themekraft.com/faq/" target="_blank"><?php _e('FAQ','cc')?></a>. 
+		<br> 
 		<?php if(!defined('is_pro')){ ?>
-			<?php _e('Looking for more? ','cc');?><a class="full-version-link" href="https://themekraft.com/theme/custom-community-pro/" target="_blank"><?php _e('Get the Full Version','cc')?></a>
-        </p>
+			<?php _e('Looking for more? ','cc');?><a class="full-version-link" href="http://themekraft.com/shop/custom-community-pro/" target="_blank"><?php _e('Get the full version','cc')?></a>.
+		<br>
         <?php } ?>
+		<a style="margin-top:10px;" href="http://support.themekraft.com/categories/20053996-custom-community" class="button button-secondary" target="_blank"><?php _e('Documentation','cc')?></a> <a class="button button-secondary" href="http://themekraft.com/support/" style="margin-top:10px;" target="_blank"><?php _e('Support','cc')?></a>
+		</p>
 		
-		<form method="post" action="options.php">
+		<form method="post" action="">
 		<?php settings_fields( 'custom_community_options' ); ?>
 	
 		<div id="config-tabs">
 			<ul>
-				<?php 
-				$groups = cap_get_options();
-				foreach( $groups as $group ) :
-				?>
-					<li><a href='#<?php echo $group->id; ?>'><?php echo $group->name; ?></a></li>
-				<?php
+                    <?php
+                    $groups = cap_get_options();
+                    foreach( $groups as $group ) :
+                    $role_section = substr($group->id, 4) . "_min_role";
+                    if(empty($cap->$role_section) || current_user_can($cap->$role_section)){
+                        ?>
+                            <li><a href='#<?php echo $group->id; ?>'><?php echo $group->name; ?></a></li>
+                        <?php
+                    }
 				endforeach;
 				
 				if(!defined('is_pro')){
@@ -527,11 +592,19 @@ function top_level_settings() {
 				?>
 			</ul>
 			<?php
-			foreach( $groups as $group ) : ?>
-				<div id='<?php echo $group->id;?>'>
-					<?php $group->WriteHtml(); ?>
-				</div>
-			<?php
+			foreach( $groups as $group ) :
+                 $id = $group->id;
+                 $role_section = substr($id, 4) . "_min_role";
+                 if(empty($cap->$role_section) || current_user_can($cap->$role_section)){
+                        ?>
+                            <div id="<?php echo $id;?>">
+                                <?php 
+                                      do_action('cc_before_settings_tab', $id);
+                                      $group->WriteHtml(); 
+                                ?>
+                            </div>
+                        <?php
+                 }
 			endforeach;
 			get_pro();
 			?>
@@ -542,21 +615,31 @@ function top_level_settings() {
 			</p>
 			
 		</form>
-		<form enctype="multipart/form-data" method="post">
-			<p class="submit alignleft">
-				<input name="action" type="submit" value="<?php _e('Reset','cc');?>" />
-			</p>
-			<p class="submit alignleft export-button">
-				<input name="action" type="submit" value="<?php _e('Export','cc');?>" />
-			</p>
-			<p class="submit alignleft">
-				<input name="action" type="submit" value="<?php _e('Import','cc');?>" />
-				<input type="file" name="file" />
-			</p>
+        
+        <!--Manage options-->
+        <fieldset class="import-export">
+            <legend><?php _e('Managing settings data', CC_TRANSLATE_DOMAIN)?></legend>
+            <form enctype="multipart/form-data" method="post">
+                <p class="submit alignleft">
+                    <input type="file" name="file" />
+                </p>
+                <p class="submit alignleft">
+                    <input name="action" type="submit" value="<?php _e('Import','cc');?>" />
+                </p>
+                <p class="submit alignleft">
+                    <input name="action" type="submit" value="<?php _e('Export','cc');?>" />
+                </p>
+                <p class="submit alignright">
+                    <input name="action" type="submit" value="<?php _e('Reset All Settings','cc');?>" />
+                </p>
 		</form>
+        </fieldset>
 		<div class="clear"></div>
+        <?php /*?>
 		<h2><?php _e('Preview (updated when options are saved)','cc');?></h2>
 		<iframe src="<?php echo home_url( '?preview=true' ); ?>" width="100%" height="600" ></iframe>
+         * 
+         */?>
 	</div>
 	<?php
 }
@@ -588,17 +671,18 @@ foreach( $cap_options as $cap_option ) :
 endforeach;
 
 foreach($input as $key => $value) :
-	
-	switch($cap_options_types[$key]){
-		case 'BooleanOption':
-			if( $input[$key] == 1 ? 1 : 0);
-		break;
-		default:
-			if(!is_string($input[$key])){
-				$input[$key] = '';
-			}
-		break;
-	}
+	if(isset($cap_options_types[$key])){
+        switch($cap_options_types[$key]){
+            case 'BooleanOption':
+                if( $input[$key] == 1 ? 1 : 0);
+            break;
+            default:
+                if(!is_string($input[$key])){
+                    $input[$key] = '';
+                }
+            break;
+        }
+    }
 endforeach;
 
  return $input;

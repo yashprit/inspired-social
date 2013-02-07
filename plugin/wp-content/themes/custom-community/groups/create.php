@@ -11,7 +11,7 @@
 
 <?php get_header(); ?>
 
-	<div id="content">
+	<div id="content" class="span8">
 		<div class="padder">
 
 		<form action="<?php bp_group_creation_form_action(); ?>" method="post" id="create-group-form" class="standard-form" enctype="multipart/form-data">

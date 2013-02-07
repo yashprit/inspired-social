@@ -16,13 +16,13 @@ if(!empty($raw_search_string)){
 	
 if(!empty($search_term)){
     query_posts('post_status=publish&s=' . $search_term);
-   
+ 
 if ( have_posts() ) : ?>
 <?php while(have_posts()): the_post(); ?>
 <?php do_action( 'bp_before_blog_post' ) ?>
     <div class="post"> <!-- Post goes here... --> 
-    	<div class="post-content"> 
-        	<h3 class="post-title"><?php the_title();?></h3>
+    	<div class="post-content span11"> 
+            <h3 class="post-title"><a href="<?php the_permalink()?>" title="<?php the_title();?>"><?php the_title();?></a></h3>
             <div> 
             	<?php the_excerpt();?>                           
             </div>                       
@@ -34,7 +34,7 @@ if ( have_posts() ) : ?>
         </div>
 		
     </div><!-- Post ends here... -->
-	<?php do_action( 'bp_after_blog_post' ) ?>
+	<?php do_action( 'bp_after_blog_post' ) ; ?>
     <?php endwhile;?>
 	<?php if(!cc_is_advance_search()):?>
 	<div class="navigation">
@@ -43,10 +43,10 @@ if ( have_posts() ) : ?>
 		<div class="alignright"><?php previous_posts_link( __( 'Next Entries &rarr;', 'cc' ) ) ?></div>
 	<?php }?>
 	</div>
-	<?php endif;?>
+	<?php endif; ?>
 	<?php else : ?>
 	<div class="post">
-		<div class="post-content 404">
+		<div class="post-content span11 404">
 		<?php echo sprintf(__("We are sorry, but we could not find anything for the search term '%s'","cc"),$search_term);?>
 
 	<?php locate_template( array( 'searchform.php' ), true ) ?>

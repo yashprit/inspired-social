@@ -3,7 +3,7 @@ Contributors: piklist, p51labs, sbruner
 Tags: piklist, settings, admin bar, dashboard widgets, widgets, visual editor, html editor, excerpts, excerpt length, autosave, howdy, private, protected, close comments, auto linking, AIM, Yahoo IM, Jabber, Google Talk, rss feeds, feeds, maintenance, maintenance mode, under construction
 Tested up to: 3.5
 Requires at least: 3.3.2
-Stable tag: 1.4.5
+Stable tag: 1.4.6
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -19,26 +19,24 @@ WordPress Helpers opens up the missing settings you wish were in WordPress.
 
 http://www.youtube.com/watch?v=ZYSUDvodWxI&hd=1
 
-With WordPress Helpers you can easily:
-
+= With WordPress Helpers you can easily: =
 * Take control of the WordPress Admin Bar... including "Howdy".
 * Show ID's on edit screens for Posts, Pages, Categories, Tags, Users, Media, Custom Post Types and Custom Taxonomies.
+* Expose the hidden WordPress settings page.
 * Disable the theme switcher.
 * Remove the "Screen Options" tab.
 * Disable Upgrade Notifications for WordPress, Themes and Plugins (individually).
 * Hide Dashboard widgets.
 * Set the default Dashboard columns.
 
-**Writing**
-
+= Writing =
 * Set the default Post editor (Visual or HTML).
 * Totally disable the Visual Editor.
 * Increase the height of the Excerpt box when writing a Post.
 * Disable Autosave.
 * Set the Post Per Page on the edit screen.
 
-**Reading**
-
+= Reading =
 * Set Excerpt length by characters or words.
 * Remove the "Private" and "Protected" title prefixes.
 * Disable RSS Feeds.
@@ -46,30 +44,32 @@ With WordPress Helpers you can easily:
 * Include/Exclude Post Types in Search.
 * Disable XML-RPC (WordPress 3.5 or later)
 
-**Discussion**
-
+= Discussion =
 * Do not allow comments on Pages.
 * Remove auto linking in comments.
 * Disable Self Pinging.
 
-**Appearance**
-
+= Appearance =
 * Enhanced Body/Post Classes: Browser detect, Taxonomies (including hierarchy levels), post date, has post thumbnail, author information, logged in users, multisite, odd/even (post archives only), post excerpt.
 * Remove any/all default WordPress widgets.
 * Run any shortcode in a widget.
 * Remove WordPress version, Feed Links, RSD Link, wlwmanifest and relational links for the posts adjacent to the current post, from your theme header.
 
-**User Profiles**
-
+= User Profiles =
 * Remove the Admin color scheme option from the User Profiles.
 * Remove AIM, Yahoo IM, Jabber/Google Talk.
 
-**Site Visitors**
-
+= Site Visitors =
 * Put your site into Maintenance Mode.
 * Create a Private website.
 * Redirect vistors to the home page after login.
 * Display an notice to your users in the admin or on the front of your site.
+
+
+= Read The Reviews =
+* <a href="http://wpmu.org/wordpress-helpers-the-missing-settings-page-for-wordpress/">WPMU.org</a>
+* <a href="https://managewp.com/wordpress-settings-wordpress-helpers/"/>ManageWP.com</a>
+
 
 
 == Frequently Asked Questions ==
@@ -92,6 +92,12 @@ Awesome! We're always looking for new ideas. Please submit them on our <a href="
 
 == Changelog ==
 
+= 1.4.6 =
+* NEW: Expose the hidden WordPress settings page.
+* ENHANCED: Nice new update message.
+* FIX: "Change Howdy" markup is now correct.
+* FIX: 503 response for Maintenance mode.
+
 = 1.4.5 =
 * NEW: Private Site: Force site to login page.
 * NEW: Redirect to Home Page after user logs in.
@@ -100,13 +106,13 @@ Awesome! We're always looking for new ideas. Please submit them on our <a href="
 * FIX: Link to disable Maintenance Mode is correct.
 
 = 1.4.4 =
-* NEW FEATURE: Enable Link Manager (WordPress 3.5+ only)
-* BUGFIX: Show ID's logic is now confined to is_admin.
-* BUGFIX: Show ID's does not interfere with other table modifications.
+* NEW: Enable Link Manager (WordPress 3.5+ only)
+* FIX: Show ID's logic is now confined to is_admin.
+* FIX: Show ID's does not interfere with other table modifications.
 
 = 1.4.3 =
-* NEW FEATURE: Users and Links are now sortable.
-* BUGFIX: "Include in Search" option should not affect admin search.
+* NEW: Users and Links are now sortable.
+* FIX: "Include in Search" option should not affect admin search.
 
 = 1.4.2 =
 * Temporarily removed System Info tab

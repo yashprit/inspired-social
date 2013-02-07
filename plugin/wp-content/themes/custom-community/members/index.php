@@ -13,7 +13,7 @@
 
 	<?php do_action( 'bp_before_directory_members_page' ); ?>
 
-	<div id="content">
+    <div id="content" class="span8">
 		<div class="padder">
 
 		<?php do_action( 'bp_before_directory_members' ); ?>
@@ -49,7 +49,7 @@
 
 					<?php do_action( 'bp_members_directory_member_sub_types' ); ?>
 					
-					<li id="members-order-select" class="last filter">
+					<li id="members-order-select" class="last filter span4">
 
 						<label for="members-order-by"><?php _e( 'Order By:', 'cc' ); ?></label>
 						<select id="members-order-by">
@@ -67,7 +67,7 @@
 						</select>
 					</li>
 
-					<li id="members-displaymode-select" class="no-ajax displaymode">
+					<li id="members-displaymode-select" class="no-ajax displaymode span3">
 
 						<label for="members-displaymode"><?php _e( 'Display mode:', 'cc' ); ?></label>
 						<select id="members-displaymode">

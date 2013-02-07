@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Custom Community Pro v0.7.1\n"
+"Project-Id-Version: x2 v1.1\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: \n"
-"PO-Revision-Date: 2012-07-05 16:23:36+0200\n"
+"PO-Revision-Date: 2012-12-16 19:30:03+0000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -19,164 +19,159 @@ msgstr ""
 "X-Poedit-SearchPath-0: .\n"
 "X-Textdomain-Support: yes"
 
-#: 404.php:7
+#: 404.php:26
 #@ cc
 msgid "Page not found"
 msgstr "Seite nicht gefunden"
 
-#: 404.php:9
-#@ cc
-msgid "We're sorry, but we can't find the page that you're looking for. Perhaps searching will help."
-msgstr "Es tut uns leid, aber wir können die aufgerufene Seite nicht finden. Vielleicht könnte Ihnen die Suche helfen."
-
-#: _inc/ajax.php:147
+#: _inc/ajax.php:155
 #@ cc
 msgid "Please enter some content to post."
 msgstr "Bitte fügen Sie Inhalt in den Artikel ein."
 
-#: _inc/ajax.php:164
+#: _inc/ajax.php:172
 #@ cc
 msgid "There was a problem posting your update, please try again."
 msgstr "Es gab ein Problem beim publizieren Ihrer Aktualisierung, bitte versuchen Sie es erneut."
 
-#: _inc/ajax.php:189
+#: _inc/ajax.php:197
 #@ cc
 msgid "Please do not leave the comment area blank."
 msgstr "Bittel lassen Sie den Kommentarbereich nicht leer."
 
-#: _inc/ajax.php:194
-#: _inc/ajax.php:205
+#: _inc/ajax.php:202
+#: _inc/ajax.php:213
 #@ cc
 msgid "There was an error posting that reply, please try again."
 msgstr "Beim Veröffentlichen trat ein Fehler auf, bitte versuchen Sie es erneut."
 
-#: _inc/ajax.php:262
-#: _inc/ajax.php:297
+#: _inc/ajax.php:270
+#: _inc/ajax.php:305
 #@ cc
 msgid "There was a problem when deleting. Please try again."
 msgstr "Beim Löschen ist ein Problem aufgetreten. Bitte versuchen Sie es erneut."
 
-#: _inc/ajax.php:312
+#: _inc/ajax.php:320
 #: activity/entry.php:72
 #@ cc
 msgid "Remove Favorite"
 msgstr "Favorit entferrnen"
 
-#: _inc/ajax.php:321
+#: _inc/ajax.php:329
 #: activity/entry.php:68
 #@ cc
 msgid "Favorite"
 msgstr "Favorit"
 
-#: _inc/ajax.php:380
+#: _inc/ajax.php:388
 #: groups/create.php:234
 #: groups/single/send-invites.php:42
 #@ cc
 msgid "Remove Invite"
 msgstr "Einladung löschen"
 
-#: _inc/ajax.php:406
+#: _inc/ajax.php:414
 #@ cc
 msgid "Friendship could not be canceled."
 msgstr "Kontakt konnte nicht beendet werden."
 
-#: _inc/ajax.php:408
+#: _inc/ajax.php:416
 #@ cc
 msgid "Add Friend"
 msgstr "Kontakt hinzufügen"
 
-#: _inc/ajax.php:416
+#: _inc/ajax.php:424
 #@ cc
 msgid "Friendship could not be requested."
 msgstr "Kontakt konnte nicht angefragt werden."
 
-#: _inc/ajax.php:418
+#: _inc/ajax.php:426
 #@ cc
 msgid "Friendship Requested"
 msgstr "Kontaktanfrage"
 
-#: _inc/ajax.php:421
+#: _inc/ajax.php:429
 #@ cc
 msgid "Request Pending"
 msgstr "Anfrage gestellt"
 
-#: _inc/ajax.php:433
+#: _inc/ajax.php:441
 #@ cc
 msgid "There was a problem accepting that request. Please try again."
 msgstr "Es gab ein problem bei der Annahme Ihrer Anfrage. Bitte vesuchen Sie es erneut."
 
-#: _inc/ajax.php:444
+#: _inc/ajax.php:452
 #@ cc
 msgid "There was a problem rejecting that request. Please try again."
 msgstr "Es gab ein Problem bei der Ablehung der Anfrage. Bitte versuchen Sie es erneut."
 
-#: _inc/ajax.php:467
+#: _inc/ajax.php:475
 #@ cc
 msgid "Error joining group"
 msgstr "Fehler beim Beitritt zur Gruppe"
 
-#: _inc/ajax.php:469
+#: _inc/ajax.php:477
 #@ cc
 msgid "Leave Group"
 msgstr "Gruppe verlassen"
 
-#: _inc/ajax.php:477
+#: _inc/ajax.php:485
 #@ cc
 msgid "Error requesting membership"
 msgstr "Fehler bei der Anfrage zur Mitgliedschaft"
 
-#: _inc/ajax.php:479
+#: _inc/ajax.php:487
 #@ cc
 msgid "Membership Requested"
 msgstr "Mitgliedschaft angefragt"
 
-#: _inc/ajax.php:488
+#: _inc/ajax.php:496
 #@ cc
 msgid "Error leaving group"
 msgstr "Fehler beim verlassen der Gruppe"
 
-#: _inc/ajax.php:491
+#: _inc/ajax.php:499
 #@ cc
 msgid "Join Group"
 msgstr "Gruppe beitreten"
 
-#: _inc/ajax.php:493
+#: _inc/ajax.php:501
 #@ cc
 msgid "Request Membership"
 msgstr "Mitgliedschaft angefragt"
 
-#: _inc/ajax.php:505
+#: _inc/ajax.php:513
 #@ cc
 msgid "There was a problem closing the notice."
 msgstr "Es gab ein Problem beim Schließen der Notiz."
 
-#: _inc/ajax.php:530
+#: _inc/ajax.php:538
 #, php-format
 #@ cc
 msgid "Sent %s"
 msgstr "Gesendet %s"
 
-#: _inc/ajax.php:547
+#: _inc/ajax.php:555
 #@ cc
 msgid "There was a problem sending that reply. Please try again."
 msgstr "Es gab ein Problem beim senden der Antwort. Bitte versuchen Sie es erneut."
 
-#: _inc/ajax.php:557
+#: _inc/ajax.php:565
 #@ cc
 msgid "There was a problem marking messages as unread."
 msgstr "Es gab Problem dabei, alle Nachrichten als ungelesen zu markieren."
 
-#: _inc/ajax.php:573
+#: _inc/ajax.php:581
 #@ cc
 msgid "There was a problem marking messages as read."
 msgstr "Es gab Problem dabei, alle Nachrichten als gelesen zu markieren."
 
-#: _inc/ajax.php:589
+#: _inc/ajax.php:597
 #@ cc
 msgid "There was a problem deleting messages."
 msgstr "Es gab ein Problem beim löschen der Nachrichten."
 
-#: _inc/ajax.php:596
+#: _inc/ajax.php:604
 #@ cc
 msgid "Messages deleted."
 msgstr "Nachrichten gelöscht."
@@ -228,12 +223,6 @@ msgstr "Diskussion / Link anzeigen"
 msgid "View"
 msgstr "Ansehen"
 
-#: activity/entry.php:60
-#, php-format
-#@ cc
-msgid "Comment <span>%s</span>"
-msgstr "Kommentare <span>%s</span>"
-
 #: activity/entry.php:68
 #@ cc
 msgid "Mark as Favorite"
@@ -260,7 +249,7 @@ msgid "The public activity for everyone on this site."
 msgstr "Die Aktivitäten aller Benutzer dieser Seite."
 
 #: activity/index.php:41
-#: members/index.php:35
+#: members/index.php:44
 #, php-format
 #@ cc
 msgid "All Members <span>%s</span>"
@@ -272,7 +261,7 @@ msgid "The activity of my friends only."
 msgstr "Nur die Aktivitäten meiner Kontakte."
 
 #: activity/index.php:51
-#: members/index.php:39
+#: members/index.php:48
 #, php-format
 #@ cc
 msgid "My Friends <span>%s</span>"
@@ -284,7 +273,7 @@ msgid "The activity of groups I am a member of."
 msgstr "Die Aktivitäten der Gruppen in denen ich Mitglied bin."
 
 #: activity/index.php:63
-#: groups/index.php:41
+#: groups/index.php:51
 #, php-format
 #@ cc
 msgid "My Groups <span>%s</span>"
@@ -429,147 +418,105 @@ msgstr "Artikel in"
 msgid "My Profile"
 msgstr "Mein Profil"
 
-#: admin/library.php:536
+#: admin/library.php:608
 #@ cc
 msgid "Save Options"
 msgstr "Einstellungen speichern"
 
-#: admin/page-meta-box.php:65
-#: admin/post-meta-box.php:46
-#@ buddypress
-msgid "klick"
-msgstr "Klick"
-
-#: admin/page-meta-box.php:68
-#: admin/post-meta-box.php:49
-#@ default
-msgid "Custom Community settings"
-msgstr "Custom Community Einstellungen"
-
-#: admin/page-meta-box.php:99
-#: admin/post-meta-box.php:53
-#@ cc
-#@ default
-msgid "Post template on"
-msgstr "Artikel-Template einschalten"
-
-#: admin/post-meta-box.php:63
-#@ default
-msgid "Hide avatar"
-msgstr "Avatar verbergen"
-
-#: admin/post-meta-box.php:65
-#@ default
-msgid "Hide date/category"
-msgstr "Datum/Kategorie verbergen"
-
-#: admin/post-meta-box.php:67
-#@ default
-msgid "Hide tags"
-msgstr "Schlagwörter verbergen"
-
-#: admin/post-meta-box.php:70
-#@ default
-msgid "Hide comment-info"
-msgstr "Kommentarinformation verbergen"
-
-#: admin/page-meta-box.php:72
-#@ default
-msgid "Slideshow on"
-msgstr "Slideshow an"
-
-#: archive.php:26
-#: archive.php:67
-#: core/includes/bp/templatetags.php:349
-#: index.php:50
-#: search-loop.php:43
+#: archive.php:28
+#: archive.php:73
+#: core/includes/bp/templatetags.php:346
+#: loop.php:43
+#: search-loop.php:45
 #: search.php:17
 #: search.php:53
 #@ cc
 msgid "&larr; Previous Entries"
 msgstr "&larr; Vorherige Einträge"
 
-#: archive.php:27
-#: archive.php:68
-#: core/includes/bp/templatetags.php:350
-#: index.php:51
-#: search-loop.php:44
+#: archive.php:29
+#: archive.php:74
+#: core/includes/bp/templatetags.php:347
+#: loop.php:44
+#: search-loop.php:46
 #: search.php:18
 #: search.php:54
 #@ cc
 msgid "Next Entries &rarr;"
 msgstr "Nächste Einträge &rarr;"
 
-#: archive.php:40
-#: archive.php:46
-#: index.php:20
+#: archive.php:42
+#: archive.php:52
+#: loop.php:12
 #: search.php:30
 #: search.php:37
-#: single.php:44
+#: single.php:18
 #, php-format
 #@ cc
 msgid "by %s"
 msgstr "von %s"
 
-#: archive.php:44
-#: index.php:28
+#: archive.php:50
+#: loop.php:20
 #: search.php:35
-#: single.php:54
+#: single.php:25
+#: the-loop-item.php:11
+#: the-loop-item.php:21
 #@ cc
 msgid "Permanent Link to"
 msgstr "Link zu"
 
-#: archive.php:46
-#: index.php:30
+#: archive.php:52
+#: loop.php:22
 #: search.php:37
-#: single.php:56
+#: single.php:27
 #@ cc
 msgid "in"
 msgstr "in"
 
-#: archive.php:53
-#: index.php:36
+#: archive.php:59
+#: loop.php:28
 #: search.php:43
-#: single.php:75
+#: single.php:40
 #@ cc
 msgid "Tags: "
 msgstr "Schlagwörter:"
 
-#: archive.php:53
-#: archive.php:55
-#: index.php:36
-#: index.php:38
-#: search-loop.php:33
+#: archive.php:59
+#: archive.php:61
+#: loop.php:28
+#: loop.php:30
+#: search-loop.php:35
 #: search.php:43
-#: single.php:80
+#: single.php:45
 #@ cc
 msgid "No Comments &#187;"
 msgstr "Keine Kommentare &#187;"
 
-#: archive.php:53
-#: archive.php:55
-#: index.php:36
-#: index.php:38
-#: search-loop.php:33
+#: archive.php:59
+#: archive.php:61
+#: loop.php:28
+#: loop.php:30
+#: search-loop.php:35
 #: search.php:43
-#: single.php:80
+#: single.php:45
 #@ cc
 msgid "1 Comment &#187;"
 msgstr "1 Kommentar &#187;"
 
-#: archive.php:53
-#: archive.php:55
-#: index.php:36
-#: index.php:38
-#: search-loop.php:33
+#: archive.php:59
+#: archive.php:61
+#: loop.php:28
+#: loop.php:30
+#: search-loop.php:35
 #: search.php:43
-#: single.php:80
+#: single.php:45
 #@ cc
 msgid "% Comments &#187;"
 msgstr "% Kommentare &#187;"
 
-#: archive.php:74
-#: index.php:57
+#: archive.php:80
+#: loop.php:51
 #@ cc
 msgid "Not Found"
 msgstr "Nicht gefunden"
@@ -580,18 +527,21 @@ msgstr "Nicht gefunden"
 msgid "Blog"
 msgstr "Blog"
 
-#: attachment.php:25
+#: attachment.php:24
 #@ cc
 msgid "<p class=\"serif\">Read the rest of this entry &rarr;</p>"
 msgstr "<p class=\"serif\">Den Rest der Einträge lesen &rarr;</p>"
 
-#: attachment.php:27
+#: _pro/splashpage-menu-and-footer.php:25
+#: _pro/splashpage-nomenu.php:25
+#: _pro/splashpage-withmenu.php:25
+#: attachment.php:26
 #: full-width.php:25
 #@ cc
 msgid "<p><strong>Pages:</strong> "
 msgstr "<p><strong>Seiten:</strong> "
 
-#: attachment.php:38
+#: attachment.php:37
 #@ cc
 msgid "Sorry, no attachments matched your criteria."
 msgstr "Leider stimmt kein Anhang mit Ihren Kriterien überein."
@@ -602,41 +552,41 @@ msgid "Sorry, there were no sites found."
 msgstr "Es wurden keine Seiten gefunden."
 
 #: blogs/create.php:21
-#: blogs/index.php:23
+#: blogs/index.php:24
 #@ cc
 msgid "Create a Site"
 msgstr "Seite erstellen"
 
-#: blogs/create.php:21
+#: blogs/create.php:22
 #: blogs/index.php:23
 #@ cc
 msgid "Site Directory"
 msgstr "Seitenverzeichnis"
 
-#: blogs/create.php:32
+#: blogs/create.php:33
 #@ cc
 msgid "Site registration is currently disabled"
 msgstr "Seitenregistrierung ist zur Zeit deaktiviert"
 
-#: blogs/index.php:35
+#: blogs/index.php:36
 #, php-format
 #@ cc
 msgid "All Sites <span>%s</span>"
 msgstr "Allle Seiten <span>%s</span>"
 
-#: blogs/index.php:39
+#: blogs/index.php:40
 #, php-format
 #@ cc
 msgid "My Sites <span>%s</span>"
 msgstr "Meine Seiten <span>%s</span>"
 
-#: blogs/index.php:55
-#: forums/index.php:60
+#: blogs/index.php:56
+#: forums/index.php:72
 #: forums/single/forum.php:34
-#: groups/index.php:57
+#: groups/index.php:67
 #: groups/single/forum.php:32
 #: groups/single/members.php:12
-#: members/index.php:55
+#: members/index.php:64
 #: members/single/blogs.php:19
 #: members/single/forums.php:18
 #: members/single/friends.php:20
@@ -645,13 +595,13 @@ msgstr "Meine Seiten <span>%s</span>"
 msgid "Order By:"
 msgstr "Ordnen nach:"
 
-#: blogs/index.php:57
-#: forums/index.php:62
+#: blogs/index.php:58
+#: forums/index.php:74
 #: forums/single/forum.php:36
-#: groups/index.php:59
+#: groups/index.php:69
 #: groups/single/forum.php:34
 #: groups/single/members.php:14
-#: members/index.php:57
+#: members/index.php:66
 #: members/single/blogs.php:21
 #: members/single/forums.php:20
 #: members/single/friends.php:22
@@ -660,16 +610,16 @@ msgstr "Ordnen nach:"
 msgid "Last Active"
 msgstr "Zuletzt aktiv"
 
-#: blogs/index.php:58
+#: blogs/index.php:59
 #: members/single/blogs.php:22
 #@ cc
 msgid "Newest"
 msgstr "Neueste"
 
-#: blogs/index.php:59
-#: groups/index.php:62
+#: blogs/index.php:60
+#: groups/index.php:72
 #: groups/single/members.php:19
-#: members/index.php:62
+#: members/index.php:71
 #: members/single/blogs.php:23
 #: members/single/friends.php:24
 #: members/single/groups.php:25
@@ -682,24 +632,24 @@ msgstr "Alphabetisch"
 msgid "Comments are closed."
 msgstr "Kommentare sind geschlossen."
 
-#: core/includes/bp/templatetags.php:300
+#: core/includes/bp/templatetags.php:297
 #: members/single/profile/profile-wp.php:15
 #@ cc
 msgid "Name"
 msgstr "Name"
 
-#: core/includes/bp/templatetags.php:302
+#: core/includes/bp/templatetags.php:299
 #@ cc
 msgid "Email"
 msgstr "Email"
 
-#: core/includes/bp/templatetags.php:304
+#: core/includes/bp/templatetags.php:301
 #: members/single/profile/profile-wp.php:33
 #@ cc
 msgid "Website"
 msgstr "Webseite"
 
-#: core/includes/bp/buddydev-search.php:52
+#: core/includes/bp/buddydev-search.php:55
 #@ cc
 msgid "Search Page"
 msgstr "Suche Seite"
@@ -735,6 +685,7 @@ msgid "comments"
 msgstr "Kommentare"
 
 #: core/includes/bp/templatetags.php:88
+#: members/single/profile/edit.php:128
 #@ cc
 msgid "Close"
 msgstr "Schließen"
@@ -761,176 +712,147 @@ msgstr "Kommentar bearbeiten"
 msgid "Edit"
 msgstr "Bearbeiten"
 
-#: core/includes/bp/templatetags.php:231
-#, php-format
-#@ cc
-msgid "Theme activated! This theme contains <a href=\"%s\">custom header image</a> support and <a href=\"%s\">sidebar widgets</a>."
-msgstr "Theme aktiviert!"
-
-#: core/includes/bp/templatetags.php:312
+#: core/includes/bp/templatetags.php:309
 #, php-format
 #@ cc
 msgid "You must be <a href=\"%1$s\">logged in</a> to post a comment."
 msgstr "Sie müssen <a href=\"%1$s\">eingeloggt</a> sein um einen Kommentar zu posten."
 
-#: core/includes/bp/templatetags.php:313
+#: core/includes/bp/templatetags.php:310
 #@ cc
 msgid "Leave a reply"
 msgstr "Antwort hinterlassen"
 
-#: core/includes/theme-generator/theme-generator.php:169
 #: searchform.php:5
 #@ cc
 msgid "Search"
 msgstr "Suchen"
 
-#: core/includes/theme-generator/theme-generator.php:196
-#: core/includes/theme-generator/theme-generator.php:200
-#: core/includes/theme-generator/theme-generator.php:205
-#: core/includes/theme-generator/theme-generator.php:208
-#: core/includes/theme-generator/theme-generator.php:229
-#: core/includes/theme-generator/theme-generator.php:237
+#: core/includes/helper-functions.php:542
+#: core/includes/theme-generator/theme-generator.php:221
+#: core/includes/theme-generator/theme-generator.php:226
+#: core/includes/theme-generator/theme-generator.php:231
 #@ cc
 msgid "Home"
 msgstr "Startseite"
 
-#: core/includes/theme-generator/theme-generator.php:242
-#: core/includes/wp/widgets.php:34
+#: core/includes/theme-generator/theme-generator.php:252
+#: core/includes/widgets/widgets.php:33
 #@ cc
 msgid "Community"
 msgstr "Community"
 
-#: core/includes/theme-generator/theme-generator.php:246
-#: core/includes/wp/widgets.php:38
+#: core/includes/theme-generator/theme-generator.php:256
+#: core/includes/widgets/widgets.php:38
 #@ cc
 msgid "Activity"
 msgstr "Aktivität"
 
-#: core/includes/theme-generator/theme-generator.php:251
-#: core/includes/wp/widgets.php:43
+#: core/includes/theme-generator/theme-generator.php:261
+#: core/includes/widgets/widgets.php:43
 #: groups/single/admin.php:229
 #@ cc
 msgid "Members"
 msgstr "Mitglieder"
 
-#: core/includes/theme-generator/theme-generator.php:256
-#: core/includes/wp/widgets.php:48
+#: core/includes/theme-generator/theme-generator.php:266
+#: core/includes/widgets/widgets.php:48
 #@ cc
 msgid "Groups"
 msgstr "Gruppen"
 
-#: core/includes/theme-generator/theme-generator.php:260
-#: core/includes/wp/widgets.php:53
+#: core/includes/theme-generator/theme-generator.php:270
+#: core/includes/widgets/widgets.php:53
 #@ cc
 msgid "Forums"
 msgstr "Foren"
 
-#: core/includes/theme-generator/theme-generator.php:267
-#: core/includes/wp/widgets.php:59
+#: core/includes/theme-generator/theme-generator.php:277
+#: core/includes/widgets/widgets.php:59
 #@ cc
 msgid "Blogs"
 msgstr "Blogs"
 
-#: core/includes/theme-generator/theme-generator.php:369
+#: core/includes/theme-generator/theme-generator.php:900
 #@ cc
 msgid "20 widget areas all over the site"
 msgstr "20 Widgetbereiche in der gesamten Seite"
 
-#: core/includes/theme-generator/theme-generator.php:382
-#: links.php:16
+#: _pro/links.php:16
+#: core/includes/theme-generator/theme-generator.php:913
 #: sidebar.php:45
 #@ cc
 msgid "Links"
 msgstr "Links"
 
-#: core/includes/theme-generator/theme-generator.php:395
+#: core/includes/theme-generator/theme-generator.php:926
 #: sidebar.php:39
 #@ cc
 msgid "Archives"
 msgstr "Archive"
 
-#: core/includes/theme-generator/theme-generator.php:408
+#: core/includes/theme-generator/theme-generator.php:939
 #: sidebar.php:51
 #@ cc
 msgid "Meta"
 msgstr "Meta"
 
-#: core/includes/theme-generator/theme-generator.php:423
-#, php-format
-#@ cc
-msgid "%s is proudly powered by <a class=\"credits\" href=\"http://wordpress.org\">WordPress</a> and <a class=\"credits\" href=\"http://buddypress.org\">BuddyPress</a>. "
-msgstr ""
-
-#: core/includes/theme-generator/theme-generator.php:576
-#: core/includes/theme-generator/theme-generator.php:578
-#: single.php:63
+#: core/includes/theme-generator/theme-generator.php:1196
+#: core/includes/theme-generator/theme-generator.php:1198
+#: single.php:31
 #@ cc
 msgid "Read the rest of this entry &rarr;"
 msgstr "Rest des Eintrags ansehen &rarr;"
 
-#: core/includes/wp/shortcodes.php:639
+#: _pro/_inc/shortcodes.php:597
+#: functions.php:857
+#: functions.php:859
 #@ cc
 msgid "read more"
 msgstr "weiterlesen"
 
-#: core/includes/wp/shortcodes.php:868
+#: core/includes/helper-functions.php:273
 #@ cc
 msgid "Empty Slideshow"
 msgstr "Leere Slideshow"
 
-#: core/includes/wp/shortcodes.php:869
+#: core/includes/helper-functions.php:274
 #@ cc
 msgid "You have no posts selected for your slideshow! <br>Check your theme settings for the global slideshow or the page settings for page slideshows... <br>and write a post! Check the <a href=\"http://themekraft.com/faq/slideshow/\" target=\"_blank\">FAQ</a> for more."
 msgstr ""
 
-#: core/includes/wp/widgets.php:68
+#: core/includes/widgets/widgets.php:68
 #@ cc
 msgid "@ Group"
 msgstr "@ Gruppe"
 
-#: core/includes/wp/widgets.php:79
+#: core/includes/widgets/widgets.php:79
 #@ cc
 msgid "@ Member"
 msgstr "@ Mitglied"
 
-#: core/includes/wp/widgets.php:111
-#@ cc
-msgid "Log Out"
-msgstr "Abmelden"
-
-#: core/includes/wp/widgets.php:128
+#: core/includes/widgets/widgets.php:124
 #@ cc
 msgid "To start connecting please log in first."
 msgstr "Um sich zu verbinden, melden Sie sich zuerst an."
 
-#: core/includes/wp/widgets.php:133
+#: core/includes/widgets/widgets.php:129
 #, php-format
 #@ cc
 msgid " You can also <a href=\"%s\" title=\"Create an account\">create an account</a>."
 msgstr "Sie können auch ein <a href=\"%s\" title=\"Konto erstellen\">Konto erstellen</a>."
 
-#: core/includes/wp/widgets.php:138
 #: registration/register.php:37
 #@ cc
 msgid "Username"
 msgstr "Benutzername"
 
-#: core/includes/wp/widgets.php:141
-#@ cc
-msgid "Password"
-msgstr "Passwort"
-
-#: core/includes/wp/widgets.php:144
+#: core/includes/widgets/widgets.php:158
 #@ cc
 msgid "Remember Me"
 msgstr "Erinner mich"
 
-#: core/includes/wp/widgets.php:147
-#@ cc
-msgid "Log In"
-msgstr "Anmelden"
-
-#: core/includes/wp/widgets.php:166
+#: core/includes/widgets/widgets.php:181
 #@ cc
 msgid "Forum Topic Tags"
 msgstr "Forenthemen Tags"
@@ -955,26 +877,26 @@ msgstr "Es wurden keine Forenthemen gefunden."
 msgid "Forums Directory"
 msgstr "Forenverzeichnis"
 
-#: forums/index.php:23
+#: forums/index.php:24
 #: forums/single/forum.php:19
 #: groups/single/forum.php:17
 #@ cc
 msgid "New Topic"
 msgstr "Neues Thema"
 
-#: forums/index.php:40
+#: forums/index.php:52
 #, php-format
 #@ cc
 msgid "All Topics <span>%s</span>"
 msgstr "Alle Themen <span>%s</span>"
 
-#: forums/index.php:44
+#: forums/index.php:56
 #, php-format
 #@ cc
 msgid "My Topics <span>%s</span>"
 msgstr "Meine themen <span>%s</span>"
 
-#: forums/index.php:63
+#: forums/index.php:75
 #: forums/single/forum.php:37
 #: groups/single/forum.php:35
 #: members/single/forums.php:21
@@ -982,7 +904,7 @@ msgstr "Meine themen <span>%s</span>"
 msgid "Most Posts"
 msgstr "Meine Artikel"
 
-#: forums/index.php:64
+#: forums/index.php:76
 #: forums/single/forum.php:38
 #: groups/single/forum.php:36
 #: members/single/forums.php:22
@@ -990,12 +912,12 @@ msgstr "Meine Artikel"
 msgid "Unreplied"
 msgstr "Unbeantwortet"
 
-#: forums/index.php:100
+#: forums/index.php:112
 #@ cc
 msgid "Create New Topic:"
 msgstr "Neues Thema erstellen:"
 
-#: forums/index.php:104
+#: forums/index.php:116
 #: forums/single/edit.php:49
 #: groups/single/forum/edit.php:49
 #: groups/single/forum.php:71
@@ -1003,7 +925,7 @@ msgstr "Neues Thema erstellen:"
 msgid "Title:"
 msgstr "Titel:"
 
-#: forums/index.php:107
+#: forums/index.php:119
 #: forums/single/edit.php:52
 #: groups/single/forum/edit.php:52
 #: groups/single/forum.php:74
@@ -1011,36 +933,36 @@ msgstr "Titel:"
 msgid "Content:"
 msgstr "Inhalt:"
 
-#: forums/index.php:110
+#: forums/index.php:122
 #: groups/single/forum/edit.php:55
 #: groups/single/forum.php:77
 #@ cc
 msgid "Tags (comma separated):"
 msgstr "Schlagwörter (kommagetrennt):"
 
-#: forums/index.php:113
+#: forums/index.php:125
 #@ cc
 msgid "Post In Group Forum:"
 msgstr "Artikel im Guppen-Forum:"
 
 #. translators: no option picked in select box
-#: forums/index.php:116
+#: forums/index.php:128
 #@ cc
 msgid "----"
 msgstr ""
 
-#: forums/index.php:133
+#: forums/index.php:145
 #: groups/single/forum.php:83
 #@ cc
 msgid "Post Topic"
 msgstr "Thema verfassen"
 
-#: forums/index.php:134
+#: forums/index.php:146
 #@ cc
 msgid "Cancel"
 msgstr "Abbrechen"
 
-#: forums/index.php:145
+#: forums/index.php:157
 #, php-format
 #@ cc
 msgid "You are not a member of any groups so you don't have any group forums you can post in. To start posting, first find a group that matches the topic subject you'd like to start. If this group does not exist, why not <a href='%s'>create a new group</a>? Once you have joined or created the group you can post your topic in that group's forum."
@@ -1068,7 +990,7 @@ msgstr "Bearbeiten:"
 #: groups/single/admin.php:117
 #: groups/single/forum/edit.php:60
 #: groups/single/forum/edit.php:76
-#: members/single/profile/edit.php:126
+#: members/single/profile/edit.php:146
 #: members/single/settings/general.php:69
 #: members/single/settings/notifications.php:62
 #@ cc
@@ -1130,79 +1052,84 @@ msgstr "Das Thema wurde geschlossen, Antworten werden nicht mehr angenommen."
 msgid "There are no posts for this topic."
 msgstr "Es gibt keine Artikel zu diesem Thema."
 
+#: _pro/left-and-right-sidebar.php:22
+#: _pro/left-sidebar.php:22
+#: _pro/right-sidebar.php:22
+#: _pro/splashpage-menu-and-footer.php:23
+#: _pro/splashpage-nomenu.php:23
+#: _pro/splashpage-withmenu.php:23
 #: full-width.php:23
-#: left-and-right-sidebar.php:22
-#: left-sidebar.php:22
-#: page.php:17
-#: page_notitle.php:1
-#: right-sidebar.php:22
+#: page.php:23
 #@ cc
 msgid "<p class=\"serif\">Read the rest of this page &rarr;</p>"
 msgstr "<p class=\"serif\">Den Rest dieser Seite lesen &rarr;</p>"
 
+#: _pro/splashpage-menu-and-footer.php:38
+#: _pro/splashpage-nomenu.php:38
+#: _pro/splashpage-withmenu.php:38
 #: full-width.php:38
-#: single.php:92
+#: single.php:54
 #@ cc
 msgid "Edit this entry."
 msgstr "Eintrag ändern."
 
-#: functions.php:60
+#: functions.php:64
 #@ cc
 msgid "Header top menu"
 msgstr ""
 
-#: functions.php:61
+#: functions.php:65
 #@ cc
 msgid "Header bottom menu"
 msgstr ""
 
-#: functions.php:474
+#: functions.php:530
 #@ cc
 msgid "Members Results"
 msgstr ""
 
-#: functions.php:489
+#: functions.php:544
 #@ cc
 msgid "Group Search"
 msgstr "Suche in Gruppe"
 
-#: functions.php:492
+#: functions.php:547
 #@ cc
 msgid "View All matched Groups"
 msgstr "Zeige alle gefundenen Gruppen"
 
-#: functions.php:510
+#: functions.php:566
 #@ cc
 msgid "Blog Search"
 msgstr "Blogsuche"
 
-#: functions.php:513
+#: functions.php:570
 #@ cc
 msgid "View All matched Posts"
 msgstr "Zeige alle gefundenen Artikel"
 
-#: functions.php:525
+#: functions.php:583
 #@ cc
 msgid "Forums Search"
 msgstr "Forensuche"
 
-#: functions.php:527
+#: functions.php:586
 #@ cc
 msgid "View All matched forum posts"
 msgstr "Zeige alle gefundenen Forenartikel"
 
-#: functions.php:546
+#: functions.php:606
 #@ cc
 msgid "Blogs Search"
 msgstr "Blogs Suche"
 
-#: functions.php:548
+#: functions.php:608
 #@ cc
 msgid "View All matched Blogs"
 msgstr "Zeige alle gefundenen Blogs"
 
 #: groups/create.php:18
-#: groups/index.php:23
+#: groups/index.php:24
 #@ cc
 msgid "Create a Group"
 msgstr "Gruppe erstellen"
@@ -1418,19 +1345,19 @@ msgstr "Fertigstellen"
 msgid "There were no groups found."
 msgstr "Es wurden keine Gruppen gefunden."
 
-#: groups/index.php:37
+#: groups/index.php:47
 #, php-format
 #@ cc
 msgid "All Groups <span>%s</span>"
 msgstr "Alle Gruppen <span>%s</span>"
 
-#: groups/index.php:60
+#: groups/index.php:70
 #: members/single/groups.php:23
 #@ cc
 msgid "Most Members"
 msgstr "Meiste Mitglieder"
 
-#: groups/index.php:61
+#: groups/index.php:71
 #: members/single/groups.php:24
 #@ cc
 msgid "Newly Created"
@@ -1599,14 +1526,14 @@ msgstr "Sie werden automatisch Gruppenmitglied, wenn Sie ein neues Thema eröffn
 msgid "Post a New Topic:"
 msgstr "Neues Thema eröffnen:"
 
-#: groups/single/group-header-sidebar.php:16
+#: groups/single/group-header-sidebar.php:17
 #: groups/single/group-header.php:35
 #, php-format
 #@ cc
 msgid "active %s ago"
 msgstr "aktiv %s"
 
-#: groups/single/group-header-sidebar.php:34
+#: groups/single/group-header-sidebar.php:35
 #: groups/single/group-header.php:6
 #@ cc
 msgid "Group Admins"
@@ -1618,7 +1545,7 @@ msgid "Group Mods"
 msgstr "Moderatoren der Gruppe"
 
 #: groups/single/members.php:15
-#: members/index.php:58
+#: members/index.php:67
 #: members/single/friends.php:23
 #@ cc
 msgid "Newest Registered"
@@ -1645,14 +1572,14 @@ msgstr "Sende Anfrage"
 msgid "Send Invites"
 msgstr "Sende Einladungen"
 
-#: index.php:30
-#: single.php:56
+#: loop.php:22
+#: single.php:27
 #, php-format
 #@ cc
 msgid " by %s"
 msgstr " von %s"
 
-#: index.php:58
+#: loop.php:52
 #@ cc
 msgid "Sorry, but you are looking for something that isn't here."
 msgstr "Was Sie suchen, gibt es hier nicht."
@@ -2003,11 +1930,6 @@ msgstr "Benutzerregistrierung ist derzeit nicht erlaubt."
 msgid "Create an Account"
 msgstr "Konto erstellen"
 
-#: registration/register.php:27
-#@ cc
-msgid "Registering for this site is easy, just fill in the fields below and we'll get a new account set up for you in no time."
-msgstr "Die Registrierung ist ganz unkompliziert, einfach das unten stehende Formular ausfüllen und schon Sind Sie Mitglied."
-
 #: registration/register.php:35
 #@ cc
 msgid "Account Details"
@@ -2078,12 +2000,12 @@ msgstr "Sie haben erfollgreich Ihr Konto erstellt! Um fortzufahren müssen Sie I
 msgid "You have successfully created your account! Please log in using the username and password you have just created."
 msgstr "Ihr Benutzerkonto wurde erfolgreich aktiviert. Sie können sich nun mit Ihren Zugangsdaten anmelden."
 
-#: search-loop.php:34
+#: search-loop.php:36
 #@ cc
 msgid "Read more..."
 msgstr "Weiterlesen..."
 
-#: search-loop.php:51
+#: search-loop.php:53
 #, php-format
 #@ cc
 msgid "We are sorry, but we could not find anything for the search term '%s'"
@@ -2114,7 +2036,7 @@ msgstr "Zufällige Einträge"
 msgid "Search by Tags!"
 msgstr "Suche nach Schlagwörtern"
 
-#: single.php:97
+#: single.php:59
 #@ cc
 msgid "Sorry, no posts matched your criteria."
 msgstr "Leider stimmen keine Inhalte zu Ihren Kriterien überein."
@@ -2165,131 +2087,25 @@ msgstr "Zuletzt geschrieben"
 msgid "Posted In Group"
 msgstr "Veröffentlicht in Gruppe"
 
-#: left-and-right-sidebar.php:39
-#: left-sidebar.php:39
-#: page.php:34
-#: page_notitle.php:1
-#: right-sidebar.php:39
+#: _pro/left-and-right-sidebar.php:39
+#: _pro/left-sidebar.php:39
+#: _pro/right-sidebar.php:39
+#: page.php:40
 #@ cc
 msgid "Edit this page."
 msgstr "Diese Seite bearbeiten."
 
-#: single.php:87
+#: single.php:49
 #@ cc
 msgctxt "Previous post link"
 msgid "&larr;"
 msgstr "&larr;"
 
-#: single.php:88
+#: single.php:50
 #@ cc
 msgctxt "Next post link"
 msgid "&rarr;"
 msgstr "&rarr;"
-
-#: admin/get-pro.php:6
-#@ cc
-msgid "FAQ, Forum and Community at <a href=\"http://themekraft.com\" title=\"Themekraft - Beautiful Themes and Plugins for WordPress and BuddyPress.\" target=\"_blank\">themekraft.com</a>"
-msgstr ""
-
-#: admin/get-pro.php:9
-#@ cc
-msgid "For more information and help, please visit the <a href=\"http://themekraft.com/forums/\" target=\"_blank\">FORUM</a> and <a href=\"http://themekraft.com/faq/\" target=\"_blank\">FAQ</a>"
-msgstr ""
-
-#: admin/get-pro.php:11
-#@ cc
-msgid "See the <a href=\"http://custom-community-pro.themekraft.com/\" target=\"_blank\">demo</a> page with many examples."
-msgstr ""
-
-#: admin/get-pro.php:14
-#@ cc
-msgid "Your Themekraft Team."
-msgstr ""
-
-#: admin/page-meta-box.php:74
-#@ cc
-msgid "Select a category to display in slideshow:"
-msgstr "Kategorie zur Anzeige in der Slideshow auswählen:"
-
-#: admin/page-meta-box.php:79
-#@ default
-msgid "Use Post Type: for Pages write \"page\""
-msgstr "Artikel-Typ: für Seiten \"page\\\"\\ eingeben"
-
-#: admin/page-meta-box.php:81
-#@ default
-msgid "post/page ids comma separated"
-msgstr "Artikel/Seiten ID, mit Komma getrennt"
-
-#: admin/page-meta-box.php:83
-#@ cc
-msgid "Select a slideshow style:"
-msgstr "Stil für Slideshow auswählen:"
-
-#: admin/page-meta-box.php:88
-#@ default
-msgid "Caption off"
-msgstr "Bildunterschriften ausblenden"
-
-#: admin/page-meta-box.php:90
-#@ default
-msgid "Define the sliding time in ms"
-msgstr "Zeit für Überblendung in ms"
-
-#: admin/page-meta-box.php:92
-#@ default
-msgid "Order By"
-msgstr "Sortieren nach"
-
-#: admin/page-meta-box.php:94
-#@ default
-msgid "Amount"
-msgstr "Menge"
-
-#: admin/page-meta-box.php:97
-#@ cc
-msgid "Lists Posts under this Page"
-msgstr "Listet Artikel unterhalb dieser Seite auf"
-
-#: admin/page-meta-box.php:98
-#@ cc
-msgid "You can show your posts in a predefined template"
-msgstr "Artikel können in einem vorhandenen Template veröffentlicht werden"
-
-#: admin/page-meta-box.php:101
-#@ cc
-msgid "Select a template to use:"
-msgstr "Template auswählen:"
-
-#: admin/page-meta-box.php:106
-#@ cc
-msgid "Select a category to display"
-msgstr "Angezeigte Kategorie auswählen"
-
-#: admin/page-meta-box.php:111
-#@ cc
-msgid "How many posts to display?"
-msgstr "Anzahl der angezeigten Artikel"
-
-#: admin/post-meta-box.php:51
-#@ cc
-msgid "Use a post template for this post"
-msgstr "Artikel-Template auswählen"
-
-#: admin/post-meta-box.php:52
-#@ cc
-msgid "You can select a predefined post template"
-msgstr "Für diesen Artikel kann vorhandenes Template ausgewählt werden"
-
-#: admin/post-meta-box.php:55
-#@ cc
-msgid "Select a template to use"
-msgstr "Template auswählen"
-
-#: admin/post-meta-box.php:61
-#@ cc
-msgid "Show/hide meta info"
-msgstr "Metadaten anzeigen/verbergen"
 
 #: archive.php:13
 #, php-format
@@ -2315,19 +2131,220 @@ msgstr "Jahres-Archive: %s"
 msgid "You are browsing the Blog for %1$s."
 msgstr "Sie besuchen diesen Blog seit  %1$s."
 
-#: groups/single/group-header-sidebar.php:27
+#: groups/single/group-header-sidebar.php:28
 #@ cc
 msgid "Description"
 msgstr "Beschreibung"
 
-#: left-and-right-sidebar.php:24
-#: left-sidebar.php:24
-#: page.php:19
-#: page_notitle.php:1
-#: right-sidebar.php:24
-#: single.php:68
+#: _pro/left-and-right-sidebar.php:24
+#: _pro/left-sidebar.php:24
+#: _pro/right-sidebar.php:24
+#: page.php:25
+#: single.php:33
 #@ cc
-msgid "<p class=\"cc_pagecount\"><strong>Pages:</strong> "
-msgstr "<p class=\"cc_pagecount\"><strong>Seiten:</strong> "
+msgid "<p class=\"x2_pagecount\"><strong>Pages:</strong> "
+msgstr "<p class=\"x2_pagecount\"><strong>Seiten:</strong> "
 
+#: 404.php:9
+#@ cc
+msgid "Get back."
+msgstr ""
+
+#: 404.php:15
+#@ cc
+msgid "Something's wrong here."
+msgstr ""
+
+#: 404.php:35
+#@ cc
+msgid "Maybe searching will help?"
+msgstr ""
+
+#: _pro/pro-enabler.php:505
+#@ cc
+msgid "left"
+msgstr ""
+
+#: _pro/pro-enabler.php:506
+#@ cc
+msgid "right"
+msgstr ""
+
+#: _pro/pro-enabler.php:507
+#@ cc
+msgid "none"
+msgstr ""
+
+#: _pro/pro-enabler.php:508
+#@ cc
+msgid "full-width"
+msgstr ""
+
+#: activity/entry.php:60
+#, php-format
+#@ cc
+msgid "<i class=\"icon-comment\"></i> Comment (<span>%s</span>)"
+msgstr ""
+
+#: admin/config.php:973
+#: admin/config.php:974
+#: admin/config.php:1092
+#: admin/metaboxes/init.php:505
+#@ cc
+msgid "flux slider"
+msgstr ""
+
+#: admin/config.php:973
+#: admin/config.php:1091
+#@ cc
+msgid "nivo slider"
+msgstr ""
+
+#: admin/config.php:973
+#@ cc
+msgid "full width"
+msgstr ""
+
+#: admin/config.php:973
+#: admin/config.php:1090
+#: admin/metaboxes/init.php:506
+#@ cc
+msgid "default"
+msgstr ""
+
+#: admin/library.php:591
+#@ cc
+msgid "Get the Pro"
+msgstr ""
+
+#: admin/metaboxes/init.php:504
+#@ cc
+msgid "blog"
+msgstr ""
+
+#: archive.php:21
+#, php-format
+#@ cc
+msgid " %1$s"
+msgstr ""
+
+#: attachment.php:19
+#@ cc
+msgid "Permanent Link:"
+msgstr ""
+
+#: core/includes/bp/templatetags.php:230
+#, php-format
+#@ cc
+msgid "Theme activated! Go to <a href=\"%s\" class=\"button button-secondary\">Theme Options</a> or browse our <a href=\"http://support.themekraft.com/categories/20065392-x2\" class=\"button button-secondary\">Documentation</a>"
+msgstr ""
+
+#: core/includes/theme-generator/theme-generator.php:954
+#, php-format
+#@ cc
+msgid "%s is proudly powered by <a class=\"credits\" href=\"http://wordpress.org\">WordPress.</a> "
+msgstr ""
+
+#: core/includes/theme-generator/theme-generator.php:955
+#@ cc
+msgid "Theme developed by <a class=\"credits\" href=\"http://themekraft.com/\" target=\"_blank\" title=\"Wordpress Themes\" alt=\"WordPress Themes\">Themekraft.</a>"
+msgstr ""
+
+#: core/includes/widgets/carousel-posts-widget.php:128
+#: core/includes/widgets/list-posts-widget.php:142
+#@ cc
+msgid "Include category (optional):"
+msgstr ""
+
+#: core/includes/widgets/carousel-posts-widget.php:155
+#: core/includes/widgets/list-posts-widget.php:169
+#@ cc
+msgid "Include post type (optional):"
+msgstr ""
+
+#: core/includes/widgets/list-posts-widget.php:193
+#@ cc
+msgid "Show pagination:"
+msgstr ""
+
+#: core/includes/widgets/list-posts-widget.php:204
+#@ cc
+msgid "Choose jQery effect:"
+msgstr ""
+
+#: core/includes/widgets/widgets.php:103
+#@ cc
+msgid "Welcome back, "
+msgstr ""
+
+#: core/includes/widgets/widgets.php:108
+#@ cc
+msgid "Log out"
+msgstr ""
+
+#: core/includes/widgets/widgets.php:120
+#@ cc
+msgid "Login"
+msgstr ""
+
+#: core/includes/widgets/widgets.php:162
+#@ cc
+msgid "Log in"
+msgstr ""
+
+#: functions.php:534
+#@ cc
+msgid "View all matched Members"
+msgstr ""
+
+#: functions.php:919
+#@ cc
+msgid ""
+"<p class=\"slideshow_info\">\n"
+"                    <button type=\"button\" class=\"close\" data-dismiss=\"alert\">x</button>\n"
+"                    Slideshow settings of the single pages are stronger and will overwrite the global slideshow settings\n"
+"                </p>"
+msgstr ""
+
+#: groups/single/group-header-sidebar.php:43
+#@ cc
+msgid "Group Moderators"
+msgstr ""
+
+#: members/single/profile/edit.php:118
+#: members/single/profile/edit.php:132
+#, php-format
+#@ cc
+msgid "This field can be seen by: <span class=\"current-visibility-level\">%s</span>"
+msgstr "Dieses Feld darf gesehen werden von <span class=\"current-visibility-level\">%s</span>"
+
+#: members/single/profile/edit.php:118
+#@ cc
+msgid "Change"
+msgstr "Ändern"
+
+#: members/single/profile/edit.php:123
+#@ cc
+msgid "Who can see this field?"
+msgstr "Wer darf dieses Feld sehen?"
+
+#: members/single/settings/capabilities.php:40
+#@ cc
+msgid "Capabilities"
+msgstr ""
+
+#: members/single/settings/capabilities.php:48
+#@ cc
+msgid "This user is a spammer."
+msgstr ""
+
+#: members/single/settings/capabilities.php:52
+#@ cc
+msgid "Save"
+msgstr ""
+
+#: registration/register.php:27
+#@ cc
+msgid "Just fill in the fields below to register."
+msgstr ""
 

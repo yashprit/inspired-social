@@ -67,7 +67,7 @@
 						<?php echo sprintf( __( '%1$s said %2$s:', 'cc' ), bp_get_the_topic_post_poster_name(), bp_get_the_topic_post_time_since() ) ?>
 					</div>
 
-					<div class="post-content">
+					<div class="post-content span11">
 						<?php bp_the_topic_post_content() ?>
 					</div>
 
