@@ -38,16 +38,15 @@ import java.io.File;
 import org.dom4j.Element;
 import com.milgra.server.Server;
 
-//import org.red5.server.webapp.voicebridge.*;
-//import com.sun.voip.server.*;
-//import com.ifsoft.cti.OpenlinkComponent;
+import org.red5.server.webapp.voicebridge.*;
+import com.sun.voip.server.*;
+import com.ifsoft.cti.OpenlinkComponent;
 
 
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-//public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
-public class InspiredPlugin implements Plugin, InspiredConstants
+public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
 
 {
 	private static final String NAME 		= "inspired";
@@ -55,8 +54,8 @@ public class InspiredPlugin implements Plugin, InspiredConstants
 
 	private PluginManager manager;
     private File pluginDirectory;
-    //private Application application;
-    //private OpenlinkComponent component;
+    private Application application;
+    private OpenlinkComponent component;
 
 
 	public void initializePlugin(PluginManager manager, File pluginDirectory)
@@ -73,7 +72,7 @@ public class InspiredPlugin implements Plugin, InspiredConstants
 
 				Log.info("starting Milenia Grafter RTMP Server");
 				new Server(JiveGlobals.getProperty("voicebridge.rtmp.port", "1935"));
-/*
+
 				Log.info("starting VOIP Server");
 				component = new OpenlinkComponent(this);
 				application = new Application();
@@ -82,7 +81,6 @@ public class InspiredPlugin implements Plugin, InspiredConstants
 
 				Log.info("starting Openlink Component");
 				component.componentEnable();
-*/
 
 			}
 			catch(Exception e) {
@@ -137,13 +135,13 @@ public class InspiredPlugin implements Plugin, InspiredConstants
 		try {
 				Log.info("stopping Milenia Grafter RTMP Server");
 				Server.closeRequest();
-/*
+
 				Log.info("stopping VOIP Server");
 				application.appStop();
 
 				Log.info("stopping Openlink Component");
 				component.componentDestroyed();
-*/
+
 		}
 		catch (Exception e) {
 			Log.error("["+ NAME + "] destroyPlugin exception " + e);
@@ -159,7 +157,7 @@ public class InspiredPlugin implements Plugin, InspiredConstants
 	{
 		return DESCRIPTION;
 	}
-/*
+
 	public OpenlinkComponent getComponent()
 	{
 		return component;
@@ -170,5 +168,5 @@ public class InspiredPlugin implements Plugin, InspiredConstants
     {
 		return null;
 	}
-*/
+
 }

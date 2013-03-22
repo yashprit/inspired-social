@@ -2,10 +2,10 @@ del inspired.war
 
 call ant war >build.txt
 
-rd "G:\opt\openfire\plugins\inspired" /q /s
-del "G:\opt\openfire\plugins\inspired.war"
-copy inspired.war "G:\opt\openfire\plugins"
+rd "C:\Program Files\Openfire\plugins\inspired" /q /s
+del "C:\Program Files\Openfire\plugins\inspired.war"
+copy inspired.war "C:\Program Files\Openfire\plugins"
 
-del "G:\opt\openfire\logs\*.*"
+del "C:\Program Files\Openfire\logs\*.*"
 
 pause

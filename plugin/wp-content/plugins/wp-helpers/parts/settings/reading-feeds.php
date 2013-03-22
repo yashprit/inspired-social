@@ -17,6 +17,39 @@ Order: 310
     )
   ));
 
+  piklist('field', array(
+    'type' => 'group'
+    ,'field'=> 'delay_feed'
+    ,'label' => 'Delay Feed Publishing'
+    ,'fields' => array(
+      array(
+        'type' => 'number'
+        ,'field' => 'delay_feed_num'
+        ,'columns' => 1
+      )
+      ,array(
+        'type' => 'select'
+        ,'field' => 'delay_feed_time'
+        ,'value' => 'min'
+        ,'choices' => array(
+          'minute' => 'Minute(s)'
+          ,'hour' => 'Hour(s)'
+          ,'day' => 'Day(s)'
+          ,'week' => 'Week(s)'
+          ,'month' => 'Month(s)'
+          ,'year' => 'Year(s)'
+        )
+        ,'columns' => 2
+      )
+    )
+    ,'conditions' => array(
+      array(
+        'field' => 'disable_feeds'
+        ,'value' => 'false'
+      )
+    )
+  ));
+
   if (current_theme_supports('post-thumbnails'))
   {
     piklist('field', array(
@@ -35,5 +68,4 @@ Order: 310
     ));
   }
 
-  
 ?>

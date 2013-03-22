@@ -1,10 +1,165 @@
-Buildfile: build.xml
+Buildfile: C:\Projects\InspiredProject\inspired\PHP2Java\build.xml
 
 compile:
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\build.xml:15: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
     [javac] Compiling 1 source file to C:\Projects\InspiredProject\inspired\PHP2Java
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:36: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info(text);
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:41: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.error(text);
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:46: warning: [deprecation] warn(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.warn(text);
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:54: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		   Log.info( "sendEmail " + toAddress + " " + subject + "\n " + body + "\n " + htmlBody);
+    [javac] 		      ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:59: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		   Log.error(e.toString());
+    [javac] 		      ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:97: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "createGroupChat " + groupId + " " + roomName);
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:108: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("createGroupChat exception " + e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:150: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 						Log.info( "joinLeaveGroup " + action + " " + fromUser + " " + groupName);
+    [javac] 						   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:167: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.error("joinGroup exception " + e);
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:182: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.info( "removeFriendship " + fromUser + " " + toUser);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:218: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.error("removeFriendship exception " + e);
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:222: warning: [deprecation] warn(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		} else Log.warn("cannot delete friendship  " + fromUserId + " " + toUserId);
+    [javac] 		          ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:246: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 						Log.info( "createFriendship " + fromUser + " " + toUser + " " + Nickname);
+    [javac] 						   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:263: warning: [deprecation] warn(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 					} else Log.warn("cannot create friendship  " + fromUser + " " + toUser + " " + Nickname);
+    [javac] 					          ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:274: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 						Log.info( "createFriendship " + toUser + " " + fromUser + " " + Nickname2);
+    [javac] 						   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:291: warning: [deprecation] warn(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 					} else Log.warn("cannot create friendship  " + toUser + " " + fromUser + " " + Nickname2);
+    [javac] 					          ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:297: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 				Log.error("createFriendship exception " + e);
+    [javac] 				   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:301: warning: [deprecation] warn(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		} else Log.warn("cannot create friendship  " + fromUserId + " " + toUserId + " " + group);
+    [javac] 		          ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:336: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("getSQLField exception " + e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:373: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("getSQLList exception " + e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:411: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("getSQLList exception " + e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:422: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "messageOtherRoomMembers " + roomJID);
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:435: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 					Log.info( "messageOtherRoomMembers memember " + jid);
+    [javac] 					   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:448: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("messageOtherRoomMembers exception " + e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:485: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "configureRoom " + room.getID());
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:487: warning: [deprecation] org.jivesoftware.openfire.forms.FormField in org.jivesoftware.openfire.forms has been deprecated
+    [javac] 		FormField field;
+    [javac] 		^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:488: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XDataFormImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+    [javac] 		^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:488: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XDataFormImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+    [javac] 		                             ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:488: warning: [deprecation] org.jivesoftware.openfire.forms.DataForm in org.jivesoftware.openfire.forms has been deprecated
+    [javac] 		XDataFormImpl dataForm = new XDataFormImpl(DataForm.TYPE_SUBMIT);
+    [javac] 		                                           ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:490: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac]         field = new XFormFieldImpl("muc#roomconfig_roomdesc");
+    [javac]                     ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:491: warning: [deprecation] org.jivesoftware.openfire.forms.FormField in org.jivesoftware.openfire.forms has been deprecated
+    [javac]         field.setType(FormField.TYPE_TEXT_SINGLE);
+    [javac]                       ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:507: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac]         field = new XFormFieldImpl("muc#roomconfig_roomname");
+    [javac]                     ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:508: warning: [deprecation] org.jivesoftware.openfire.forms.FormField in org.jivesoftware.openfire.forms has been deprecated
+    [javac]         field.setType(FormField.TYPE_TEXT_SINGLE);
+    [javac]                       ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:512: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("FORM_TYPE");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:513: warning: [deprecation] org.jivesoftware.openfire.forms.FormField in org.jivesoftware.openfire.forms has been deprecated
+    [javac] 		field.setType(FormField.TYPE_HIDDEN);
+    [javac] 		              ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:517: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_changesubject");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:521: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_maxusers");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:525: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_presencebroadcast");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:531: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_publicroom");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:535: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_persistentroom");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:539: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_moderatedroom");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:543: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_membersonly");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:547: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_allowinvites");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:551: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_passwordprotectedroom");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:555: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_whois");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:559: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_enablelogging");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:563: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("x-muc#roomconfig_canchangenick");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:567: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("x-muc#roomconfig_registration");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:572: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_roomadmins");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:579: warning: [deprecation] org.jivesoftware.openfire.forms.spi.XFormFieldImpl in org.jivesoftware.openfire.forms.spi has been deprecated
+    [javac] 		field = new XFormFieldImpl("muc#roomconfig_roomowners");
+    [javac] 		            ^
+    [javac] C:\Projects\InspiredProject\inspired\PHP2Java\com\ifsoft\inspired\PHP2Java.java:594: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("configureRoom exception " + e);
+    [javac] 			   ^
+    [javac] 51 warnings
 
 jar:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\PHP2Java\php2java.jar
 
 BUILD SUCCESSFUL
-Total time: 10 seconds
+Total time: 1 second

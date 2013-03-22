@@ -80,6 +80,10 @@ public class PHP2Java extends AbstractQuercusModule
 
 		if (pos > -1) defaultName = serverURL.substring(pos + 5);
 
+		pos = defaultName.indexOf("?");
+
+		if (pos > -1) defaultName = defaultName.substring(0, pos);
+
 		return defaultName;
 	}
 
@@ -426,11 +430,11 @@ public class PHP2Java extends AbstractQuercusModule
 			{
 				MUCRoom room = XMPPServer.getInstance().getMultiUserChatManager().getMultiUserChatService("conference").getChatRoom(roomName);
 
-				for (String jid : room.getMembers())
+				for (JID jid : room.getMembers())
 				{
 					Log.info( "messageOtherRoomMembers memember " + jid);
 
-					String hisName = (new JID(jid)).getNode();
+					String hisName = jid.getNode();
 
 					if (hisName.equals(myName) == false)
 					{
@@ -566,8 +570,8 @@ public class PHP2Java extends AbstractQuercusModule
 
 		// Keep the existing list of admins
 		field = new XFormFieldImpl("muc#roomconfig_roomadmins");
-		for (String jid : room.getAdmins()) {
-			field.addValue(jid);
+		for (JID jid : room.getAdmins()) {
+			field.addValue(jid.toString());
 		}
 		dataForm.addField(field);
 

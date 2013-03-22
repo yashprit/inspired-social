@@ -3,7 +3,7 @@
 Plugin Name: WordPress Helpers
 Plugin URI: http://piklist.com
 Description: Enhanced settings for WordPress. Located under <a href="tools.php?page=piklist_wp_helpers">TOOLS > HELPERS</a>
-Version: 1.4.6
+Version: 1.4.8
 Author: Piklist
 Author URI: http://piklist.com/
 Plugin Type: Piklist
@@ -22,19 +22,22 @@ class Piklist_WordPress_Helpers
 
   public static function admin_init()
   {
-    include_once('includes/class-piklist-checker.php');
-   
-    if (!piklist_checker::check(__FILE__))
-    {
-      return;
-    }
-
     add_action('in_plugin_update_message-' . plugin_basename(__FILE__), array('piklist_admin', 'update_available'), null, 2);
   }
 
   public static function init()
   {
-    add_filter('piklist_admin_pages', array('piklist_wordpress_helpers', 'admin_pages'));
+    if (is_admin())
+    {
+      include_once('includes/class-piklist-checker.php');
+   
+      if (!piklist_checker::check(__FILE__))
+      {
+        return;
+      }
+      
+      add_filter('piklist_admin_pages', array('piklist_wordpress_helpers', 'admin_pages'));
+    }
     
     self::helpers();
   }
@@ -49,7 +52,7 @@ class Piklist_WordPress_Helpers
       ,'menu_slug' => 'piklist_wp_helpers'
       ,'setting' => 'piklist_wp_helpers'
       ,'icon_url' => plugins_url('piklist/parts/img/piklist-icon.png') 
-      ,'icon' => 'piklist'
+      ,'icon' => 'piklist-page'
       ,'single_line' => false
       ,'default_tab' => 'General'
     );
@@ -291,6 +294,14 @@ class Piklist_WordPress_Helpers
 
             case 'search_post_types':
               add_filter('pre_get_posts', array('piklist_wordpress_helpers', 'set_search'));          
+            break;
+
+            case 'delay_feed':
+              $delay_feed_num = self::$options['delay_feed'][0]['delay_feed_num'];
+              if (!empty($delay_feed_num))
+              {
+                add_filter('posts_where', array('piklist_wordpress_helpers', 'delay_feed'), self::$filter_priority);
+              }
             break;
 
           }
@@ -928,6 +939,22 @@ class Piklist_WordPress_Helpers
     }
     return $query;
   }
+
+public static function delay_feed($where)
+{
+  global $wpdb;
+
+  if (is_feed())
+  {
+    $delay_feed_num = self::$options['delay_feed'][0]['delay_feed_num'];
+    $delay_feed_time = self::$options['delay_feed'][0]['delay_feed_time'];
+
+    $now = gmdate('Y-m-d H:i:s');
+
+    $where .= " AND TIMESTAMPDIFF($delay_feed_time, $wpdb->posts.post_date_gmt, '$now') > $delay_feed_num ";
+  }
+  return $where;
+}
 
   public static function admin_notice($message, $error = false)
   {
