@@ -1,7 +1,7 @@
-Buildfile: build.xml
+Buildfile: C:\Projects\InspiredProject\inspired\plugin\build.xml
 
 war:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\plugin\inspired.war
 
 BUILD SUCCESSFUL
-Total time: 40 seconds
+Total time: 20 seconds

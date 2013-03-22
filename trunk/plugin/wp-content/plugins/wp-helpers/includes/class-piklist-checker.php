@@ -1,7 +1,7 @@
 <?php
 /*
  * Piklist Checker
- * Version: 0.4.1
+ * Version: 0.4.2
  *
  * Verifies that Piklist is installed and activated.
  * If not, plugin will be deactivated and user will be notifed.
@@ -36,6 +36,11 @@ if (!class_exists('Piklist_Checker'))
 
       if (is_multisite())
       {
+        if (!function_exists('is_plugin_active_for_network'))
+        {
+          require_once(ABSPATH . '/wp-admin/includes/plugin.php'); 
+        }
+
         if (is_plugin_active_for_network(plugin_basename($check_plugin)))
         {
           if (!is_plugin_active_for_network('piklist/piklist.php'))
@@ -92,7 +97,7 @@ if (!class_exists('Piklist_Checker'))
 ?>
  
         <h3>
-          <?php _e('Piklist Required'); ?>
+          <?php _e('Piklist Required','piklist'); ?>
           <?php TYPE == 'network' ? _e('for Network Activation') : ''; ?>
         </h3>
      
@@ -171,6 +176,10 @@ if (!class_exists('Piklist_Checker'))
 /*
  * Changelog
  *
+   = 0.4.2 =
+ * Check if is_plugin_active_for_network function exists
+ * Updated to Text Domain: Piklist
+
   = 0.4.1 =
  * Fixed Unterminated Comment Notice
 

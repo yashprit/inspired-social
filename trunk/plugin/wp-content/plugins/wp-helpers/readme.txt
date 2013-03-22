@@ -3,7 +3,7 @@ Contributors: piklist, p51labs, sbruner
 Tags: piklist, settings, admin bar, dashboard widgets, widgets, visual editor, html editor, excerpts, excerpt length, autosave, howdy, private, protected, close comments, auto linking, AIM, Yahoo IM, Jabber, Google Talk, rss feeds, feeds, maintenance, maintenance mode, under construction
 Tested up to: 3.5
 Requires at least: 3.3.2
-Stable tag: 1.4.6
+Stable tag: 1.4.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -40,6 +40,7 @@ http://www.youtube.com/watch?v=ZYSUDvodWxI&hd=1
 * Set Excerpt length by characters or words.
 * Remove the "Private" and "Protected" title prefixes.
 * Disable RSS Feeds.
+* Delay publishing of RSS feeds.
 * Add Featured Images to your RSS Feed.
 * Include/Exclude Post Types in Search.
 * Disable XML-RPC (WordPress 3.5 or later)
@@ -91,6 +92,13 @@ Awesome! We're always looking for new ideas. Please submit them on our <a href="
 * Install and activate WordPress Helpers like any other plugin.
 
 == Changelog ==
+
+= 1.4.8 =
+* ENHANCED: Updated to latest version of Piklist Checker.
+
+= 1.4.7 =
+* NEW: Delay publishing of RSS feed.
+* FIX: Upgrade issue with Piklist Checker.
 
 = 1.4.6 =
 * NEW: Expose the hidden WordPress settings page.
