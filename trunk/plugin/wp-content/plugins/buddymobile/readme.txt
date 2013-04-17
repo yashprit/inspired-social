@@ -3,7 +3,7 @@ Contributors: modemlooper, taptappress
 Tags: buddypress, mobile, ios, iphone, android
 Tested up to: 3.5
 BuddyPress: 1.6.4
-Version: 1.6.7
+Version: 1.6.9
 
 
 == Description ==
@@ -25,6 +25,12 @@ Want more features and themes? Get BuddyMobile Pro. <a href="http://shop.taptapp
 1. Upload `buddymobile` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
+
+= Set Up =
+
+1.Create a page titled 'mobile' for a custom mobile homepage.
+2.Create a mobile menu in the admin and save to the mobile menu location
+
 == Screenshots ==
 1. Profile
 2. Forums
@@ -34,8 +40,18 @@ Want more features and themes? Get BuddyMobile Pro. <a href="http://shop.taptapp
 
 == Notes ==
 
+== FAQ ==
+Mobile Menu
+Visit the WordPress admin Appearance > Menus and create a menu and add it to the mobile menu location.
+Mobile Home Page
+
+Visit the WordPress admin Pages > Add New and create a page titled mobile. Add content to the text editor. The mobile theme will display this page.
+
 
 == Changelog ==
+= 1.6.9 =
+css fixes
+
 = 1.6.4 =
 added call to language file
 

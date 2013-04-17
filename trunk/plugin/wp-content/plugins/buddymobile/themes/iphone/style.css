@@ -2387,17 +2387,17 @@ body, body.wp-admin {
 }
 
 div.entry p img, .size-full, .size-medium {
-	width: 100%;
+	max-width: 100%;
 	height: auto;
 }
 
 div.post-content div.entry p object, div.post-content div.entry p embed {
-	width: 100%;
+	max-width: 100%;
 	height: auto;
 }
 
 .activity-inner p img{
-	width: 100%;
+	max-width: 100%;
 	height: auto;
 }
 
@@ -2461,7 +2461,7 @@ ul.item-list li {
 
 div#content {
 	border-style: none;
-	padding-top: 15px;
+	padding-top: 45px;
 	min-height: 420px;
 }
 
@@ -2827,7 +2827,7 @@ div.item-list-tabs {
 }
 
 div.post-content div.entry p a img {
-	width: 100%;
+	max-width: 100%;
 	height: auto;
 }
 

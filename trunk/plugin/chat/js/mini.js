@@ -2342,7 +2342,7 @@ function launchMini(autoconnect, show_pane, domain, user, password)
 	
 	jQuery(window).bind('beforeunload', saveSessionMini);
 	
-	WebRtc.mediaHints = {audio:true, video:false};
+	WebRtc.mediaHints = {audio:true, video:true};
 
 	navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.video}, function(stream) 
 	{

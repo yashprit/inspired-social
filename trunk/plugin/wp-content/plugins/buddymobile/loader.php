@@ -6,7 +6,7 @@
  * Description: Mobile them for optimized mobile experience on BuddyPress sites
  * Author:      modemlooper
  * Author URI:  http://twitter.com/modemlooper
- * Version:     1.6.7
+ * Version:     1.6.9
  */
 
 // Exit if accessed directly
