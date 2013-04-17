@@ -1,4 +1,4 @@
-Buildfile: build.xml
+Buildfile: C:\Projects\InspiredProject\inspired\VoipServer\build.xml
 
 clean:
    [delete] Deleting directory C:\Projects\InspiredProject\inspired\VoipServer\build
@@ -6,6 +6,7 @@ clean:
      [copy] Copying 120 files to C:\Projects\InspiredProject\inspired\VoipServer\build\com\sun\voip\server\sounds
 
 compile:
+    [javac] C:\Projects\InspiredProject\inspired\VoipServer\build.xml:23: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
     [javac] Compiling 197 source files to C:\Projects\InspiredProject\inspired\VoipServer\build
     [javac] C:\Projects\InspiredProject\inspired\VoipServer\org\red5\server\webapp\voicebridge\Application.java:242: warning: [deprecation] org.jivesoftware.openfire.forms.FormField in org.jivesoftware.openfire.forms has been deprecated
     [javac] 		FormField field;
@@ -81,4 +82,4 @@ jar:
       [jar] Building jar: C:\Projects\InspiredProject\inspired\VoipServer\voip.jar
 
 BUILD SUCCESSFUL
-Total time: 16 seconds
+Total time: 5 seconds

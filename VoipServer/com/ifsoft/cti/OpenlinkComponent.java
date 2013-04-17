@@ -15,6 +15,8 @@ import org.jivesoftware.openfire.SessionManager;
 import org.jivesoftware.openfire.session.LocalClientSession;
 import org.jivesoftware.openfire.session.ClientSession;
 import org.jivesoftware.openfire.session.Session;
+import org.jivesoftware.openfire.event.SessionEventDispatcher;
+import org.jivesoftware.openfire.event.SessionEventListener;
 import org.jivesoftware.openfire.RoutingTable;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.PrivateStorage;
@@ -53,7 +55,7 @@ import com.sun.voip.client.*;
 import com.sun.voip.*;
 
 
-public class OpenlinkComponent extends AbstractComponent implements CallEventListener
+public class OpenlinkComponent extends AbstractComponent implements CallEventListener, SessionEventListener
 {
     private static final String JINGLE_NAMESPACE = "urn:xmpp:jingle:1";
     private static final String RAW_UDP_NAMESPACE = "urn:xmpp:jingle:transports:raw-udp:1";
@@ -80,6 +82,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 	public Map<String, OpenlinkInterest> openlinkInterests;
 	public Map<String, OpenlinkInterest> callInterests;
 	public Map<String, OpenlinkUser> userProfiles;
+	public Map<String, String> sessionIdentity;
 
 	public Map<String, String> pendingIQs;
 
@@ -121,6 +124,7 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 			openlinkInterests 		= Collections.synchronizedMap( new HashMap<String, OpenlinkInterest>());
 			callInterests			= Collections.synchronizedMap( new HashMap<String, OpenlinkInterest>());
 			userProfiles 			= Collections.synchronizedMap( new HashMap<String, OpenlinkUser>());
+			sessionIdentity 		= Collections.synchronizedMap( new HashMap<String, String>());
 
 			callParticipants		= new HashMap<String, CallParticipant>();
 			callStreams				= new HashMap<String, String>();
@@ -140,6 +144,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 			//openlinkManger.addCommand(new QueryFeatures(this));
 			openlinkManger.addCommand(new ManageVoiceBridge(this));
 
+			SessionEventDispatcher.addListener(this);
+
 		}
 		catch(Exception e) {
 			Log.error(e);
@@ -153,6 +159,8 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		try {
 			openlinkManger.stop();
 			componentManager.removeComponent(getName());
+
+			SessionEventDispatcher.removeListener(this);
 
 		}
 		catch(Exception e) {
@@ -251,12 +259,10 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 
 			Element collaboration = presence.getChildElement("collaboration", COLLABORATION_NAMESPACE);
 
-			if (collaboration != null || presence.getType() == Presence.Type.unavailable)
+			if (collaboration != null)
 			{
-				if (collaboration != null)
-				{
-					identity = collaboration.getText();
-				}
+				identity = collaboration.getText();
+				sessionIdentity.put(presence.getFrom().getNode(), identity);
 
 				for (ClientSession session : sessionManager.getSessions())
 				{
@@ -766,6 +772,58 @@ public class OpenlinkComponent extends AbstractComponent implements CallEventLis
 		//Log.debug("handleCollaboration Sessions\n"+ iq1.toXML());
 
 		return iq1;
+	}
+
+//-------------------------------------------------------
+//
+//
+//
+//-------------------------------------------------------
+
+
+	public void anonymousSessionCreated(Session session)
+	{
+		Log.info("anonymousSessionCreated "+ session.getAddress().toString() + "\n" + ((ClientSession) session).getPresence().toXML());
+	}
+
+	public void anonymousSessionDestroyed(Session session)
+	{
+		Log.info("anonymousSessionDestroyed "+ session.getAddress().toString() + "\n" + ((ClientSession) session).getPresence().toXML());
+
+		if (sessionIdentity.containsKey(session.getAddress().getNode()))
+		{
+			String identity = sessionIdentity.remove(session.getAddress().getNode());
+        	Presence presence = new Presence(Presence.Type.unavailable);
+        	presence.setFrom(session.getAddress());
+        	presence.addChildElement("collaboration", COLLABORATION_NAMESPACE).setText(identity);
+
+			for (ClientSession session2 : sessionManager.getSessions())
+			{
+				JID to = session2.getAddress();
+
+				if (to.equals(session.getAddress()) == false)
+				{
+					Log.info("sessionDestroyed sending presence for " + identity + " to " + to);
+					presence.setTo(to);
+					sendPacket(presence);
+				}
+			}
+		}
+	}
+
+	public void resourceBound(Session session)
+	{
+		Log.info("resourceBound "+ session.getAddress().toString() + "\n" + ((ClientSession) session).getPresence().toXML());
+	}
+
+	public void sessionCreated(Session session)
+	{
+		Log.info("sessionCreated "+ session.getAddress().toString() + "\n" + ((ClientSession) session).getPresence().toXML());
+	}
+
+	public void sessionDestroyed(Session session)
+	{
+		Log.info("sessionDestroyed "+ session.getAddress().toString() + "\n" + ((ClientSession) session).getPresence().toXML());
 	}
 
 

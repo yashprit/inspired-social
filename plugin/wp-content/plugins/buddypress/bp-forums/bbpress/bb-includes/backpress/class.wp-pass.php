@@ -1,5 +1,5 @@
 <?php
-// Last sync [WP10712]
+// Last sync [WP10712] - Refactored into a class from wp-incldues/pluggable.php
 
 class WP_Pass {
 	/**
@@ -83,7 +83,7 @@ class WP_Pass {
 	 * @since WP 2.5
 	 *
 	 * @param int $length The length of password to generate
-	 * @param bool $special_chars Whether to include standard special characters
+	 * @param bool $special_chars Whether to include standard special characters 
 	 * @return string The random password
 	 */
 	function generate_password($length = 12, $special_chars = true) {

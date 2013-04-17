@@ -12,11 +12,11 @@ nocache_headers();
 /** Look for redirection ******************************************************/
 
 // Look for 'redirect_to'
-if ( isset( $_REQUEST['redirect_to'] ) )
+if ( isset( $_REQUEST['redirect_to'] ) && is_string( $_REQUEST['redirect_to'] ) )
 	$re = $_REQUEST['redirect_to'];
 
 	// Look for 're'
-	if ( empty( $re ) && isset( $_REQUEST['re'] ) )
+	if ( empty( $re ) && isset( $_REQUEST['re'] )  && is_string( $_REQUEST['re'] ) )
 		$re = $_REQUEST['re'];
 
 		// Use referer
@@ -31,6 +31,7 @@ if ( isset( $_REQUEST['redirect_to'] ) )
 
 				if ( false !== strpos( $re, $home_path . 'register.php' ) || false !== strpos( $re, $home_path . 'bb-reset-password.php' ) )
 					$re = bb_get_uri( null, null, BB_URI_CONTEXT_HEADER );
+
 			}
 
 /**
@@ -91,7 +92,7 @@ if ( $user = bb_login( @$_POST['log'], @$_POST['pwd'], @$_POST['rememberme'] ) )
 	} else {
 		$bb_login_error =& $user;
 	}
-
+	
 // No login so prepare the error
 } else {
 	$bb_login_error = new WP_Error;
@@ -110,7 +111,7 @@ else
 
 // Check for errors on post method
 if ( 'post' == strtolower( $_SERVER['REQUEST_METHOD'] ) ) {
-
+	
 	// If the user doesn't exist then add that error
 	if ( empty( $user_exists ) ) {
 		if ( !empty( $_POST['log'] ) ) {
