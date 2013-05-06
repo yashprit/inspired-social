@@ -11,86 +11,71 @@
 
 
 <script language="JavaScript">
-	var username, password, videoXid;
+	var username, videoXid;
 
-	function setUser(user, pass)
+	function setGroups(username, groups)
 	{
-		username = user;
-		password = pass;
-
-		MINI_GROUPCHATS = [];
-	}
-
-
-	function getUsername()
-	{
-		return username;
-	}
-
-	function getPassword()
-	{
-		return password;
-	}
-
-
-	function setGroups(groups)
-	{
-		if (username != "")
+		if(!MINI_INITIALIZED)
 		{
-			if (MINI_GROUPCHATS.length != groups.length || MINI_GROUPCHATS.length == 0)
+			if (username != "")
 			{
-				if (MINI_GROUPCHATS.length != groups.length || !MINI_INITIALIZED)
-				{
-					if(!MINI_INITIALIZED)
-					{
-						disconnectMini();
+				console.log("logging into openfire with userid " + username)
 
-						MINI_GROUPCHATS = groups;
-						MINI_ANIMATE = true;
-						launchMini(true, false, window.location.hostname, username, password);
+				disconnectMini();
 
-					} else {
+				MINI_GROUPCHATS = groups;
+				MINI_ANIMATE = true;
+				launchMini(true, false, window.location.hostname, username, "dummy");
+			}
 
-						for(var i = 0; i < MINI_GROUPCHATS.length; i++)
-						{
-							if(!MINI_GROUPCHATS[i])
-								continue;
+		} else {
 
-							//console.log("setGroups removing group " + MINI_GROUPCHATS[i])
+			if (username == "")
+			{
+				console.log("logging off openfire")
 
-							try {
-								var chat_room = bareXID(generateXID(MINI_GROUPCHATS[i], 'groupchat'));
-								var hash = hex_md5(chat_room);
-								var current = '#jappix_mini #chat-' + hash;
-
-								jQuery(current).remove();
-								presenceMini('unavailable', '', '', '', chat_room + '/' + unescape(jQuery(current).attr('data-nick')));
-							}
-
-							catch(e) {}
-						}
-
-						MINI_GROUPCHATS = groups;
-
-						for(var i = 0; i < MINI_GROUPCHATS.length; i++)
-						{
-							if(!MINI_GROUPCHATS[i])
-								continue;
-
-							//console.log("setGroups adding group " + MINI_GROUPCHATS[i])
-
-							try {
-								var chat_room = bareXID(generateXID(MINI_GROUPCHATS[i], 'groupchat'));
-								chatMini('groupchat', chat_room, getXIDNick(chat_room), hex_md5(chat_room), MINI_PASSWORDS[i], MINI_SHOWPANE);
-							}
-
-							catch(e) {}
-						}
-					}
-				}
+				disconnectMini();
 			}
 		}
 
+		if(MINI_INITIALIZED && (MINI_GROUPCHATS.length != groups.length || MINI_GROUPCHATS.length == 0))
+		{
+			for(var i = 0; i < MINI_GROUPCHATS.length; i++)
+			{
+				if(!MINI_GROUPCHATS[i])
+					continue;
+
+				//console.log("setGroups removing group " + MINI_GROUPCHATS[i])
+
+				try {
+					var chat_room = bareXID(generateXID(MINI_GROUPCHATS[i], 'groupchat'));
+					var hash = hex_md5(chat_room);
+					var current = '#jappix_mini #chat-' + hash;
+
+					jQuery(current).remove();
+					presenceMini('unavailable', '', '', '', chat_room + '/' + unescape(jQuery(current).attr('data-nick')));
+				}
+
+				catch(e) {}
+			}
+
+			MINI_GROUPCHATS = groups;
+
+			for(var i = 0; i < MINI_GROUPCHATS.length; i++)
+			{
+				if(!MINI_GROUPCHATS[i])
+					continue;
+
+				//console.log("setGroups adding group " + MINI_GROUPCHATS[i])
+
+				try {
+					var chat_room = bareXID(generateXID(MINI_GROUPCHATS[i], 'groupchat'));
+					chatMini('groupchat', chat_room, getXIDNick(chat_room), hex_md5(chat_room), MINI_PASSWORDS[i], MINI_SHOWPANE);
+				}
+
+				catch(e) {}
+			}
+		}
 	}
 
 
@@ -236,7 +221,7 @@
 
 <div id="window" style="display:none">
 	<div id="windowTop">
-		<div id="windowTopContent"><span>Inspired</span></div>
+		<div id="windowTopContent"><span>Inspired (double click for full screen)</span></div>
 		<img src="chat/img/window/window_min.jpg" id="windowMin" />
 		<img src="chat/img/window/window_max.jpg" id="windowMax" />
 		<img src="chat/img/window/window_close.jpg" id="windowClose" />

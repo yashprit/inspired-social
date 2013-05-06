@@ -13,8 +13,27 @@ import org.jivesoftware.openfire.forms.*;
 import org.jivesoftware.openfire.group.*;
 import org.jivesoftware.openfire.event.GroupEventDispatcher;
 
-import java.util.*;
 
+import org.jivesoftware.openfire.SessionManager;
+import org.jivesoftware.openfire.StreamID;
+import org.jivesoftware.openfire.session.LocalClientSession;
+import org.jivesoftware.openfire.net.VirtualConnection;
+import org.jivesoftware.openfire.auth.UnauthorizedException;
+import org.jivesoftware.openfire.auth.AuthToken;
+import org.jivesoftware.openfire.user.User;
+import org.jivesoftware.openfire.user.UserAlreadyExistsException;
+import org.jivesoftware.openfire.user.UserManager;
+import org.jivesoftware.openfire.user.UserNotFoundException;
+import org.jivesoftware.openfire.SessionPacketRouter;
+import org.jivesoftware.openfire.XMPPServer;
+
+import java.security.cert.Certificate;
+import org.jivesoftware.openfire.auth.UnauthorizedException;
+
+import org.xmpp.packet.Packet;
+
+import java.util.*;
+import java.net.UnknownHostException;
 import org.xmpp.packet.*;
 import java.sql.*;
 import java.io.File;
@@ -87,7 +106,39 @@ public class PHP2Java extends AbstractQuercusModule
 		return defaultName;
 	}
 
+	public void of_set_user_session(String username)
+	{
+		Log.info( "of_set_user_session " + username);
 
+		JID jid = new JID(username + "@" + JiveGlobals.getProperty("xmpp.domain") + "/" + username);
+
+		LocalClientSession session = (LocalClientSession) SessionManager.getInstance().getSession(jid);
+
+		if (session == null)
+		{
+			Log.info( "of_set_user_session not found session for " + username);
+
+			UserManager userManager = XMPPServer.getInstance().getUserManager();
+
+			try {
+				Log.info( "of_set_user_session creating user session for " + username);
+				userManager.getUser(username);
+
+				AuthToken authToken = new AuthToken(username);
+				session = SessionManager.getInstance().createClientSession( new DummyConnection(), new BasicStreamID("url" + System.currentTimeMillis() ) );
+				session.setAuthToken(authToken, username);
+
+				Log.info( "of_set_user_session  sending presence " + username);
+
+				Presence presence = new Presence();
+				presence.setFrom(jid);
+				XMPPServer.getInstance().getPresenceRouter().route(presence);
+			}
+			catch (UserNotFoundException e) {
+				Log.error("of_set_user_session - user not found " + username);
+			}
+		}
+	}
 
 	public synchronized void createGroupChat(String groupId)
 	{
@@ -108,6 +159,7 @@ public class PHP2Java extends AbstractQuercusModule
 			Log.error("createGroupChat exception " + e);
 		}
 	}
+
 
 	private String removeSpaces(String Name)
 	{
@@ -592,6 +644,57 @@ public class PHP2Java extends AbstractQuercusModule
 
 		} catch (Exception e) {
 			Log.error("configureRoom exception " + e);
+		}
+	}
+
+	public class DummyConnection extends VirtualConnection
+	{
+		public void closeVirtualConnection()
+		{
+
+		}
+        public byte[] getAddress() throws UnknownHostException {
+            return null;
+        }
+
+        public String getHostAddress() throws UnknownHostException {
+            return null;
+        }
+
+        public String getHostName() throws UnknownHostException {
+            return null;
+        }
+
+        public void systemShutdown() {
+
+        }
+
+        public void deliver(Packet packet) throws UnauthorizedException {
+
+        }
+
+        public void deliverRawText(String text) {
+
+        }
+	}
+
+	public class BasicStreamID implements StreamID {
+		String id;
+
+		public BasicStreamID(String id) {
+			this.id = id;
+		}
+
+		public String getID() {
+			return id;
+		}
+
+		public String toString() {
+			return id;
+		}
+
+		public int hashCode() {
+			return id.hashCode();
 		}
 	}
 }

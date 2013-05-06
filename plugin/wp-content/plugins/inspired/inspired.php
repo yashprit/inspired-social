@@ -22,7 +22,7 @@ Mod functions.php
 -----------------------------------------
 */
 
-add_action('login_head', 					'inspired_login_page');
+add_action('wp_login', 						'inspired_login_ok');
 add_action('init', 							'my_plugin_init' );
 
 add_action('friends_friendship_accepted', 	'inspired_create_friendship', 10, 3);
@@ -32,6 +32,7 @@ add_action('groups_join_group',				'inspired_join_group', 10, 2);
 add_action('groups_leave_group',			'inspired_leave_group', 10, 2);
 add_action('wp_head', 						'inspired_user_page');
 add_action('admin_head', 					'inspired_user_page');
+add_action('login_head', 					'inspired_user_page');
 add_action('admin_menu', 					'openfire_userimport_menu');
 
 
@@ -50,29 +51,21 @@ function openfire_userimport_menu()
 function inspired_user_page()
 {
 	global $bp;
+	//of_logInfo("inspired_user_page logged user " . $bp->loggedin_user->userdata->user_login);
 
-	echo '<script type="text/javascript">top.setGroups([' . getGroupChats($bp->loggedin_user->id) . ']);</script>';
+	if ($bp->loggedin_user->userdata->user_login != "")
+		of_set_user_session($bp->loggedin_user->userdata->user_login);
+
+	echo '<script type="text/javascript">top.setGroups("' . $bp->loggedin_user->userdata->user_login . '", [' . getGroupChats($bp->loggedin_user->id) . ']);</script>';
 }
 
 
-function inspired_login_page()
+function inspired_login_ok($username)
 {
-	echo "\n".'<script type="text/javascript">
-		window.onload = function()
-		{
-			top.disconnectMini();
-			top.setUser("", "");
-
-		};
-		window.onunload = function()
-		{
-			user_login = document.getElementById("user_login").value;
-			user_pass = document.getElementById("user_pass").value;
-
-			top.setUser(user_login, user_pass);
-		};
-		</script>';
+	of_logInfo("inspired_login_ok " . $username);
+	of_set_user_session($username);
 }
+
 
 function inspired_join_group($group, $user)
 {
