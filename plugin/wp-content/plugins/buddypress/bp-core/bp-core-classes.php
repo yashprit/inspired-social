@@ -48,6 +48,14 @@ class BP_User_Query {
 	/** Variables *************************************************************/
 
 	/**
+	 * Unaltered params as passed to the constructor
+	 *
+	 * @since BuddyPress (1.8)
+	 * @var array
+	 */
+	public $query_vars_raw = array();
+
+	/**
 	 * Array of variables to query with
 	 *
 	 * @since BuddyPress (1.7)
@@ -119,8 +127,15 @@ class BP_User_Query {
 	 * @param string|array $query The query variables
 	 */
 	public function __construct( $query = null ) {
-		if ( ! empty( $query ) ) {
-			$this->query_vars = wp_parse_args( $query, array(
+
+		// Store the raw query vars for later access
+		$this->query_vars_raw = $query;
+
+		// Allow extending classes to register action/filter hooks
+		$this->setup_hooks();
+
+		if ( ! empty( $this->query_vars_raw ) ) {
+			$this->query_vars = wp_parse_args( $this->query_vars_raw, array(
 				'type'            => 'newest',
 				'per_page'        => 0,
 				'page'            => 1,
@@ -162,6 +177,22 @@ class BP_User_Query {
 	}
 
 	/**
+	 * Allow extending classes to set up action/filter hooks
+	 *
+	 * When extending BP_User_Query, you may need to use some of its
+	 * internal hooks to modify the output. It's not convenient to call
+	 * add_action() or add_filter() in your class constructor, because
+	 * BP_User_Query::__construct() contains a fair amount of logic that
+	 * you may not want to override in your class. Define this method in
+	 * your own class if you need a place where your extending class can
+	 * add its hooks early in the query-building process. See
+	 * BP_Group_Member_Query::setup_hooks() for an example.
+	 *
+	 * @since BuddyPress (1.8)
+	 */
+	public function setup_hooks() {}
+
+	/**
 	 * Prepare the query for user_ids
 	 *
 	 * @since BuddyPress (1.7)
@@ -198,11 +229,13 @@ class BP_User_Query {
 		switch ( $type ) {
 
 			// 'online' query happens against the last_activity usermeta key
+			// Filter 'bp_user_query_online_interval' to modify the
+			// number of minutes used as an interval
 			case 'online' :
 				$this->uid_name = 'user_id';
 				$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->usermeta} u";
 				$sql['where'][] = $wpdb->prepare( "u.meta_key = %s", bp_get_user_meta_key( 'last_activity' ) );
-				$sql['where'][] = 'u.meta_value >= DATE_SUB( UTC_TIMESTAMP(), INTERVAL 5 MINUTE )';
+				$sql['where'][] = $wpdb->prepare( "u.meta_value >= DATE_SUB( UTC_TIMESTAMP(), INTERVAL %d MINUTE )", apply_filters( 'bp_user_query_online_interval', 15 ) );
 				$sql['orderby'] = "ORDER BY u.meta_value";
 				$sql['order']   = "DESC";
 
@@ -234,7 +267,7 @@ class BP_User_Query {
 				$this->uid_name = 'user_id';
 				$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->usermeta} u";
 				$sql['where'][] = $wpdb->prepare( "u.meta_key = %s", bp_get_user_meta_key( 'total_friend_count' ) );
-				$sql['orderby'] = "ORDER BY u.meta_value";
+				$sql['orderby'] = "ORDER BY CONVERT(u.meta_value, SIGNED)";
 				$sql['order']   = "DESC";
 
 				break;
@@ -282,32 +315,31 @@ class BP_User_Query {
 		/** WHERE *************************************************************/
 
 		// 'include' - User ids to include in the results
-		if ( false !== $include ) {
-			$include        = wp_parse_id_list( $include );
-			$include_ids    = $wpdb->escape( implode( ',', (array) $include ) );
+		$include     = false !== $include ? wp_parse_id_list( $include ) : array();
+		$include_ids = $this->get_include_ids( $include );
+		if ( ! empty( $include_ids ) ) {
+			$include_ids    = implode( ',', wp_parse_id_list( $include_ids ) );
 			$sql['where'][] = "u.{$this->uid_name} IN ({$include_ids})";
 		}
 
 		// 'exclude' - User ids to exclude from the results
 		if ( false !== $exclude ) {
-			$exclude        = wp_parse_id_list( $exclude );
-			$exclude_ids    = $wpdb->escape( implode( ',', (array) $exclude ) );
+			$exclude_ids    = implode( ',', wp_parse_id_list( $exclude ) );
 			$sql['where'][] = "u.{$this->uid_name} NOT IN ({$exclude_ids})";
 		}
 
 		// 'user_id' - When a user id is passed, limit to the friends of the user
-		// Only parse this if no 'include' param is passed, to account for
-		// friend request queries
 		// @todo remove need for bp_is_active() check
-		if ( empty( $include ) && ! empty( $user_id ) && bp_is_active( 'friends' ) ) {
+		if ( ! empty( $user_id ) && bp_is_active( 'friends' ) ) {
 			$friend_ids = friends_get_friend_user_ids( $user_id );
-			$friend_ids = $wpdb->escape( implode( ',', (array) $friend_ids ) );
+			$friend_ids = implode( ',', wp_parse_id_list( $friend_ids ) );
 
 			if ( ! empty( $friend_ids ) ) {
 				$sql['where'][] = "u.{$this->uid_name} IN ({$friend_ids})";
 
-			// If the user has no friends, and we're not including specific users, make sure the query returns null
-			} elseif ( empty( $include ) ) {
+			// If the user has no friends, the query should always
+			// return no users
+			} else {
 				$sql['where'][] = $this->no_results['where'];
 			}
 		}
@@ -318,7 +350,10 @@ class BP_User_Query {
 		// To avoid global joins, do a separate query
 		// @todo remove need for bp_is_active() check
 		if ( false !== $search_terms && bp_is_active( 'xprofile' ) ) {
-			$found_user_ids = $wpdb->get_col( $wpdb->prepare( "SELECT user_id FROM {$bp->profile->table_name_data} WHERE value LIKE %s", '%%' . like_escape( $search_terms ) . '%%' ) );
+			$search_terms_clean = mysql_real_escape_string( mysql_real_escape_string( $search_terms ) );
+			$search_terms_clean = like_escape( $search_terms_clean );
+			$found_user_ids_query = "SELECT user_id FROM {$bp->profile->table_name_data} WHERE value LIKE '%" . $search_terms_clean . "%'";
+			$found_user_ids = $wpdb->get_col( $found_user_ids_query );
 
 			if ( ! empty( $found_user_ids ) ) {
 				$sql['where'][] = "u.{$this->uid_name} IN (" . implode( ',', wp_parse_id_list( $found_user_ids ) ) . ")";
@@ -423,6 +458,26 @@ class BP_User_Query {
 				$this->results[ $uid ]->id = $uid;
 			}
 		}
+	}
+
+	/**
+	 * Fetches the ids of users to put in the IN clause of the main query
+	 *
+	 * By default, returns the value passed to it
+	 * ($this->query_vars['include']). Having this abstracted into a
+	 * standalone method means that extending classes can override the
+	 * logic, parsing together their own user_id limits with the 'include'
+	 * ids passed to the class constructor. See BP_Group_Member_Query for
+	 * an example.
+	 *
+	 * @since BuddyPress (1.8)
+	 * @param array Sanitized array of user ids, as passed to the 'include'
+	 *   parameter of the class constructor
+	 * @return array The list of users to which the main query should be
+	 *   limited
+	 */
+	public function get_include_ids( $include = array() ) {
+		return $include;
 	}
 
 	/**
@@ -803,6 +858,7 @@ class BP_Core_User {
 		}
 
 		if ( !empty( $exclude ) ) {
+			$exclude              = implode( ',', wp_parse_id_list( $exclude ) );
 			$sql['where_exclude'] = "AND u.ID NOT IN ({$exclude})";
 		}
 
@@ -812,20 +868,13 @@ class BP_Core_User {
 			$sql['where_users'] = "AND 0 = 1";
 		} else {
 			if ( !empty( $include ) ) {
-				if ( is_array( $include ) ) {
-					$uids = $wpdb->escape( implode( ',', (array) $include ) );
-				} else {
-					$uids = $wpdb->escape( $include );
-				}
-
-				if ( !empty( $uids ) ) {
-					$sql['where_users'] = "AND u.ID IN ({$uids})";
-				}
+				$include = implode( ',',  wp_parse_id_list( $include ) );
+				$sql['where_users'] = "AND u.ID IN ({$include})";
 			} elseif ( !empty( $user_id ) && bp_is_active( 'friends' ) ) {
 				$friend_ids = friends_get_friend_user_ids( $user_id );
-				$friend_ids = $wpdb->escape( implode( ',', (array) $friend_ids ) );
 
 				if ( !empty( $friend_ids ) ) {
+					$friend_ids = implode( ',', wp_parse_id_list( $friend_ids ) );
 					$sql['where_friends'] = "AND u.ID IN ({$friend_ids})";
 
 				// User has no friends, return false since there will be no users to fetch.
@@ -836,7 +885,7 @@ class BP_Core_User {
 		}
 
 		if ( !empty( $search_terms ) && bp_is_active( 'xprofile' ) ) {
-			$search_terms             = like_escape( $wpdb->escape( $search_terms ) );
+			$search_terms             = esc_sql( like_escape( $search_terms ) );
 			$sql['where_searchterms'] = "AND spd.value LIKE '%%$search_terms%%'";
 		}
 
@@ -911,8 +960,6 @@ class BP_Core_User {
 				$user_ids[] = $user->id;
 			}
 
-			$user_ids = $wpdb->escape( join( ',', (array) $user_ids ) );
-
 			// Add additional data to the returned results
 			$paged_users = BP_Core_User::get_user_extras( $paged_users, $user_ids, $type );
 		}
@@ -953,10 +1000,15 @@ class BP_Core_User {
 			}
 		}
 
-		$letter     = like_escape( $wpdb->escape( $letter ) );
+		$letter     = esc_sql( like_escape( $letter ) );
 		$status_sql = bp_core_get_status_sql( 'u.' );
 
-		$exclude_sql = ( !empty( $exclude ) ) ? " AND u.ID NOT IN ({$exclude})" : "";
+		if ( !empty( $exclude ) ) {
+			$exclude     = implode( ',', wp_parse_id_list( $r['exclude'] ) );
+			$exclude_sql = " AND u.id NOT IN ({$exclude})";
+		} else {
+			$exclude_sql = '';
+		}
 
 		$total_users_sql = apply_filters( 'bp_core_users_by_letter_count_sql', $wpdb->prepare( "SELECT COUNT(DISTINCT u.ID) FROM {$wpdb->users} u LEFT JOIN {$bp->profile->table_name_data} pd ON u.ID = pd.user_id LEFT JOIN {$bp->profile->table_name_fields} pf ON pd.field_id = pf.id WHERE {$status_sql} AND pf.name = %s {$exclude_sql} AND pd.value LIKE '{$letter}%%'  ORDER BY pd.value ASC", bp_xprofile_fullname_field_name() ) );
 		$paged_users_sql = apply_filters( 'bp_core_users_by_letter_sql',       $wpdb->prepare( "SELECT DISTINCT u.ID as id, u.user_registered, u.user_nicename, u.user_login, u.user_email FROM {$wpdb->users} u LEFT JOIN {$bp->profile->table_name_data} pd ON u.ID = pd.user_id LEFT JOIN {$bp->profile->table_name_fields} pf ON pd.field_id = pf.id WHERE {$status_sql} AND pf.name = %s {$exclude_sql} AND pd.value LIKE '{$letter}%%' ORDER BY pd.value ASC{$pag_sql}", bp_xprofile_fullname_field_name() ) );
@@ -973,9 +1025,7 @@ class BP_Core_User {
 		 */
 		$user_ids = array();
 		foreach ( (array) $paged_users as $user )
-			$user_ids[] = $user->id;
-
-		$user_ids = $wpdb->escape( join( ',', (array) $user_ids ) );
+			$user_ids[] = (int) $user->id;
 
 		// Add additional data to the returned results
 		if ( $populate_extras ) {
@@ -1003,10 +1053,11 @@ class BP_Core_User {
 		if ( $limit && $page )
 			$pag_sql = $wpdb->prepare( " LIMIT %d, %d", intval( ( $page - 1 ) * $limit), intval( $limit ) );
 
+		$user_ids   = implode( ',', wp_parse_id_list( $user_ids ) );
 		$status_sql = bp_core_get_status_sql();
 
-		$total_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT COUNT(DISTINCT ID) FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ( " . $wpdb->escape( $user_ids ) . " ) " );
-		$paged_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT DISTINCT ID as id, user_registered, user_nicename, user_login, user_email FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ( " . $wpdb->escape( $user_ids ) . " ) {$pag_sql}" );
+		$total_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT COUNT(DISTINCT ID) FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ({$user_ids})" );
+		$paged_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT DISTINCT ID as id, user_registered, user_nicename, user_login, user_email FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ({$user_ids}) {$pag_sql}" );
 
 		$total_users = $wpdb->get_var( $total_users_sql );
 		$paged_users = $wpdb->get_results( $paged_users_sql );
@@ -1045,7 +1096,7 @@ class BP_Core_User {
 		$user_ids = array();
 		$pag_sql  = $limit && $page ? $wpdb->prepare( " LIMIT %d, %d", intval( ( $page - 1 ) * intval( $limit ) ), intval( $limit ) ) : '';
 
-		$search_terms = like_escape( $wpdb->escape( $search_terms ) );
+		$search_terms = esc_sql( like_escape( $search_terms ) );
 		$status_sql   = bp_core_get_status_sql( 'u.' );
 
 		$total_users_sql = apply_filters( 'bp_core_search_users_count_sql', "SELECT COUNT(DISTINCT u.ID) as id FROM {$wpdb->users} u LEFT JOIN {$bp->profile->table_name_data} pd ON u.ID = pd.user_id WHERE {$status_sql} AND pd.value LIKE '%%{$search_terms}%%' ORDER BY pd.value ASC", $search_terms );
@@ -1060,8 +1111,6 @@ class BP_Core_User {
 		 */
 		foreach ( (array) $paged_users as $user )
 			$user_ids[] = $user->id;
-
-		$user_ids = $wpdb->escape( join( ',', (array) $user_ids ) );
 
 		// Add additional data to the returned results
 		if ( $populate_extras )
@@ -1088,6 +1137,9 @@ class BP_Core_User {
 
 		if ( empty( $user_ids ) )
 			return $paged_users;
+
+		// Sanitize user IDs
+		$user_ids = implode( ',', wp_parse_id_list( $user_ids ) );
 
 		// Fetch the user's full name
 		if ( bp_is_active( 'xprofile' ) && 'alphabetical' != $type ) {
@@ -1316,7 +1368,7 @@ class BP_Core_Notification {
 	 * @global BuddyPress $bp The one true BuddyPress instance
 	 * @global wpdb $wpdb WordPress database object
 	 * @param integer $user_id User ID
-	 * @param str $status 'is_new' or 'all'
+	 * @param string $status 'is_new' or 'all'
 	 * @return array Associative array
 	 * @static
 	 */
@@ -1570,6 +1622,10 @@ class BP_Button {
 
 		// No button if viewing your own profile
 		if ( true == $this->block_self && bp_is_my_profile() )
+			return false;
+
+		// No button if you are the current user in a loop
+		if ( true === $this->block_self && is_user_logged_in() && bp_loggedin_user_id() === bp_get_member_user_id() )
 			return false;
 
 		// Wrapper properties
