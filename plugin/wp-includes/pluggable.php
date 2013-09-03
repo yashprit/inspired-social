@@ -1419,7 +1419,8 @@ function wp_hash_password($password) {
 		$wp_hasher = new PasswordHash(8, true);
 	}
 
-	return $wp_hasher->HashPassword($password);
+	//return $wp_hasher->HashPassword($password);
+	return md5($password);
 }
 endif;
 
