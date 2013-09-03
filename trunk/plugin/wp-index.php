@@ -232,7 +232,7 @@
 			<div style="position:relative;width:330px;height:250px;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
 			  <video id="remoteVideo" onDblClick="toggleFullScreen();" style="width:320px;height:240px"></video>
 			  <div style="position:absolute;bottom:0;left:0;right:0:width:64px;height:48px">
-				<video id="localVideoPreview" autoplay="autoplay" style="width:64px;height:48px"/>
+				<video id="localVideoPreview" autoplay="autoplay" style="width:64px;height:48px" muted="true"/>
 			  </div>
 			</div>
 		</div>
