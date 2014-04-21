@@ -3,7 +3,7 @@ Contributors: miled
 Tags:  login, register, comment, social, social networks, social login, import contacts, facebook, google, yahoo, twitter, windows live, myspace, foursquare, linkedin, last.fm, instagram, vkontakte, stackoverflow, github, steam, twitch.tv
 Requires at least: 3.0
 Tested up to: 3.5
-Stable tag: 2.1.3
+Stable tag: 2.1.6
 License: MIT License
 License URI: http://opensource.org/licenses/MIT
 

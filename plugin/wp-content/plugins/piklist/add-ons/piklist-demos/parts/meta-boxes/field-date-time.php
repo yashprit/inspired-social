@@ -1,10 +1,17 @@
 <?php
 /*
-Title: DatePicker & TimePicker Fields <span class="piklist-title-right">Order 50</span>
+Title: DatePicker Fields
 Post Type: piklist_demo
 Order: 50
-Collapse: false
+Collapse: true
 */
+?>
+
+<h3 class="demo-highlight">
+  <?php _e('DatePicker fields are easy to create and format.','piklist');?>
+</h3>
+
+<?php
   
   piklist('field', array(
     'type' => 'datepicker'
@@ -40,50 +47,10 @@ Collapse: false
       'value' => 'lock'
     )
   ));
-  
-  piklist('field', array(
-    'type' => 'timepicker'
-    ,'field' => 'time'
-    ,'label' => 'Time'
-    ,'description' => 'Choose a time'
-    ,'options' => array(
-      'startTime' => date('H:m A')
-      ,'show24Hours' => false
-      ,'separator' => ':'
-      ,'step' => 15
-    )
-    ,'attributes' => array(
-      'size' => 12
-    )
-    ,'value' => date('H:m A')
-    ,'on_post_status' => array(
-      'value' => 'lock'
-    )
-  ));
-  
-  piklist('field', array(
-    'type' => 'timepicker'
-    ,'field' => 'time_add_more'
-    ,'add_more' => true
-    ,'label' => 'Add More'
-    ,'description' => 'Choose a time'
-    ,'options' => array(
-      'startTime' => date('H:m A')
-      ,'show24Hours' => false
-      ,'separator' => ':'
-      ,'step' => 15
-    )
-    ,'attributes' => array(
-      'size' => 12
-    )
-    ,'value' => date('H:m A')
-    ,'on_post_status' => array(
-      'value' => 'lock'
-    )
-  ));
     
-  piklist('shared/meta-box-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
   
 ?>

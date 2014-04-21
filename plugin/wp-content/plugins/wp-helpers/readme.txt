@@ -1,9 +1,9 @@
 === WordPress Helpers ===
 Contributors: piklist, p51labs, sbruner
 Tags: piklist, settings, admin bar, dashboard widgets, widgets, visual editor, html editor, excerpts, excerpt length, autosave, howdy, private, protected, close comments, auto linking, AIM, Yahoo IM, Jabber, Google Talk, rss feeds, feeds, maintenance, maintenance mode, under construction
-Tested up to: 3.5
-Requires at least: 3.3.2
-Stable tag: 1.4.8
+Tested up to: 3.9
+Requires at least: 3.4
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -27,10 +27,13 @@ http://www.youtube.com/watch?v=ZYSUDvodWxI&hd=1
 * Remove the "Screen Options" tab.
 * Disable Upgrade Notifications for WordPress, Themes and Plugins (individually).
 * Hide Dashboard widgets.
-* Set the default Dashboard columns.
+* Set Dashboard columns.
+* View Screen Information in the Help Tab.
+* Bring back Blogrolls.
 
 = Writing =
 * Set the default Post editor (Visual or HTML).
+* Set Post Editor columns.
 * Totally disable the Visual Editor.
 * Increase the height of the Excerpt box when writing a Post.
 * Disable Autosave.
@@ -52,13 +55,16 @@ http://www.youtube.com/watch?v=ZYSUDvodWxI&hd=1
 
 = Appearance =
 * Enhanced Body/Post Classes: Browser detect, Taxonomies (including hierarchy levels), post date, has post thumbnail, author information, logged in users, multisite, odd/even (post archives only), post excerpt.
-* Remove any/all default WordPress widgets.
+* Remove any/all WordPress default widgets.
 * Run any shortcode in a widget.
 * Remove WordPress version, Feed Links, RSD Link, wlwmanifest and relational links for the posts adjacent to the current post, from your theme header.
 
 = User Profiles =
 * Remove the Admin color scheme option from the User Profiles.
 * Remove AIM, Yahoo IM, Jabber/Google Talk.
+
+= User Communication =
+* Change WordPress "from" email address.
 
 = Site Visitors =
 * Put your site into Maintenance Mode.
@@ -92,6 +98,31 @@ Awesome! We're always looking for new ideas. Please submit them on our <a href="
 * Install and activate WordPress Helpers like any other plugin.
 
 == Changelog ==
+
+= 1.5.3 =
+* Now requires WordPress 3.4.
+* Fixed notices.
+
+= 1.5.2 =
+* ENHANCED: Better Frontend notice.
+* ENHANCED: Visitor messages can be written in Textareas.
+* ENHANCED: Allow other plugins to also add to the Terms columns.
+* FIX: Maintenance Mode uses your custom message for the 503 response.
+* Bug fixes.
+
+= 1.5.1 =
+* FIX: Hide Frontend Admin Bar.
+
+= 1.5.0 =
+* FIX: Maintenance Mode.
+
+= 1.4.9 =
+* NEW: System Information
+* NEW: Change WordPress "from" email address.
+* NEW: Screen Information in Help Tab.
+* ENHANCED: Site ID in Multisite.
+* ENHANCED: User message can now be filtered by browser.
+* ENHANCED: Remove Dashboard widget: Browser Upgrade Warning
 
 = 1.4.8 =
 * ENHANCED: Updated to latest version of Piklist Checker.

@@ -22,6 +22,7 @@ if (!class_exists('Piklist_Checker'))
 
     public static function init()
     {
+      
       add_action('admin_init', array('piklist_checker', 'show_message'));
     }
 
@@ -34,7 +35,7 @@ if (!class_exists('Piklist_Checker'))
           return true;
       }
 
-      if (is_multisite())
+      if (is_multisite() && function_exists('is_plugin_active_for_network'))
       {
         if (!function_exists('is_plugin_active_for_network'))
         {

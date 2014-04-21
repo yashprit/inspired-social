@@ -1,15 +1,16 @@
 
 <form 
   method="<?php echo strtolower($method); ?>" 
-  action="<?php echo isset($action) ? $action : $_SERVER['REQUEST_URI']; ?>" 
-  enctype="multipart/form-data" 
+  action="<?php echo isset($action) ? home_url() . $action : $_SERVER['REQUEST_URI']; ?>" 
+  enctype="multipart/form-data"
+  id="<?php echo $form_id; ?>"
 >
 
   <?php
   
     piklist('field', array(
       'type' => 'hidden'
-      ,'scope' => 'piklist'
+      ,'scope' => piklist::$prefix
       ,'field' => 'nonce'
       ,'value' => $nonce
     ));
@@ -36,8 +37,6 @@
       } 
     }
     
-    // NOTE: comments, terms, user
-    // NOTE: Do we need the field?
     if (isset($_REQUEST['ID']))
     {
       piklist_form::$save_ids['post'] = $_REQUEST['ID'];
@@ -54,12 +53,12 @@
     {
       piklist('field', array(
         'type' => 'hidden'
-        ,'scope' => 'piklist'
+        ,'scope' => piklist::$prefix
         ,'field' => 'filter'
         ,'value' => 'true'
       ));
     }
-     
+    
   ?>
   
   <?php piklist::render($form); ?>

@@ -77,11 +77,14 @@ class BP_Groups_Component extends BP_Component {
 	 *
 	 * @since BuddyPress (1.5)
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::start(
 			'groups',
 			__( 'User Groups', 'buddypress' ),
-			BP_PLUGIN_DIR
+			buddypress()->plugin_dir,
+			array(
+				'adminbar_myaccount_order' => 70
+			)
 		);
 	}
 
@@ -118,10 +121,9 @@ class BP_Groups_Component extends BP_Component {
 	 * backwards compatibility.
 	 *
 	 * @since BuddyPress (1.5)
-	 * @global BuddyPress $bp The one true BuddyPress instance
 	 */
 	public function setup_globals( $args = array() ) {
-		global $bp;
+		$bp = buddypress();
 
 		// Define a slug, if necessary
 		if ( !defined( 'BP_GROUPS_SLUG' ) )
@@ -134,18 +136,25 @@ class BP_Groups_Component extends BP_Component {
 			'table_name_groupmeta' => $bp->table_prefix . 'bp_groups_groupmeta'
 		);
 
+		// Metadata tables for groups component
+		$meta_tables = array(
+			'group' => $bp->table_prefix . 'bp_groups_groupmeta',
+		);
+
 		// All globals for groups component.
 		// Note that global_tables is included in this array.
-		$globals = array(
+		$args = array(
 			'slug'                  => BP_GROUPS_SLUG,
 			'root_slug'             => isset( $bp->pages->groups->slug ) ? $bp->pages->groups->slug : BP_GROUPS_SLUG,
 			'has_directory'         => true,
+			'directory_title'       => _x( 'Groups', 'component directory title', 'buddypress' ),
 			'notification_callback' => 'groups_format_notifications',
 			'search_string'         => __( 'Search Groups...', 'buddypress' ),
-			'global_tables'         => $global_tables
+			'global_tables'         => $global_tables,
+			'meta_tables'           => $meta_tables,
 		);
 
-		parent::setup_globals( $globals );
+		parent::setup_globals( $args );
 
 		/** Single Group Globals **********************************************/
 
@@ -154,7 +163,16 @@ class BP_Groups_Component extends BP_Component {
 
 			$bp->is_single_item  = true;
 			$current_group_class = apply_filters( 'bp_groups_current_group_class', 'BP_Groups_Group' );
-			$this->current_group = apply_filters( 'bp_groups_current_group_object', new $current_group_class( $group_id ) );
+
+			if ( $current_group_class == 'BP_Groups_Group' ) {
+				$this->current_group = groups_get_group( array(
+					'group_id'        => $group_id,
+					'populate_extras' => true,
+				) );
+
+			} else {
+				$this->current_group = apply_filters( 'bp_groups_current_group_object', new $current_group_class( $group_id ) );
+			}
 
 			// When in a single group, the first action is bumped down one because of the
 			// group name, so we need to adjust this and set the group name to current_item.
@@ -338,12 +356,18 @@ class BP_Groups_Component extends BP_Component {
 	 */
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 
-		// Define local variables
-		$sub_nav = array();
+		// Only grab count if we're on a user page
+		if ( bp_is_user() ) {
+			$count    = bp_get_total_group_count_for_user();
+			$class    = ( 0 === $count ) ? 'no-count' : 'count';
+			$nav_name = sprintf( __( 'Groups <span class="%s">%s</span>', 'buddypress' ), esc_attr( $class ), number_format_i18n( $count ) );
+		} else {
+			$nav_name = __( 'Groups', 'buddypress' );
+		}
 
 		// Add 'Groups' to the main navigation
 		$main_nav = array(
-			'name'                => sprintf( __( 'Groups <span>%d</span>', 'buddypress' ), bp_get_total_group_count_for_user() ),
+			'name'                => $nav_name,
 			'slug'                => $this->slug,
 			'position'            => 70,
 			'screen_function'     => 'groups_screen_my_groups',
@@ -416,13 +440,16 @@ class BP_Groups_Component extends BP_Component {
 				'item_css_id'     => 'home'
 			);
 
-			// If this is a private group, and the user is not a member, show a "Request Membership" nav item.
+			// If this is a private group, and the user is not a
+			// member and does not have an outstanding invitation,
+			// show a "Request Membership" nav item.
 			if ( is_user_logged_in() &&
-				 !bp_current_user_can( 'bp_moderate' ) &&
-				 !$this->current_group->is_user_member &&
-				 !groups_check_for_membership_request( bp_loggedin_user_id(), $this->current_group->id ) &&
-				 $this->current_group->status == 'private'
+				 ! $this->current_group->is_user_member &&
+				 ! groups_check_for_membership_request( bp_loggedin_user_id(), $this->current_group->id ) &&
+				 $this->current_group->status == 'private' &&
+				 ! groups_check_user_has_invite( bp_loggedin_user_id(), $this->current_group->id )
 				) {
+
 				$sub_nav[] = array(
 					'name'               => __( 'Request Membership', 'buddypress' ),
 					'slug'               => 'request-membership',
@@ -488,22 +515,18 @@ class BP_Groups_Component extends BP_Component {
 			parent::setup_nav( $main_nav, $sub_nav );
 		}
 
-		if ( isset( $this->current_group->user_has_access ) )
+		if ( isset( $this->current_group->user_has_access ) ) {
 			do_action( 'groups_setup_nav', $this->current_group->user_has_access );
-		else
+		} else {
 			do_action( 'groups_setup_nav');
+		}
 	}
 
 	/**
 	 * Set up the Toolbar
-	 *
-	 * @global BuddyPress $bp The one true BuddyPress instance
 	 */
 	public function setup_admin_bar( $wp_admin_nav = array() ) {
-		global $bp;
-
-		// Prevent debug notices
-		$wp_admin_nav = array();
+		$bp = buddypress();
 
 		// Menus for logged in user
 		if ( is_user_logged_in() ) {
@@ -513,13 +536,13 @@ class BP_Groups_Component extends BP_Component {
 			$groups_link = trailingslashit( $user_domain . $this->slug );
 
 			// Pending group invites
-			$count   = groups_get_invites_for_user( bp_loggedin_user_id() );
+			$count   = groups_get_invite_count_for_user();
 			$title   = __( 'Groups',             'buddypress' );
 			$pending = __( 'No Pending Invites', 'buddypress' );
 
 			if ( !empty( $count['total'] ) ) {
-				$title   = sprintf( __( 'Groups <span class="count">%s</span>',          'buddypress' ), $count['total'] );
-				$pending = sprintf( __( 'Pending Invites <span class="count">%s</span>', 'buddypress' ), $count['total'] );
+				$title   = sprintf( __( 'Groups <span class="count">%s</span>',          'buddypress' ), $count );
+				$pending = sprintf( __( 'Pending Invites <span class="count">%s</span>', 'buddypress' ), $count );
 			}
 
 			// Add the "My Account" sub menus
@@ -562,20 +585,16 @@ class BP_Groups_Component extends BP_Component {
 
 	/**
 	 * Sets up the title for pages and <title>
-	 *
-	 * @global BuddyPress $bp The one true BuddyPress instance
 	 */
-	function setup_title() {
-		global $bp;
+	public function setup_title() {
+		$bp = buddypress();
 
 		if ( bp_is_groups_component() ) {
 
 			if ( bp_is_my_profile() && !bp_is_single_item() ) {
-
 				$bp->bp_options_title = __( 'Memberships', 'buddypress' );
 
 			} else if ( !bp_is_my_profile() && !bp_is_single_item() ) {
-
 				$bp->bp_options_avatar = bp_core_fetch_avatar( array(
 					'item_id' => bp_displayed_user_id(),
 					'type'    => 'thumb',
@@ -594,8 +613,9 @@ class BP_Groups_Component extends BP_Component {
 					'avatar_dir' => 'group-avatars',
 					'alt'        => __( 'Group Avatar', 'buddypress' )
 				) );
+
 				if ( empty( $bp->bp_options_avatar ) ) {
-					$bp->bp_options_avatar = '<img src="' . esc_attr( $group->avatar_full ) . '" class="avatar" alt="' . esc_attr( $group->name ) . '" />';
+					$bp->bp_options_avatar = '<img src="' . esc_url( bp_core_avatar_default_thumb() ) . '" alt="' . esc_attr__( 'No Group Avatar', 'buddypress' ) . '" class="avatar" />';
 				}
 			}
 		}
@@ -606,8 +626,6 @@ class BP_Groups_Component extends BP_Component {
 
 
 function bp_setup_groups() {
-	global $bp;
-
-	$bp->groups = new BP_Groups_Component();
+	buddypress()->groups = new BP_Groups_Component();
 }
 add_action( 'bp_setup_components', 'bp_setup_groups', 6 );

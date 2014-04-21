@@ -1,35 +1,43 @@
 <?php
 /*
-Title: Field Groups <span class="piklist-title-right">Order 80</span>
+Title: Field Groups
 Post Type: piklist_demo
 Order: 80
-Collapse: false
 */
-  
+
   piklist('field', array(
     'type' => 'group'
-    ,'field' => 'address'
-    ,'label' => 'Address'
+    ,'field' => 'address_group'
+    ,'label' => 'Address (Grouped)'
     ,'list' => false
-    ,'description' => 'This is an example of how to build a simple address field using the group type.'
+    ,'description' => 'A grouped field. Data is not searchable, since it is saved in an array.'
     ,'fields' => array(
       array(
         'type' => 'text'
         ,'field' => 'address_1'
         ,'label' => 'Street Address'
         ,'columns' => 12
+        ,'attributes' => array(
+          'placeholder' => 'Street Address'
+        )
       )
       ,array(
         'type' => 'text'
         ,'field' => 'address_2'
         ,'label' => 'PO Box, Suite, etc.'
         ,'columns' => 12
+        ,'attributes' => array(
+          'placeholder' => 'PO Box, Suite, etc.'
+        )
       )
       ,array(
         'type' => 'text'
         ,'field' => 'city'
         ,'label' => 'City'
         ,'columns' => 5
+        ,'attributes' => array(
+          'placeholder' => 'City'
+        )
       )
       ,array(
         'type' => 'select'
@@ -92,9 +100,12 @@ Collapse: false
       )
       ,array(
         'type' => 'text'
-        ,'field' => 'zip_code'
-        ,'label' => 'Zip Code'
+        ,'field' => 'postal_code'
+        ,'label' => 'Postal Code'
         ,'columns' => 3
+        ,'attributes' => array(
+          'placeholder' => 'Postal Code'
+        )
       )
     )
     ,'on_post_status' => array(
@@ -104,10 +115,10 @@ Collapse: false
   
   piklist('field', array(
     'type' => 'group'
-    ,'field' => 'address_add_more'
+    ,'field' => 'address_group_add_more'
     ,'add_more' => true
-    ,'label' => 'Address (Add More)'
-    ,'description' => 'This is an example of how to build a simple address field using the group type.'
+    ,'label' => 'Address (Grouped/Add-More)'
+    ,'description' => 'A grouped field using Add-More. No fields labels.'
     ,'fields' => array(
       array(
         'type' => 'text'
@@ -130,7 +141,6 @@ Collapse: false
       ,array(
         'type' => 'select'
         ,'field' => 'state'
-        ,'label' => 'State'
         ,'columns' => 4
         ,'choices' => array(
           'AL' => 'Alabama'
@@ -188,8 +198,8 @@ Collapse: false
       )
       ,array(
         'type' => 'text'
-        ,'field' => 'zip_code'
-        ,'label' => 'Zip Code'
+        ,'field' => 'postal_code'
+        ,'label' => 'Postal Code'
         ,'columns' => 3
       )
     )
@@ -197,50 +207,22 @@ Collapse: false
         'value' => 'lock'
       )
   ));
-  
-  piklist('field', array(
-    'type' => 'group'
-    ,'field' => 'group_add_more'
-    ,'add_more' => true
-    ,'label' => 'Add More'
-    ,'description' => 'This is an example of how to build a list with multiple element types.'
-    ,'fields' => array(
-      array(
-        'type' => 'text'
-        ,'field' => 'text_add_more'
-        ,'value' => 'Lorem'
-        ,'columns' => 4
-      )
-      ,array(
-        'type' => 'datepicker'
-        ,'field' => 'date_add_more'
-        ,'options' => array(
-          'dateFormat' => 'M d, y'
-        )
-        ,'value' => date('M d, y', time() + 604800)
-        ,'columns' => 2
-      )
-      ,array(
-        'type' => 'select'
-        ,'field' => 'select_add_more'
-        ,'value' => 'third'
-        ,'choices' => array(
-          'first' => 'First Choice'
-          ,'second' => 'Second Choice'
-          ,'third' => 'Third Choice'
-        )
-        ,'columns' => 3
-      )
-    )
-    ,'on_post_status' => array(
-        'value' => 'lock'
-      )
-  ));
-  
+
+  if (!empty($meta['address_group_add_more']['address_1'])): 
+    
+    piklist('field', array(
+      'type' => 'html'
+      ,'label' => 'Address Output'
+      ,'description' => 'This is the output of the grouped add-more field.'
+      ,'value' => piklist('shared/address-table', array('data' => $meta['address_group_add_more'], 'loop' => 'data', 'return' => true))
+    ));
+    
+  endif; 
+
   piklist('field', array(
     'type' => 'group'
     ,'label' => 'Address (Un-Grouped)'
-    ,'description' => 'This is an example of how to build a simple address field using the group type.'
+    ,'description' => 'An Un-grouped field. Data is saved as individual meta and is searchable.'
     ,'fields' => array(
       array(
         'type' => 'text'
@@ -321,8 +303,103 @@ Collapse: false
       )
       ,array(
         'type' => 'text'
-        ,'field' => 'ungrouped_zip_code'
-        ,'label' => 'Zip Code'
+        ,'field' => 'ungrouped_postal_code'
+        ,'label' => 'Postal Code'
+        ,'columns' => 3
+      )
+    )
+    ,'on_post_status' => array(
+        'value' => 'lock'
+      )
+  ));
+
+ piklist('field', array(
+    'type' => 'group'
+    ,'label' => 'Address (Un-Grouped/Add-More)'
+    ,'add_more' => true
+    ,'description' => 'An Un-grouped field. Data is saved as individual meta and is searchable.'
+    ,'fields' => array(
+      array(
+        'type' => 'text'
+        ,'field' => 'ungrouped_address_1_addmore'
+        ,'label' => 'Street Address'
+        ,'columns' => 12
+      )
+      ,array(
+        'type' => 'text'
+        ,'field' => 'ungrouped_address_2_addmore'
+        ,'label' => 'PO Box, Suite, etc.'
+        ,'columns' => 12
+      )
+      ,array(
+        'type' => 'text'
+        ,'field' => 'ungrouped_city_addmore'
+        ,'label' => 'City'
+        ,'columns' => 5
+      )
+      ,array(
+        'type' => 'select'
+        ,'field' => 'ungrouped_state_addmore'
+        ,'label' => 'State'
+        ,'columns' => 4
+        ,'choices' => array(
+          'AL' => 'Alabama'
+          ,'AK' => 'Alaska'  
+          ,'AZ' => 'Arizona'  
+          ,'AR' => 'Arkansas'  
+          ,'CA' => 'California'  
+          ,'CO' => 'Colorado'  
+          ,'CT' => 'Connecticut'  
+          ,'DE' => 'Delaware'  
+          ,'DC' => 'District Of Columbia'  
+          ,'FL' => 'Florida'  
+          ,'GA' => 'Georgia'  
+          ,'HI' => 'Hawaii'  
+          ,'ID' => 'Idaho'  
+          ,'IL' => 'Illinois'  
+          ,'IN' => 'Indiana'  
+          ,'IA' => 'Iowa'  
+          ,'KS' => 'Kansas'  
+          ,'KY' => 'Kentucky'  
+          ,'LA' => 'Louisiana'  
+          ,'ME' => 'Maine'  
+          ,'MD' => 'Maryland'  
+          ,'MA' => 'Massachusetts'  
+          ,'MI' => 'Michigan'  
+          ,'MN' => 'Minnesota'  
+          ,'MS' => 'Mississippi'  
+          ,'MO' => 'Missouri'  
+          ,'MT' => 'Montana'
+          ,'NE' => 'Nebraska'
+          ,'NV' => 'Nevada'
+          ,'NH' => 'New Hampshire'
+          ,'NJ' => 'New Jersey'
+          ,'NM' => 'New Mexico'
+          ,'NY' => 'New York'
+          ,'NC' => 'North Carolina'
+          ,'ND' => 'North Dakota'
+          ,'OH' => 'Ohio'  
+          ,'OK' => 'Oklahoma'  
+          ,'OR' => 'Oregon'  
+          ,'PA' => 'Pennsylvania'  
+          ,'RI' => 'Rhode Island'  
+          ,'SC' => 'South Carolina'  
+          ,'SD' => 'South Dakota'
+          ,'TN' => 'Tennessee'  
+          ,'TX' => 'Texas'  
+          ,'UT' => 'Utah'  
+          ,'VT' => 'Vermont'  
+          ,'VA' => 'Virginia'  
+          ,'WA' => 'Washington'  
+          ,'WV' => 'West Virginia'  
+          ,'WI' => 'Wisconsin'  
+          ,'WY' => 'Wyoming'
+        )
+      )
+      ,array(
+        'type' => 'text'
+        ,'field' => 'ungrouped_postal_code_addmore'
+        ,'label' => 'Postal Code'
         ,'columns' => 3
       )
     )
@@ -331,8 +408,20 @@ Collapse: false
       )
   ));
   
-  piklist('shared/meta-box-welcome', array(
+  if (!empty($meta['address_group_add_more']['address_1'])): 
+    
+    piklist('field', array(
+      'type' => 'html'
+      ,'label' => 'Address Output'
+      ,'description' => 'This is the output of the Un-grouped add-more field.'
+      ,'value' => piklist('shared/address-table-ungrouped', array('data' => $meta, 'loop' => 'data', 'return' => true))
+    ));
+    
+  endif; 
+  
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
   
 ?>

@@ -54,7 +54,8 @@ class BP_Docs_Query {
 			'orderby'	 => 'modified',  // 'modified', 'title', 'author', 'created'
 			'paged'		 => 1,
 			'posts_per_page' => 10,
-			'search_terms'   => ''
+			'search_terms'   => '',
+			'status'         => 'publish',
 		);
 		$r = wp_parse_args( $args, $defaults );
 
@@ -217,6 +218,12 @@ class BP_Docs_Query {
 				$wp_query_args['author'] = implode( ',', wp_parse_id_list( $this->query_args['author_id'] ) );
 			}
 
+			// If this is the user's "started by me" library, we'll include trashed posts
+			// Any edit to a trashed post restores it to status 'publish'
+			if ( ! empty( $this->query_args['author_id'] ) && $this->query_args['author_id'] == get_current_user_id()  ) {
+				$wp_query_args['post_status'] = array( 'publish', 'trash' );
+			}
+
 			// If an edited_by_id param has been passed, get a set
 			// of post ids that have revisions authored by that user
 			if ( ! empty( $this->query_args['edited_by_id'] ) ) {
@@ -227,8 +234,7 @@ class BP_Docs_Query {
 
 			// Set the taxonomy query. Filtered so that plugins can alter the query
 			// Filtering by groups also happens in this way
-			$wp_query_args['tax_query'] = apply_filters(
-                        'bp_docs_tax_query', $wp_query_args['tax_query'], $this );
+			$wp_query_args['tax_query'] = apply_filters( 'bp_docs_tax_query', $wp_query_args['tax_query'], $this );
 
 			if ( !empty( $this->query_args['parent_id'] ) ) {
 				$wp_query_args['post_parent'] = $this->query_args['parent_id'];
@@ -238,8 +244,7 @@ class BP_Docs_Query {
 		// Filter these arguments just before they're sent to WP_Query
 		// Devs: This allows you to send any custom parameter you'd like, and modify the
 		// query appropriately
-		$wp_query_args = apply_filters( 'bp_docs_pre_query_args',
-                $wp_query_args, $this );
+		$wp_query_args = apply_filters( 'bp_docs_pre_query_args', $wp_query_args, $this );
 
 		$this->query = new WP_Query( $wp_query_args );
 
@@ -250,26 +255,47 @@ class BP_Docs_Query {
 	/**
 	 *
 	 */
-	function get_edited_by_post_ids() {
-		$editor_ids = wp_parse_id_list( $this->query_args['edited_by_id'] );
+	public static function get_edited_by_post_ids_for_user( $editor_ids ) {
+		$editor_ids = wp_parse_id_list( $editor_ids );
 		$post_ids = array();
 
 		foreach ( $editor_ids as $editor_id ) {
 			// @todo - Not sure how this will scale
 			$posts = get_posts( array(
 				'author'                 => $editor_id,
-				'post_status'            => 'inherit',
-				'post_type'              => 'revision',
+				'post_status'            => array( 'inherit', 'publish' ),
+				'post_type'              => array( 'revision', bp_docs_get_post_type_name() ),
 				'posts_per_page'         => -1,
 				'update_post_meta_cache' => false,
 				'update_post_term_cache' => false,
 			) );
 
-			$post_ids = array_merge( $post_ids, array_unique( wp_list_pluck( $posts, 'post_parent' ) ) );
+			$this_author_post_ids = array();
+			foreach ( $posts as $post ) {
+				if ( 'revision' === $post->post_type ) {
+					$this_author_post_ids[] = $post->post_parent;
+				} else {
+					$this_author_post_ids[] = $post->ID;
+				}
+			}
+			$post_ids = array_merge( $post_ids, $this_author_post_ids );
+		}
+
+		// If the list is empty (the users haven't edited any Docs yet)
+		// force 0 so that no items are shown
+		if ( empty( $post_ids ) ) {
+			$post_ids = array( 0 );
 		}
 
 		// @todo Might be faster to let the dupes through and let MySQL optimize
 		return array_unique( $post_ids );
+	}
+
+	/**
+	 *
+	 */
+	function get_edited_by_post_ids() {
+		return self::get_edited_by_post_ids_for_user( $this->query_args['edited_by_id'] );
 	}
 
 	/**
@@ -414,25 +440,30 @@ class BP_Docs_Query {
 		// Check group associations
 		// @todo Move into group integration piece
 		if ( bp_is_active( 'groups' ) ) {
-			$associated_group_id = isset( $_POST['associated_group_id'] ) ? intval( $_POST['associated_group_id'] ) : 0;
+			// This group id is only used to check whether the user can associate the doc with the group.
+			$associated_group_id = isset( $_POST['associated_group_id'] ) ? intval( $_POST['associated_group_id'] ) : null;
 
-			if ( $associated_group_id && ! BP_Docs_Groups_Integration::user_can_associate_doc_with_group( bp_loggedin_user_id(), $associated_group_id ) ) {
-				bp_core_add_message( __( 'You are not allowed to associate a Doc with that group.', 'bp-docs' ), 'error' );
-				bp_core_redirect( bp_docs_get_create_link() );
+			if ( ! empty( $associated_group_id ) && ! BP_Docs_Groups_Integration::user_can_associate_doc_with_group( bp_loggedin_user_id(), $associated_group_id ) ) {
+				$retval = array(
+					'message_type' => 'error',
+					'message' => __( 'You are not allowed to associate a Doc with that group.', 'bp-docs' ),
+					'redirect_url' => bp_docs_get_create_link(),
+				);
+
+				return $retval;
 			}
 		}
 
-		if ( empty( $_POST['doc']['title'] ) || empty( $doc_content ) ) {
-			// Both the title and the content fields are required
-			$result['message'] = __( 'Both the title and the content fields are required.', 'bp-docs' );
-			$result['redirect'] = $this->current_view;
+		if ( empty( $_POST['doc']['title'] ) ) {
+			// The title field is required
+			$result['message'] = __( 'The title field is required.', 'bp-docs' );
+			$result['redirect'] = ! empty( $this->doc_slug ) ? 'edit' : 'create';
 		} else {
-			// If both the title and content fields are filled in, we can proceed
 			$defaults = array(
 				'post_type'    => $this->post_type_name,
 				'post_title'   => $_POST['doc']['title'],
 				'post_name'    => isset( $_POST['doc']['permalink'] ) ? sanitize_title( $_POST['doc']['permalink'] ) : sanitize_title( $_POST['doc']['title'] ),
-				'post_content' => stripslashes( sanitize_post_field( 'post_content', $doc_content, 0, 'db' ) ),
+				'post_content' => sanitize_post_field( 'post_content', $doc_content, 0, 'db' ),
 				'post_status'  => 'publish'
 			);
 
@@ -443,8 +474,17 @@ class BP_Docs_Query {
 
 				$r['post_author'] = bp_loggedin_user_id();
 
-				// This is a new doc
-				if ( !$post_id = wp_insert_post( $r ) ) {
+				// If there's a 'doc_id' value in the POST, use
+				// the autodraft as a starting point
+				if ( isset( $_POST['doc_id'] ) ) {
+					$post_id = (int) $_POST['doc_id'];
+					$r['ID'] = $post_id;
+					wp_update_post( $r );
+				} else {
+					$post_id = wp_insert_post( $r );
+				}
+
+				if ( ! $post_id ) {
 					$result['message'] = __( 'There was an error when creating the doc.', 'bp-docs' );
 					$result['redirect'] = 'create';
 				} else {
@@ -479,6 +519,7 @@ class BP_Docs_Query {
 				} else {
 					// Remove the edit lock
 					delete_post_meta( $this->doc_id, '_edit_lock' );
+					delete_post_meta( $this->doc_id, '_bp_docs_last_pinged' );
 
 					// When the post has been autosaved, we need to leave a
 					// special success message
@@ -495,38 +536,27 @@ class BP_Docs_Query {
 			}
 		}
 
-		// Add to a group, if necessary
-		if ( isset( $associated_group_id ) ) {
-			bp_docs_set_associated_group_id( $post_id, $associated_group_id );
-		}
+		// If the Doc was successfully created, run some more stuff
+		if ( ! empty( $post_id ) ) {
 
-		// Make sure the current user is added as one of the authors
-		wp_set_post_terms( $post_id, $this->user_term_id, $this->associated_item_tax_name, true );
-
-		// Save the last editor id. We'll use this to create an activity item
-		update_post_meta( $this->doc_id, 'bp_docs_last_editor', bp_loggedin_user_id() );
-
-		// Save settings
-		$settings = ! empty( $_POST['settings'] ) ? $_POST['settings'] : array();
-		$verified_settings = bp_docs_verify_settings( $settings, $post_id, bp_loggedin_user_id() );
-
-		$new_settings = array();
-		foreach ( $verified_settings as $verified_setting_name => $verified_setting ) {
-			$new_settings[ $verified_setting_name ] = $verified_setting['verified_value'];
-			if ( $verified_setting['verified_value'] != $verified_setting['original_value'] ) {
-				$result['message'] = __( 'Your Doc was successfully saved, but some of your access settings have been changed to match the Doc\'s permissions.', 'bp-docs' );
+			// Add to a group, if necessary
+			if ( ! is_null( $associated_group_id ) ) {
+				bp_docs_set_associated_group_id( $post_id, $associated_group_id );
 			}
+
+			// Make sure the current user is added as one of the authors
+			wp_set_post_terms( $post_id, $this->user_term_id, $this->associated_item_tax_name, true );
+
+			// Save the last editor id. We'll use this to create an activity item
+			update_post_meta( $this->doc_id, 'bp_docs_last_editor', bp_loggedin_user_id() );
+
+			// Save settings
+			bp_docs_save_doc_access_settings( $this->doc_id );
+
+			// Increment the revision count
+			$revision_count = get_post_meta( $this->doc_id, 'bp_docs_revision_count', true );
+			update_post_meta( $this->doc_id, 'bp_docs_revision_count', intval( $revision_count ) + 1 );
 		}
-		update_post_meta( $this->doc_id, 'bp_docs_settings', $new_settings );
-
-		// The 'read' setting must also be saved to a taxonomy, for
-		// easier directory queries
-		$read_setting = isset( $new_settings['read'] ) ? $new_settings['read'] : 'anyone';
-		bp_docs_update_doc_access( $this->doc_id, $read_setting );
-
-		// Increment the revision count
-		$revision_count = get_post_meta( $this->doc_id, 'bp_docs_revision_count', true );
-		update_post_meta( $this->doc_id, 'bp_docs_revision_count', intval( $revision_count ) + 1 );
 
 		// Provide a custom hook for plugins and optional components.
 		// WP's default save_post isn't enough, because we need something that fires
@@ -534,9 +564,11 @@ class BP_Docs_Query {
 		// the WP admin handles automatically)
 		do_action( 'bp_docs_doc_saved', $this );
 
+		do_action( 'bp_docs_after_save', $this->doc_id );
+
 		$message_type = $result['redirect'] == 'single' ? 'success' : 'error';
 
-		$redirect_url = trailingslashit( bp_get_root_domain() . '/' . BP_DOCS_SLUG );
+		$redirect_url = trailingslashit( bp_get_root_domain() . '/' . bp_docs_get_docs_slug() );
 
 		if ( $result['redirect'] == 'single' ) {
 			$redirect_url .= $this->doc_slug;
@@ -567,7 +599,6 @@ class BP_Docs_Query {
 			return;
 		}
 	}
-
 
 }
 

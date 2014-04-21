@@ -1,16 +1,32 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Taxonomy
 {
   private static $meta_boxes;
   
   private static $meta_box_nonce = false;
   
+  private static $taxonomies = array();
+  
   public static function _construct()
   {    
-    add_action('init', array('piklist_taxonomy', 'init'));
     add_action('piklist_activate', array('piklist_taxonomy', 'activate'));
-  }
+
+    add_action('init', array('piklist_taxonomy', 'init'));
+    add_action('registered_taxonomy',  array('piklist_taxonomy', 'registered_taxonomy'), 10, 3);
+    add_action('admin_menu', array('piklist_taxonomy', 'admin_menu'));
+    
+    add_filter('parent_file', array('piklist_taxonomy', 'parent_file'));
+    add_filter('sanitize_user', array('piklist_taxonomy', 'restrict_username'));
+    
+    // TODO: This isn't working
+    // add_filter('wp_redirect', array('piklist_taxonomy', 'redirect'), 10, 2);
+ }
   
   public static function init()
   {   
@@ -45,37 +61,39 @@ class PikList_Taxonomy
               ,'new' => 'New'
             ));
     
-    if (!isset($data['taxonomy']))
+    $taxonomies = empty($data['taxonomy']) ? get_taxonomies() : explode(',', $data['taxonomy']);
+
+    foreach ($taxonomies as $taxonomy)
     {
-      return null;
-    }        
+      $data['taxonomy'] = trim($taxonomy);
 
-    if (!isset(self::$meta_boxes[$data['taxonomy']]))
-    {
-      self::$meta_boxes[$data['taxonomy']] = array();
-
-      add_action($data['taxonomy'] . '_edit_form_fields', array('piklist_taxonomy', 'meta_box'), 10, 2);
-      add_action('edited_' . $data['taxonomy'], array('piklist_taxonomy', 'process_form'), 10, 2);
-
-      if (!$data['new'])
+      if (!isset(self::$meta_boxes[$data['taxonomy']]))
       {
-        add_action($data['taxonomy'] . '_add_form_fields', array('piklist_taxonomy', 'meta_box_add'), 10, 2);
-        add_action('created_' . $data['taxonomy'], array('piklist_taxonomy', 'process_form'), 10, 2);
+        self::$meta_boxes[$data['taxonomy']] = array();
+
+        add_action($data['taxonomy'] . '_edit_form_fields', array('piklist_taxonomy', 'meta_box'), 10, 2);
+        add_action('edited_' . $data['taxonomy'], array('piklist_taxonomy', 'process_form'), 10, 2);
+
+        if (!$data['new'])
+        {
+          add_action($data['taxonomy'] . '_add_form_fields', array('piklist_taxonomy', 'meta_box_add'), 10, 2);
+          add_action('created_' . $data['taxonomy'], array('piklist_taxonomy', 'process_form'), 10, 2);
+        }
       }
-    }
-    
-    $meta_box = array(
-      'config' => $data
-      ,'part' => $path . '/parts/' . $folder . '/' . $part
-    );
-    
-    if (isset($order))
-    {
-      self::$meta_boxes[$data['taxonomy']][$order] = $meta_box;
-    }
-    else
-    {
-      array_push(self::$meta_boxes[$data['taxonomy']], $meta_box);
+
+      $meta_box = array(
+        'config' => $data
+        ,'part' => $path . '/parts/' . $folder . '/' . $part
+      );
+      
+      if (isset($order))
+      {
+        self::$meta_boxes[$data['taxonomy']][$order] = $meta_box;
+      }
+      else
+      {
+        array_push(self::$meta_boxes[$data['taxonomy']], $meta_box);
+      }
     }
   }
   
@@ -93,24 +111,31 @@ class PikList_Taxonomy
         piklist_form::render_field(array(
           'type' => 'hidden'
           ,'field' => 'nonce'
-          ,'value' => wp_create_nonce('piklist/piklist.php')
-          ,'scope' => 'piklist'
+          ,'value' => wp_create_nonce(plugin_basename(piklist::$paths['piklist'] . '/piklist.php'))
+          ,'scope' => piklist::$prefix
         ));
         
         self::$meta_box_nonce = true;
       }
     
+      $wrapper = isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ? 'term_meta' : 'term_meta_new';
+      
       foreach (self::$meta_boxes[$taxonomy] as $taxonomy => $meta_box)
       {
-        piklist::render('shared/meta-box-seperator', array(
+        piklist::render('shared/meta-box-start', array(
           'meta_box' => $meta_box
-          ,'wrapper' => isset($_REQUEST['action']) && $_REQUEST['action'] == 'edit' ? 'term_meta' : 'term_meta_new'
+          ,'wrapper' => $wrapper
         ), false);
-
+        
         piklist::render($meta_box['part'], array(
           'taxonomy' => $taxonomy
           ,'prefix' => 'piklist'
           ,'plugin' => 'piklist'
+        ), false);
+
+        piklist::render('shared/meta-box-end', array(
+          'meta_box' => $meta_box
+          ,'wrapper' => $wrapper
         ), false);
       }
     }
@@ -136,6 +161,116 @@ class PikList_Taxonomy
         ,KEY meta_key (meta_key)'
       ,$network_wide
    );
+  }
+  
+  public static function registered_taxonomy($taxonomy, $object_type, $arguments) 
+  {
+    global $wp_taxonomies;
+    
+    if ($object_type == 'user')
+    {
+      $arguments  = (object) $arguments;
+
+      add_filter("manage_edit-{$taxonomy}_columns",  array('piklist_taxonomy', 'user_taxonomy_column'));
+      
+      add_action("manage_{$taxonomy}_custom_column",  array('piklist_taxonomy', 'user_taxonomy_column_value'), 10, 3);
+
+      if (empty($arguments->update_count_callback)) 
+      {
+        $arguments->update_count_callback  = array('piklist_taxonomy', 'user_update_count');
+      }
+
+      $wp_taxonomies[$taxonomy]  = $arguments;
+      self::$taxonomies[$taxonomy] = $arguments;
+    }
+  }
+  
+  public static function user_update_count($terms, $taxonomy) 
+  {
+    global $wpdb;
+    
+    foreach ($terms as $term) 
+    {
+      $count  = $wpdb->get_var($wpdb->prepare("SELECT COUNT(*) FROM $wpdb->term_relationships WHERE term_taxonomy_id = %d", $term));
+      
+      do_action('edit_term_taxonomy', $term, $taxonomy);
+      
+      $wpdb->update($wpdb->term_taxonomy, compact('count'), array(
+        'term_taxonomy_id' => $term
+      ));
+      
+      do_action('edited_term_taxonomy', $term, $taxonomy);
+    }
+  }
+  
+  public static function admin_menu() 
+  {
+    $taxonomies  = self::$taxonomies;
+  
+    ksort(self::$taxonomies);
+    
+    foreach (self::$taxonomies as $slug => $taxonomy)
+    {
+      add_users_page($taxonomy->labels->menu_name, $taxonomy->labels->menu_name, $taxonomy->cap->manage_terms, 'edit-tags.php?taxonomy=' . $slug);
+    }
+  }
+
+  public static function parent_file($file = '') 
+  {
+    global $pagenow;
+    
+    if (!empty($_REQUEST['taxonomy']) && isset(self::$taxonomies[$_REQUEST['taxonomy']]) && $pagenow == 'edit-tags.php') 
+    {
+      return 'users.php';
+    }
+    
+    return $file;
+  }
+  
+  public static function user_taxonomy_column($columns) 
+  {
+    $columns['users']  = __('Users');
+
+    unset($columns['posts']);
+  
+    return $columns;
+  }
+  
+  public static function user_taxonomy_column_value($display, $column, $term_id) 
+  {
+    switch ($column)
+    {
+      case 'users':
+      
+        $term  = get_term($term_id, $_REQUEST['taxonomy']);
+        
+        echo $term->count;
+        
+      break;
+    }
+  }
+  
+  public static function restrict_username($username) 
+  {
+    if (isset(self::$taxonomies[$username]))
+    {
+      return '';
+    }
+    
+    return $username;
+  }  
+
+  public static function redirect($location)
+  {
+    $url = parse_url($location);
+    parse_str($url['query'], $url_defaults);
+    
+    if (stristr($url['path'], 'edit-tags.php') && isset($url_defaults['taxonomy']) && isset($url_defaults['message']))
+    {
+      $location .= '&action=edit&tag_ID=' . (int) $_POST['tag_ID'];
+    }
+
+    return $location;
   }
 }
 
@@ -299,5 +434,3 @@ if (!function_exists('get_term_custom_values'))
     return isset($custom[$key]) ? $custom[$key] : null;
   }
 }
-
-?>

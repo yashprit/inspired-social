@@ -6,7 +6,7 @@ class BP_Docs_Access_Query {
 	protected $user_groups = array();
 	protected $levels = array();
 
-	public function init( $user_id = 0 ) {
+	public static function init( $user_id = 0 ) {
 		static $instance;
 
 		if ( empty( $instance ) ) {
@@ -30,18 +30,24 @@ class BP_Docs_Access_Query {
 		// Note that we're not verifying that the user actually exists
 		// For now this kind of check is up to whoever's instantiating
 		if ( $this->user_id != 0 ) {
-			$levels[] = bp_docs_get_access_term_loggedin();
+			$this->levels[] = bp_docs_get_access_term_loggedin();
 
-			$this->set_up_user_groups();
+			if ( bp_is_active('groups') ) {
 
-			// group-members
-			foreach ( $this->user_groups['groups'] as $member_group ) {
-				$this->levels[] = bp_docs_get_access_term_group_member( $member_group );
-			}
+				$this->set_up_user_groups();
 
-			// admins-mods
-			foreach ( $this->user_groups['admin_mod_of'] as $adminmod_group ) {
-				$this->levels[] = bp_docs_get_access_term_group_adminmod( $adminmod_group );
+				if ( isset($this->user_groups['groups']) ) {
+					foreach ( $this->user_groups['groups'] as $member_group ) {
+						$this->levels[] = bp_docs_get_access_term_group_member( $member_group );
+					}
+				}
+
+				// admins-mods
+				if ( isset($this->user_groups['admin_mod_of']) ) {
+					foreach ( $this->user_groups['admin_mod_of'] as $adminmod_group ) {
+						$this->levels[] = bp_docs_get_access_term_group_adminmod( $adminmod_group );
+					}
+				}
 			}
 
 			// no-one
@@ -103,19 +109,26 @@ class BP_Docs_Access_Query {
 			$tq['operator'] = "NOT IN";
 		}
 
-		$forbidden_fruit = get_posts( array(
-			'post_type' => bp_docs_get_post_type_name(),
-			'posts_per_page' => -1,
-			'nopaging' => true,
-			'tax_query' => $tax_query,
-			'update_post_term_cache' => false,
-			'update_post_meta_cache' => false,
-			'no_found_rows' => 1,
-		) );
+		// If the tax_query is empty, no docs are forbidden
+		if ( empty( $tax_query ) ) {
+			$forbidden_fruit_ids = array();
+		} else {
+			$forbidden_fruit = get_posts( array(
+				'post_type' => bp_docs_get_post_type_name(),
+				'posts_per_page' => -1,
+				'nopaging' => true,
+				'tax_query' => $tax_query,
+				'update_post_term_cache' => false,
+				'update_post_meta_cache' => false,
+				'no_found_rows' => 1,
+			) );
+
+			$forbidden_fruit_ids = wp_list_pluck( $forbidden_fruit, 'ID' );
+		}
 
 		add_action( 'pre_get_posts', 'bp_docs_general_access_protection' );
 
-		return wp_list_pluck( $forbidden_fruit, 'ID' );
+		return $forbidden_fruit_ids;
 	}
 }
 

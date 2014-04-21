@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Add_On
 {
   public static $available_add_ons = array();
@@ -27,28 +32,28 @@ class PikList_Add_On
     {
       $plugins = get_option('active_plugins');      
     }
-    
+
     foreach ($plugins as $plugin)
     {
-      $path = WP_CONTENT_DIR . '/plugins/' . $plugin;
-      $data = get_file_data($path, array(
-                'type' => 'Plugin Type'
-                ,'version' => 'Version'
-              ));
-      if ($data['type'] && strtolower($data['type']) == 'piklist')
+      $path = WP_PLUGIN_DIR . '/' . $plugin;
+      
+      if (file_exists($path))
       {
-        piklist::$paths[basename(dirname($plugin))] = dirname($path);
-
-        if ($data['version'])
+        $data = get_file_data($path, array(
+                  'type' => 'Plugin Type'
+                  ,'version' => 'Version'
+                ));
+        if ($data['type'] && strtolower($data['type']) == 'piklist')
         {
-          $file = $plugin;
-          $version = $data['version'];
+          piklist::add_plugin(basename(dirname($plugin)), dirname($path));
 
-          piklist_admin::check_update($file, $version);
-        }
-        else
-        {
-          // TODO: add error message
+          if ($data['version'])
+          {
+            $file = $plugin;
+            $version = $data['version'];
+
+            piklist_admin::check_update($file, $version);
+          }
         }
       }
     }
@@ -59,7 +64,7 @@ class PikList_Add_On
       if ($from != 'theme')
       {
         array_push($paths, $path  . '/add-ons');
-        if ($from != 'plugin')
+        if ($from != 'piklist')
         {
           array_push($paths, $path);
         }
@@ -95,7 +100,7 @@ class PikList_Add_On
   {
     if (file_exists($file))
     {
-      $active_add_ons = piklist::get_settings('piklist', 'add-ons');
+      $active_add_ons = piklist::get_settings('piklist_core', 'add-ons');
       
       $data = get_plugin_data($file);
       $data['plugin'] = $plugin;
@@ -118,4 +123,3 @@ class PikList_Add_On
     }
   }
 }
-?>

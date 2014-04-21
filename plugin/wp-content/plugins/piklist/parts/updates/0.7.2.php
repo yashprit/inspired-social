@@ -13,10 +13,10 @@
   $legacy_table = $wpdb->prefix . 'piklist_cpt_relate';
 
   // Does the legacy table exist?
-  if ($wpdb->get_var("SHOW TABLES LIKE '$legacy_table'") == $legacy_table)
+  if ($wpdb->get_var("SHOW TABLES LIKE {$legacy_table}") == $legacy_table)
   {
     // Grab data from legacy table
-    $data = $wpdb->get_results("SELECT * FROM $legacy_table", ARRAY_A);
+    $data = $wpdb->get_results("SELECT * FROM {$legacy_table}", ARRAY_A);
 
     // Move data to new table
     foreach ($data as $row)
@@ -33,8 +33,7 @@
     }
 
     // Delete legacy table
-    $wpdb->query("DROP TABLE IF EXISTS " . $legacy_table);
-
+    $wpdb->query("DROP TABLE IF EXISTS {$legacy_table}");
   }
 
 ?>

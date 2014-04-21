@@ -1,108 +1,120 @@
 <?php
+/**
+ * Core component classes.
+ *
+ * @package BuddyPress
+ * @subpackage Core
+ */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * BuddyPress User Query class
+ * BuddyPress User Query class.
  *
  * Used for querying users in a BuddyPress context, in situations where
  * WP_User_Query won't do the trick: Member directories, the Friends component,
  * etc.
  *
- * Accepted parameters:
- *   type	     - Determines sort order. Select from 'newest', 'active',
- *                     'online', 'random', 'popular', 'alphabetical'
- *   per_page        - Number of results to return
- *   page            - Page offset (together with per_page)
- *   user_id         - Pass a single numeric user id to limit results to
- *                     friends of that user. Requires the Friends component
- *   search_terms    - Terms to search by. Search happens across xprofile
- *                     fields. Requires XProfile component
- *   include         - An array or comma-separated list of user ids. Results
- *                     will be limited to users in this list
- *   exclude         - An array or comma-separated list of user ids. Results
- *                     will not include any users in this list
- *   user_ids        - An array or comma-separated list of user ids. When
- *                     this parameter is passed, it will override all other
- *                     parameters; BP User objects will be constructed using
- *                     these IDs only
- *   meta_key        - Limit results to users that have usermeta associated
- *                     with this meta_key. Usually used with meta_value
- *   meta_value      - When used with meta_key, limits results to users whose
- *                     usermeta value associated with meta_key matches
- *                     meta_value
- *   populate_extras - Boolean. True if you want to fetch extra metadata about
- *                     returned users, such as total group and friend counts
- *   count_total     - Determines how BP_User_Query will do a count of total
- *                     users matching the other filter criteria. Default value
- *                     is 'count_query', which does a separate SELECT COUNT
- *                     query to determine the total. 'sql_count_found_rows'
- *                     uses SQL_COUNT_FOUND_ROWS and SELECT FOUND_ROWS(). Pass
- *                     an empty string to skip the total user count query.
+ * @since BuddyPress (1.7.0)
  *
- * @since BuddyPress (1.7)
+ * @param array $query {
+ *     Query arguments. All items are optional.
+ *     @type string $type Determines sort order. Select from 'newest', 'active',
+ *           'online', 'random', 'popular', 'alphabetical'. Default: 'newest'.
+ *     @type int $per_page Number of results to return. Default: 0 (no limit).
+ *     @type int $page Page offset (together with $per_page). Default: 1.
+ *     @type int $user_id ID of a user. If present, and if the friends
+ *           component is activated, results will be limited to the friends of
+ *           that user. Default: 0.
+ *     @type string|bool $search_terms Terms to search by. Search happens
+ *           across xprofile fields. Requires XProfile component.
+ *           Default: false.
+ *     @type array|string|bool $include An array or comma-separated list of
+ *           user IDs to which query should be limited.
+ *           Default: false.
+ *     @type array|string|bool $exclude An array or comma-separated list of
+ *           user IDs that will be excluded from query results. Default: false.
+ *     @type array|string|bool $user_ids An array or comma-separated list of
+ *           IDs corresponding to the users that should be returned. When this
+ *           parameter is passed, it will override all others; BP User objects
+ *           will be constructed using these IDs only. Default: false.
+ *     @type string|bool $meta_key Limit results to users that have usermeta
+ *           associated with this meta_key. Usually used with $meta_value.
+ *           Default: false.
+ *     @type string|bool $meta_value When used with $meta_key, limits results
+ *           to users whose usermeta value associated with $meta_key matches
+ *           $meta_value. Default: false.
+ *     @type bool $populate_extras True if you want to fetch extra metadata
+ *           about returned users, such as total group and friend counts.
+ *     @type string $count_total Determines how BP_User_Query will do a count
+ *           of total users matching the other filter criteria. Default value
+ *           is 'count_query', which does a separate SELECT COUNT query to
+ *           determine the total. 'sql_count_found_rows' uses
+ *           SQL_COUNT_FOUND_ROWS and SELECT FOUND_ROWS(). Pass an empty string
+ *           to skip the total user count query.
+ * }
  */
 class BP_User_Query {
 
 	/** Variables *************************************************************/
 
 	/**
-	 * Unaltered params as passed to the constructor
+	 * Unaltered params as passed to the constructor.
 	 *
-	 * @since BuddyPress (1.8)
+	 * @since BuddyPress (1.8.0)
 	 * @var array
 	 */
 	public $query_vars_raw = array();
 
 	/**
-	 * Array of variables to query with
+	 * Array of variables to query with.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 * @var array
 	 */
 	public $query_vars = array();
 
 	/**
-	 * List of found users and their respective data
+	 * List of found users and their respective data.
 	 *
-	 * @since BuddyPress (1.7)
-	 * @access public To allow components to manipulate them
+	 * @access public To allow components to manipulate them.
+	 * @since BuddyPress (1.7.0)
 	 * @var array
 	 */
 	public $results = array();
 
 	/**
-	 * Total number of found users for the current query
+	 * Total number of found users for the current query.
 	 *
-	 * @since BuddyPress (1.7)
-	 * @access public To allow components to manipulate it
+	 * @access public To allow components to manipulate it.
+	 * @since BuddyPress (1.7.0)
 	 * @var int
 	 */
 	public $total_users = 0;
 
 	/**
-	 * List of found user ID's
+	 * List of found user IDs.
 	 *
-	 * @since BuddyPress (1.7)
-	 * @access public To allow components to manipulate it
+	 * @access public To allow components to manipulate it.
+	 * @since BuddyPress (1.7.0)
 	 * @var array
 	 */
 	public $user_ids = array();
 
 	/**
-	 * SQL clauses for the user ID query
+	 * SQL clauses for the user ID query.
 	 *
-	 * @since BuddyPress (1.7)
-	 * @access public To allow components to manipulate it
-	 * @var array()
+	 * @access public To allow components to manipulate it.
+	 * @since BuddyPress (1.7.0)
+	 * @var array
 	 */
 	public $uid_clauses = array();
 
 	/**
-	 * SQL database column name to order by
+	 * SQL database column name to order by.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 * @var string
 	 */
 	public $uid_name = '';
@@ -110,8 +122,8 @@ class BP_User_Query {
 	/**
 	 * Standard response when the query should not return any rows.
 	 *
-	 * @since BuddyPress (1.7)
 	 * @access protected
+	 * @since BuddyPress (1.7.0)
 	 * @var string
 	 */
 	protected $no_results = array( 'join' => '', 'where' => '0 = 1' );
@@ -120,11 +132,11 @@ class BP_User_Query {
 	/** Methods ***************************************************************/
 
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 *
-	 * @param string|array $query The query variables
+	 * @param string|array $query See {@link BP_User_Query}.
 	 */
 	public function __construct( $query = null ) {
 
@@ -177,7 +189,7 @@ class BP_User_Query {
 	}
 
 	/**
-	 * Allow extending classes to set up action/filter hooks
+	 * Allow extending classes to set up action/filter hooks.
 	 *
 	 * When extending BP_User_Query, you may need to use some of its
 	 * internal hooks to modify the output. It's not convenient to call
@@ -186,16 +198,16 @@ class BP_User_Query {
 	 * you may not want to override in your class. Define this method in
 	 * your own class if you need a place where your extending class can
 	 * add its hooks early in the query-building process. See
-	 * BP_Group_Member_Query::setup_hooks() for an example.
+	 * {@link BP_Group_Member_Query::setup_hooks()} for an example.
 	 *
-	 * @since BuddyPress (1.8)
+	 * @since BuddyPress (1.8.0)
 	 */
 	public function setup_hooks() {}
 
 	/**
-	 * Prepare the query for user_ids
+	 * Prepare the query for user_ids.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 */
 	public function prepare_user_ids_query() {
 		global $wpdb, $bp;
@@ -233,10 +245,10 @@ class BP_User_Query {
 			// number of minutes used as an interval
 			case 'online' :
 				$this->uid_name = 'user_id';
-				$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->usermeta} u";
-				$sql['where'][] = $wpdb->prepare( "u.meta_key = %s", bp_get_user_meta_key( 'last_activity' ) );
-				$sql['where'][] = $wpdb->prepare( "u.meta_value >= DATE_SUB( UTC_TIMESTAMP(), INTERVAL %d MINUTE )", apply_filters( 'bp_user_query_online_interval', 15 ) );
-				$sql['orderby'] = "ORDER BY u.meta_value";
+				$sql['select']  = "SELECT u.{$this->uid_name} as id FROM {$bp->members->table_name_last_activity} u";
+				$sql['where'][] = $wpdb->prepare( "u.component = %s AND u.type = 'last_activity'", buddypress()->members->id );
+				$sql['where'][] = $wpdb->prepare( "u.date_recorded >= DATE_SUB( UTC_TIMESTAMP(), INTERVAL %d MINUTE )", apply_filters( 'bp_user_query_online_interval', 15 ) );
+				$sql['orderby'] = "ORDER BY u.date_recorded";
 				$sql['order']   = "DESC";
 
 				break;
@@ -247,8 +259,8 @@ class BP_User_Query {
 			case 'newest' :
 			case 'random' :
 				$this->uid_name = 'user_id';
-				$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->usermeta} u";
-				$sql['where'][] = $wpdb->prepare( "u.meta_key = %s", bp_get_user_meta_key( 'last_activity' ) );
+				$sql['select']  = "SELECT u.{$this->uid_name} as id FROM {$bp->members->table_name_last_activity} u";
+				$sql['where'][] = $wpdb->prepare( "u.component = %s AND u.type = 'last_activity'", buddypress()->members->id );
 
 				if ( 'newest' == $type ) {
 					$sql['orderby'] = "ORDER BY u.user_id";
@@ -256,7 +268,7 @@ class BP_User_Query {
 				} else if ( 'random' == $type ) {
 					$sql['orderby'] = "ORDER BY rand()";
 				} else {
-					$sql['orderby'] = "ORDER BY u.meta_value";
+					$sql['orderby'] = "ORDER BY u.date_recorded";
 					$sql['order'] = "DESC";
 				}
 
@@ -265,7 +277,7 @@ class BP_User_Query {
 			// 'popular' sorts by the 'total_friend_count' usermeta
 			case 'popular' :
 				$this->uid_name = 'user_id';
-				$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->usermeta} u";
+				$sql['select']  = "SELECT u.{$this->uid_name} as id FROM {$wpdb->usermeta} u";
 				$sql['where'][] = $wpdb->prepare( "u.meta_key = %s", bp_get_user_meta_key( 'total_friend_count' ) );
 				$sql['orderby'] = "ORDER BY CONVERT(u.meta_value, SIGNED)";
 				$sql['order']   = "DESC";
@@ -282,28 +294,31 @@ class BP_User_Query {
 				// @todo remove need for bp_is_active() check
 				if ( ! bp_disable_profile_sync() || ! bp_is_active( 'xprofile' ) ) {
 					$this->uid_name = 'ID';
-					$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->users} u";
+					$sql['select']  = "SELECT u.{$this->uid_name} as id FROM {$wpdb->users} u";
 					$sql['orderby'] = "ORDER BY u.display_name";
 					$sql['order']   = "ASC";
 
 				// When profile sync is disabled, alphabetical sorts must happen against
 				// the xprofile table
 				} else {
-					$fullname_field_id = $wpdb->get_var( $wpdb->prepare( "SELECT id FROM {$bp->profile->table_name_fields} WHERE name = %s", bp_xprofile_fullname_field_name() ) );
-
 					$this->uid_name = 'user_id';
-					$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$bp->profile->table_name_data} u";
-					$sql['where'][] = "u.field_id = {$fullname_field_id}";
+					$sql['select']  = "SELECT u.{$this->uid_name} as id FROM {$bp->profile->table_name_data} u";
+					$sql['where'][] = $wpdb->prepare( "u.field_id = %d", bp_xprofile_fullname_field_id() );
 					$sql['orderby'] = "ORDER BY u.value";
 					$sql['order']   = "ASC";
 				}
+
+				// Alphabetical queries ignore last_activity, while BP uses last_activity
+				// to infer spam/deleted/non-activated users. To ensure that these users
+				// are filtered out, we add an appropriate sub-query.
+				$sql['where'][] = "u.{$this->uid_name} IN ( SELECT ID FROM {$wpdb->users} WHERE " . bp_core_get_status_sql( '' ) . " )";
 
 				break;
 
 			// Any other 'type' falls through
 			default :
 				$this->uid_name = 'ID';
-				$sql['select']  = "SELECT DISTINCT u.{$this->uid_name} as id FROM {$wpdb->users} u";
+				$sql['select']  = "SELECT u.{$this->uid_name} as id FROM {$wpdb->users} u";
 
 				// In this case, we assume that a plugin is
 				// handling order, so we leave those clauses
@@ -346,20 +361,11 @@ class BP_User_Query {
 
 		/** Search Terms ******************************************************/
 
-		// 'search_terms' searches the xprofile fields
-		// To avoid global joins, do a separate query
-		// @todo remove need for bp_is_active() check
-		if ( false !== $search_terms && bp_is_active( 'xprofile' ) ) {
-			$search_terms_clean = mysql_real_escape_string( mysql_real_escape_string( $search_terms ) );
-			$search_terms_clean = like_escape( $search_terms_clean );
-			$found_user_ids_query = "SELECT user_id FROM {$bp->profile->table_name_data} WHERE value LIKE '%" . $search_terms_clean . "%'";
-			$found_user_ids = $wpdb->get_col( $found_user_ids_query );
-
-			if ( ! empty( $found_user_ids ) ) {
-				$sql['where'][] = "u.{$this->uid_name} IN (" . implode( ',', wp_parse_id_list( $found_user_ids ) ) . ")";
-			} else {
-				$sql['where'][] = $this->no_results['where'];
-			}
+		// 'search_terms' searches user_login and user_nicename
+		// xprofile field matches happen in bp_xprofile_bp_user_query_search()
+		if ( false !== $search_terms ) {
+			$search_terms_clean = esc_sql( esc_sql( $search_terms ) );
+			$sql['where']['search'] = "u.{$this->uid_name} IN ( SELECT ID FROM {$wpdb->users} WHERE ( user_login LIKE '%{$search_terms_clean}%' OR user_nicename LIKE '%{$search_terms_clean}%' ) )";
 		}
 
 		// 'meta_key', 'meta_value' allow usermeta search
@@ -385,6 +391,9 @@ class BP_User_Query {
 			$sql['limit'] = '';
 		}
 
+		// Allow custom filters
+		$sql = apply_filters_ref_array( 'bp_user_query_uid_clauses', array( $sql, &$this ) );
+
 		// Assemble the query chunks
 		$this->uid_clauses['select']  = $sql['select'];
 		$this->uid_clauses['where']   = ! empty( $sql['where'] ) ? 'WHERE ' . implode( ' AND ', $sql['where'] ) : '';
@@ -396,12 +405,14 @@ class BP_User_Query {
 	}
 
 	/**
+	 * Query for IDs of users that match the query parameters.
+	 *
 	 * Perform a database query to specifically get only user IDs, using
 	 * existing query variables set previously in the constructor.
 	 *
 	 * Also used to quickly perform user total counts.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 */
 	public function do_user_ids_query() {
 		global $wpdb;
@@ -418,22 +429,28 @@ class BP_User_Query {
 		if ( 'sql_calc_found_rows' == $this->query_vars['count_total'] ) {
 			$this->total_users = $wpdb->get_var( apply_filters( 'bp_found_user_query', "SELECT FOUND_ROWS()", $this ) );
 		} elseif ( 'count_query' == $this->query_vars['count_total'] ) {
-			$count_select      = preg_replace( '/^SELECT.*?FROM (\S+) u/', "SELECT COUNT(DISTINCT u.{$this->uid_name}) FROM $1 u", $this->uid_clauses['select'] );
+			$count_select      = preg_replace( '/^SELECT.*?FROM (\S+) u/', "SELECT COUNT(u.{$this->uid_name}) FROM $1 u", $this->uid_clauses['select'] );
 			$this->total_users = $wpdb->get_var( apply_filters( 'bp_found_user_query', "{$count_select} {$this->uid_clauses['where']}", $this ) );
 		}
 	}
 
 	/**
-	 * Perform a database query using the WP_User_Query() object, using existing
-	 * fields, variables, and user ID's set previously in this class.
+	 * Use WP_User_Query() to pull data for the user IDs retrieved in the main query.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 */
 	public function do_wp_user_query() {
+		$fields = array( 'ID', 'user_login', 'user_pass', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_activation_key', 'user_status', 'display_name' );
+
+		if ( is_multisite() ) {
+			$fields[] = 'spam';
+			$fields[] = 'deleted';
+		}
+
 		$wp_user_query = new WP_User_Query( apply_filters( 'bp_wp_user_query_args', array(
 
 			// Relevant
-			'fields'      => array( 'ID', 'user_registered', 'user_login', 'user_nicename', 'display_name', 'user_email' ),
+			'fields'      => $fields,
 			'include'     => $this->user_ids,
 
 			// Overrides
@@ -441,6 +458,22 @@ class BP_User_Query {
 			'count_total' => false // We already have a count
 
 		), $this ) );
+
+		// WP_User_Query doesn't cache the data it pulls from wp_users,
+		// and it does not give us a way to save queries by fetching
+		// only uncached users. However, BP does cache this data, so
+		// we set it here.
+		foreach ( $wp_user_query->results as $u ) {
+			wp_cache_set( 'bp_core_userdata_' . $u->ID, $u, 'bp' );
+		}
+
+		// We calculate total_users using a standalone query, except
+		// when a whitelist of user_ids is passed to the constructor.
+		// This clause covers the latter situation, and ensures that
+		// pagination works when querying by $user_ids.
+		if ( empty( $this->total_users ) ) {
+			$this->total_users = count( $wp_user_query->results );
+		}
 
 		// Reindex for easier matching
 		$r = array();
@@ -461,20 +494,21 @@ class BP_User_Query {
 	}
 
 	/**
-	 * Fetches the ids of users to put in the IN clause of the main query
+	 * Fetch the IDs of users to put in the IN clause of the main query.
 	 *
 	 * By default, returns the value passed to it
 	 * ($this->query_vars['include']). Having this abstracted into a
 	 * standalone method means that extending classes can override the
 	 * logic, parsing together their own user_id limits with the 'include'
-	 * ids passed to the class constructor. See BP_Group_Member_Query for
-	 * an example.
+	 * ids passed to the class constructor. See {@link BP_Group_Member_Query}
+	 * for an example.
 	 *
-	 * @since BuddyPress (1.8)
-	 * @param array Sanitized array of user ids, as passed to the 'include'
-	 *   parameter of the class constructor
+	 * @since BuddyPress (1.8.0)
+	 *
+	 * @param array Sanitized array of user IDs, as passed to the 'include'
+	 *        parameter of the class constructor.
 	 * @return array The list of users to which the main query should be
-	 *   limited
+	 *         limited.
 	 */
 	public function get_include_ids( $include = array() ) {
 		return $include;
@@ -482,14 +516,14 @@ class BP_User_Query {
 
 	/**
 	 * Perform a database query to populate any extra metadata we might need.
+	 *
 	 * Different components will hook into the 'bp_user_query_populate_extras'
 	 * action to loop in the things they want.
 	 *
-	 * @since BuddyPress (1.7)
+	 * @since BuddyPress (1.7.0)
 	 *
-	 * @global BuddyPress $bp
-	 * @global WPDB $wpdb
-	 * @return
+	 * @global BuddyPress $bp Global BuddyPress settings object.
+	 * @global WPDB $wpdb Global WordPress database access object.
 	 */
 	public function populate_extras() {
 		global $wpdb;
@@ -513,6 +547,8 @@ class BP_User_Query {
 		// Turn user ID's into a query-usable, comma separated value
 		$user_ids_sql = implode( ',', wp_parse_id_list( $this->user_ids ) );
 
+		$bp = buddypress();
+
 		/**
 		 * Use this action to independently populate your own custom extras.
 		 *
@@ -528,13 +564,20 @@ class BP_User_Query {
 		 */
 		do_action_ref_array( 'bp_user_query_populate_extras', array( $this, $user_ids_sql ) );
 
+		// Fetch last_active data from the activity table
+		$last_activities = BP_Core_User::get_last_activity( $this->user_ids );
+
+		// Set a last_activity value for each user, even if it's empty
+		foreach ( $this->results as $user_id => $user ) {
+			$user_last_activity = isset( $last_activities[ $user_id ] ) ? $last_activities[ $user_id ]['date_recorded'] : '';
+			$this->results[ $user_id ]->last_activity = $user_last_activity;
+		}
+
 		// Fetch usermeta data
 		// We want the three following pieces of info from usermeta:
 		// - friend count
-		// - last activity
 		// - latest update
 		$total_friend_count_key = bp_get_user_meta_key( 'total_friend_count' );
-		$last_activity_key      = bp_get_user_meta_key( 'last_activity'      );
 		$bp_latest_update_key   = bp_get_user_meta_key( 'bp_latest_update'   );
 
 		// total_friend_count must be set for each user, even if its
@@ -544,7 +587,7 @@ class BP_User_Query {
 		}
 
 		// Create, prepare, and run the seperate usermeta query
-		$user_metas = $wpdb->get_results( $wpdb->prepare( "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE meta_key IN (%s,%s,%s) AND user_id IN ({$user_ids_sql})", $total_friend_count_key, $last_activity_key, $bp_latest_update_key ) );
+		$user_metas = $wpdb->get_results( $wpdb->prepare( "SELECT user_id, meta_key, meta_value FROM {$wpdb->usermeta} WHERE meta_key IN (%s,%s) AND user_id IN ({$user_ids_sql})", $total_friend_count_key, $bp_latest_update_key ) );
 
 		// The $members_template global expects the index key to be different
 		// from the meta_key in some cases, so we rejig things here.
@@ -552,10 +595,6 @@ class BP_User_Query {
 			switch ( $user_meta->meta_key ) {
 				case $total_friend_count_key :
 					$key = 'total_friend_count';
-					break;
-
-				case $last_activity_key :
-					$key = 'last_activity';
 					break;
 
 				case $bp_latest_update_key :
@@ -599,6 +638,8 @@ class BP_User_Query {
 }
 
 /**
+ * Fetch data about a BuddyPress user.
+ *
  * BP_Core_User class can be used by any component. It will fetch useful
  * details for any user when provided with a user_id.
  *
@@ -608,8 +649,6 @@ class BP_User_Query {
  *	  $user_email = $user->email;
  *    $user_status = $user->status;
  *    etc.
- *
- * @package BuddyPress Core
  */
 class BP_Core_User {
 
@@ -618,56 +657,56 @@ class BP_Core_User {
 	 *
 	 * @var integer
 	 */
-	var $id;
+	public $id;
 
 	/**
 	 * The URL to the full size of the avatar for the user.
 	 *
 	 * @var string
 	 */
-	var $avatar;
+	public $avatar;
 
 	/**
 	 * The URL to the thumb size of the avatar for the user.
 	 *
 	 * @var string
 	 */
-	var $avatar_thumb;
+	public $avatar_thumb;
 
 	/**
 	 * The URL to the mini size of the avatar for the user.
 	 *
 	 * @var string
 	 */
-	var $avatar_mini;
+	public $avatar_mini;
 
 	/**
 	 * The full name of the user
 	 *
 	 * @var string
 	 */
-	var $fullname;
+	public $fullname;
 
 	/**
 	 * The email for the user.
 	 *
 	 * @var string
 	 */
-	var $email;
+	public $email;
 
 	/**
 	 * The absolute url for the user's profile.
 	 *
 	 * @var string
 	 */
-	var $user_url;
+	public $user_url;
 
 	/**
 	 * The HTML for the user link, with the link text being the user's full name.
 	 *
 	 * @var string
 	 */
-	var $user_link;
+	public $user_link;
 
 	/**
 	 * Contains a formatted string when the last time the user was active.
@@ -676,7 +715,7 @@ class BP_Core_User {
 	 *
 	 * @var string
 	 */
-	var $last_active;
+	public $last_active;
 
 	/* Extras */
 
@@ -685,7 +724,7 @@ class BP_Core_User {
 	 *
 	 * @var integer
 	 */
-	var $total_friends;
+	public $total_friends;
 
 	/**
 	 * The total number of blog posts posted by the user
@@ -693,7 +732,7 @@ class BP_Core_User {
 	 * @var integer
 	 * @deprecated No longer used
 	 */
-	var $total_blogs;
+	public $total_blogs;
 
 	/**
 	 * The total number of groups the user is a part of.
@@ -702,12 +741,12 @@ class BP_Core_User {
 	 *
 	 * @var string
 	 */
-	var $total_groups;
+	public $total_groups;
 
 	/**
 	 * Profile information for the specific user.
 	 *
-	 * @since BuddyPress (1.2)
+	 * @since BuddyPress (1.2.0)
 	 * @var array
 	 */
 	public $profile_data;
@@ -717,10 +756,11 @@ class BP_Core_User {
 	/**
 	 * Class constructor.
 	 *
-	 * @param integer $user_id The ID for the user
-	 * @param boolean $populate_extras Whether to fetch extra information such as group/friendship counts or not.
+	 * @param integer $user_id The ID for the user being queried.
+	 * @param bool $populate_extras Whether to fetch extra information
+	 *        such as group/friendship counts or not. Default: false.
 	 */
-	function __construct( $user_id, $populate_extras = false ) {
+	public function __construct( $user_id, $populate_extras = false ) {
 		if ( !empty( $user_id ) ) {
 			$this->id = $user_id;
 			$this->populate();
@@ -731,19 +771,22 @@ class BP_Core_User {
 		}
 	}
 
-	/** Private Methods *******************************************************/
-
 	/**
 	 * Populate the instantiated class with data based on the User ID provided.
 	 *
-	 * @uses bp_core_get_userurl() Returns the URL with no HTML markup for a user based on their user id
-	 * @uses bp_core_get_userlink() Returns a HTML formatted link for a user with the user's full name as the link text
-	 * @uses bp_core_get_user_email() Returns the email address for the user based on user ID
-	 * @uses bp_get_user_meta() BP function returns the value of passed usermeta name from usermeta table
+	 * @uses bp_core_get_userurl() Returns the URL with no HTML markup for
+	 *       a user based on their user id.
+	 * @uses bp_core_get_userlink() Returns a HTML formatted link for a
+	 *       user with the user's full name as the link text.
+	 * @uses bp_core_get_user_email() Returns the email address for the
+	 *       user based on user ID.
+	 * @uses bp_get_user_meta() BP function returns the value of passed
+	 *       usermeta name from usermeta table.
 	 * @uses bp_core_fetch_avatar() Returns HTML formatted avatar for a user
-	 * @uses bp_profile_last_updated_date() Returns the last updated date for a user.
+	 * @uses bp_profile_last_updated_date() Returns the last updated date
+	 *       for a user.
 	 */
-	function populate() {
+	public function populate() {
 
 		if ( bp_is_active( 'xprofile' ) )
 			$this->profile_data = $this->get_profile_data();
@@ -770,13 +813,13 @@ class BP_Core_User {
 		$this->avatar       = bp_core_fetch_avatar( array( 'item_id' => $this->id, 'type' => 'full', 'alt' => sprintf( __( 'Avatar of %s', 'buddypress' ), $this->fullname ) ) );
 		$this->avatar_thumb = bp_core_fetch_avatar( array( 'item_id' => $this->id, 'type' => 'thumb', 'alt' => sprintf( __( 'Avatar of %s', 'buddypress' ), $this->fullname ) ) );
 		$this->avatar_mini  = bp_core_fetch_avatar( array( 'item_id' => $this->id, 'type' => 'thumb', 'alt' => sprintf( __( 'Avatar of %s', 'buddypress' ), $this->fullname ), 'width' => 30, 'height' => 30 ) );
-		$this->last_active  = bp_core_get_last_activity( bp_get_user_meta( $this->id, 'last_activity', true ), __( 'active %s', 'buddypress' ) );
+		$this->last_active  = bp_core_get_last_activity( bp_get_user_last_activity( $this->id ), __( 'active %s', 'buddypress' ) );
 	}
 
 	/**
 	 * Populates extra fields such as group and friendship counts.
 	 */
-	function populate_extras() {
+	public function populate_extras() {
 
 		if ( bp_is_active( 'friends' ) ) {
 			$this->total_friends = BP_Friends_Friendship::total_friend_count( $this->id );
@@ -788,20 +831,59 @@ class BP_Core_User {
 		}
 	}
 
-	function get_profile_data() {
+	/**
+	 * Fetch xprofile data for the current user.
+	 *
+	 * @see BP_XProfile_ProfileData::get_all_for_user() for description of
+	 *      return value.
+	 *
+	 * @return array See {@link BP_XProfile_Profile_Data::get_all_for_user()}.
+	 */
+	public function get_profile_data() {
 		return BP_XProfile_ProfileData::get_all_for_user( $this->id );
 	}
 
 	/** Static Methods ********************************************************/
 
-	function get_users( $type, $limit = 0, $page = 1, $user_id = 0, $include = false, $search_terms = false, $populate_extras = true, $exclude = false, $meta_key = false, $meta_value = false ) {
+	/**
+	 * Get a list of users that match the query parameters.
+	 *
+	 * Since BuddyPress 1.7, use {@link BP_User_Query} instead.
+	 *
+	 * @deprecated 1.7.0 Use {@link BP_User_Query}.
+	 *
+	 * @see BP_User_Query for a description of parameters, most of which
+	 *      are used there in the same way.
+	 *
+	 * @param string $type See {@link BP_User_Query}.
+	 * @param int $limit See {@link BP_User_Query}. Default: 0.
+	 * @param int $page See {@link BP_User_Query}. Default: 1.
+	 * @param int $user_id See {@link BP_User_Query}. Default: 0.
+	 * @param mixed $include See {@link BP_User_Query}. Default: false.
+	 * @param string|bool $search_terms See {@link BP_User_Query}.
+	 *        Default: false.
+	 * @param bool $populate_extras See {@link BP_User_Query}.
+	 *        Default: true.
+	 * @param mixed $exclude See {@link BP_User_Query}. Default: false.
+	 * @param string|bool $meta_key See {@link BP_User_Query}.
+	 *        Default: false.
+	 * @param string|bool $meta_value See {@link BP_User_Query}.
+	 *        Default: false.
+	 * @return array {
+	 *     @type int $total_users Total number of users matched by query
+	 *           params.
+	 *     @type array $paged_users The current page of users matched by
+	 *           query params.
+	 * }
+	 */
+	public static function get_users( $type, $limit = 0, $page = 1, $user_id = 0, $include = false, $search_terms = false, $populate_extras = true, $exclude = false, $meta_key = false, $meta_value = false ) {
 		global $wpdb, $bp;
 
 		_deprecated_function( __METHOD__, '1.7', 'BP_User_Query' );
 
 		$sql = array();
 
-		$sql['select_main'] = "SELECT DISTINCT u.ID as id, u.user_registered, u.user_nicename, u.user_login, u.display_name, u.user_email";
+		$sql['select_main'] = "SELECT u.ID as id, u.user_registered, u.user_nicename, u.user_login, u.display_name, u.user_email";
 
 		if ( 'active' == $type || 'online' == $type || 'newest' == $type  ) {
 			$sql['select_active'] = ", um.meta_value as last_activity";
@@ -943,7 +1025,7 @@ class BP_Core_User {
 			unset( $sql['pagination'] );
 		}
 
-		array_unshift( $sql, "SELECT COUNT(DISTINCT u.ID)" );
+		array_unshift( $sql, "SELECT COUNT(u.ID)" );
 
 		// Get total user results
 		$total_users_sql = apply_filters( 'bp_core_get_total_users_sql', join( ' ', (array) $sql ), $sql );
@@ -969,19 +1051,22 @@ class BP_Core_User {
 
 
 	/**
-	 * Fetches the user details for all the users who username starts with the letter given.
+	 * Fetch the details for all users whose usernames start with the given letter.
 	 *
-	 * @global BuddyPress $bp The one true BuddyPress instance
-	 * @global wpdb $wpdb WordPress database object
+	 * @global BuddyPress $bp The one true BuddyPress instance.
+	 * @global wpdb $wpdb WordPress database object.
+	 *
 	 * @param string $letter The letter the users names are to start with.
-	 * @param integer $limit The number of users we wish to retrive.
-	 * @param integer $page The page number we are currently on, used in conjunction with $limit to get the start position for the limit.
-	 * @param boolean $populate_extras Populate extra user fields?
-	 * @param string $exclude Comma-separated IDs of users whose results aren't to be fetched.
+	 * @param int $limit The number of users we wish to retrive.
+	 * @param int $page The page number we are currently on, used in
+	 *        conjunction with $limit to get the start position for the
+	 *        limit.
+	 * @param bool $populate_extras Populate extra user fields?
+	 * @param string $exclude Comma-separated IDs of users whose results
+	 *        aren't to be fetched.
 	 * @return mixed False on error, otherwise associative array of results.
-	 * @static
 	 */
-	function get_users_by_letter( $letter, $limit = null, $page = 1, $populate_extras = true, $exclude = '' ) {
+	public static function get_users_by_letter( $letter, $limit = null, $page = 1, $populate_extras = true, $exclude = '' ) {
 		global $bp, $wpdb;
 
 		$pag_sql = '';
@@ -1036,17 +1121,19 @@ class BP_Core_User {
 	}
 
 	/**
-	 * Get details of specific users from the database
+	 * Get details of specific users from the database.
 	 *
-	 * @global wpdb $wpdb WordPress database object
-	 * @param array $user_ids The user IDs of the users who we wish to fetch information on.
-	 * @param integer $limit The limit of results we want.
-	 * @param integer $page The page we are on for pagination.
-	 * @param boolean $populate_extras Populate extra user fields?
-	 * @return array Associative array
-	 * @static
+	 * Use {@link BP_User_Query} with the 'user_ids' param instead.
+	 *
+	 * @global wpdb $wpdb WordPress database object.
+	 * @param array $user_ids The user IDs of the users who we wish to
+	 *        fetch information on.
+	 * @param int $limit The limit of results we want.
+	 * @param int $page The page we are on for pagination.
+	 * @param bool $populate_extras Populate extra user fields?
+	 * @return array Associative array.
 	 */
-	function get_specific_users( $user_ids, $limit = null, $page = 1, $populate_extras = true ) {
+	public static function get_specific_users( $user_ids, $limit = null, $page = 1, $populate_extras = true ) {
 		global $wpdb;
 
 		$pag_sql = '';
@@ -1056,8 +1143,8 @@ class BP_Core_User {
 		$user_ids   = implode( ',', wp_parse_id_list( $user_ids ) );
 		$status_sql = bp_core_get_status_sql();
 
-		$total_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT COUNT(DISTINCT ID) FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ({$user_ids})" );
-		$paged_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT DISTINCT ID as id, user_registered, user_nicename, user_login, user_email FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ({$user_ids}) {$pag_sql}" );
+		$total_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT COUNT(ID) FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ({$user_ids})" );
+		$paged_users_sql = apply_filters( 'bp_core_get_specific_users_count_sql', "SELECT ID as id, user_registered, user_nicename, user_login, user_email FROM {$wpdb->users} WHERE {$status_sql} AND ID IN ({$user_ids}) {$pag_sql}" );
 
 		$total_users = $wpdb->get_var( $total_users_sql );
 		$paged_users = $wpdb->get_results( $paged_users_sql );
@@ -1081,16 +1168,17 @@ class BP_Core_User {
 	/**
 	 * Find users who match on the value of an xprofile data.
 	 *
-	 * @global BuddyPress $bp The one true BuddyPress instance
-	 * @global wpdb $wpdb WordPress database object
-	 * @param string $search_terms The terms to search the profile table value column for.
+	 * @global BuddyPress $bp The one true BuddyPress instance.
+	 * @global wpdb $wpdb WordPress database object.
+	 *
+	 * @param string $search_terms The terms to search the profile table
+	 *        value column for.
 	 * @param integer $limit The limit of results we want.
 	 * @param integer $page The page we are on for pagination.
 	 * @param boolean $populate_extras Populate extra user fields?
-	 * @return array Associative array
-	 * @static
+	 * @return array Associative array.
 	 */
-	function search_users( $search_terms, $limit = null, $page = 1, $populate_extras = true ) {
+	public static function search_users( $search_terms, $limit = null, $page = 1, $populate_extras = true ) {
 		global $bp, $wpdb;
 
 		$user_ids = array();
@@ -1124,15 +1212,15 @@ class BP_Core_User {
 	 *
 	 * Accepts multiple user IDs to fetch data for.
 	 *
-	 * @global BuddyPress $bp The one true BuddyPress instance
-	 * @global wpdb $wpdb WordPress database object
-	 * @param array $paged_users an array of stdClass containing the users
-	 * @param string $user_ids the user ids to select information about
-	 * @param string $type the type of fields we wish to get
+	 * @global BuddyPress $bp The one true BuddyPress instance.
+	 * @global wpdb $wpdb WordPress database object.
+	 *
+	 * @param array $paged_users An array of stdClass containing the users.
+	 * @param string $user_ids The user ids to select information about.
+	 * @param string $type The type of fields we wish to get.
 	 * @return mixed False on error, otherwise associative array of results.
-	 * @static
 	 */
-	function get_user_extras( &$paged_users, &$user_ids, $type = false ) {
+	public static function get_user_extras( &$paged_users, &$user_ids, $type = false ) {
 		global $bp, $wpdb;
 
 		if ( empty( $user_ids ) )
@@ -1210,12 +1298,12 @@ class BP_Core_User {
 	/**
 	 * Get WordPress user details for a specified user.
 	 *
-	 * @global wpdb $wpdb WordPress database object
-	 * @param integer $user_id User ID
-	 * @return array Associative array
-	 * @static
+	 * @global wpdb $wpdb WordPress database object.
+	 *
+	 * @param integer $user_id User ID.
+	 * @return array Associative array.
 	 */
-	function get_core_userdata( $user_id ) {
+	public static function get_core_userdata( $user_id ) {
 		global $wpdb;
 
 		if ( !$user = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$wpdb->users} WHERE ID = %d LIMIT 1", $user_id ) ) )
@@ -1223,16 +1311,194 @@ class BP_Core_User {
 
 		return $user;
 	}
+
+	/**
+	 * Get last activity data for a user or set of users.
+	 *
+	 * @param int|array User IDs or multiple user IDs.
+	 * @return array
+	 */
+	public static function get_last_activity( $user_id ) {
+		global $wpdb;
+
+		if ( is_array( $user_id ) ) {
+			$user_ids = wp_parse_id_list( $user_id );
+		} else {
+			$user_ids = array( absint( $user_id ) );
+		}
+
+		if ( empty( $user_ids ) ) {
+			return false;
+		}
+
+		// get cache for single user only
+		if ( ! is_array( $user_id ) ) {
+			$cache = wp_cache_get( $user_id, 'bp_last_activity' );
+
+			if ( false !== $cache ) {
+				return $cache;
+			}
+		}
+
+		$bp = buddypress();
+
+		$user_ids_sql = implode( ',', $user_ids );
+		$user_count   = count( $user_ids );
+
+		$last_activities = $wpdb->get_results( $wpdb->prepare( "SELECT id, user_id, date_recorded FROM {$bp->members->table_name_last_activity} WHERE component = %s AND type = 'last_activity' AND user_id IN ({$user_ids_sql}) LIMIT {$user_count}", $bp->members->id ) );
+
+		// Re-key
+		$retval = array();
+		foreach ( $last_activities as $last_activity ) {
+			$retval[ $last_activity->user_id ] = array(
+				'user_id'       => $last_activity->user_id,
+				'date_recorded' => $last_activity->date_recorded,
+				'activity_id'   => $last_activity->id,
+			);
+		}
+
+		return $retval;
+	}
+
+	/**
+	 * Set a user's last_activity value.
+	 *
+	 * Will create a new entry if it does not exist. Otherwise updates the
+	 * existing entry.
+	 *
+	 * @since 2.0
+	 *
+	 * @param int $user_id ID of the user whose last_activity you are updating.
+	 * @param string $time MySQL-formatted time string.
+	 * @return bool True on success, false on failure.
+	 */
+	public static function update_last_activity( $user_id, $time ) {
+		global $wpdb;
+
+		$table_name = buddypress()->members->table_name_last_activity;
+
+		$activity = self::get_last_activity( $user_id );
+
+		if ( ! empty( $activity ) ) {
+			$updated = $wpdb->update(
+				$table_name,
+
+				// Data to update
+				array(
+					'date_recorded' => $time,
+				),
+
+				// WHERE
+				array(
+					'id' => $activity[ $user_id ]['activity_id'],
+				),
+
+				// Data sanitization format
+				array(
+					'%s',
+				),
+
+				// WHERE sanitization format
+				array(
+					'%d',
+				)
+			);
+
+			// add new date to existing activity entry for caching
+			$activity[ $user_id ]['date_recorded'] = $time;
+
+		} else {
+			$updated = $wpdb->insert(
+				$table_name,
+
+				// Data
+				array(
+					'user_id'       => $user_id,
+					'component'     => buddypress()->members->id,
+					'type'          => 'last_activity',
+					'action'        => '',
+					'content'       => '',
+					'primary_link'  => '',
+					'item_id'       => 0,
+					'date_recorded' => $time,
+				),
+
+				// Data sanitization format
+				array(
+					'%d',
+					'%s',
+					'%s',
+					'%s',
+					'%s',
+					'%s',
+					'%d',
+					'%s',
+				)
+			);
+
+			// setup activity array for caching
+			// view the foreach loop in the get_last_activity() method for format
+			$activity = array();
+			$activity[ $user_id ] = array(
+				'user_id'       => $user_id,
+				'date_recorded' => $time,
+				'activity_id'   => $wpdb->insert_id,
+			);
+		}
+
+		// set cache
+		wp_cache_set( $user_id, $activity, 'bp_last_activity' );
+
+		return $updated;
+	}
+
+	/**
+	 * Delete a user's last_activity value.
+	 *
+	 * @since 2.0
+	 *
+	 * @param int $user_id
+	 * @return bool True on success, false on failure or if no last_activity
+	 *         is found for the user.
+	 */
+	public static function delete_last_activity( $user_id ) {
+		global $wpdb;
+
+		$existing = self::get_last_activity( $user_id );
+
+		if ( empty( $existing ) ) {
+			return false;
+		}
+
+		$deleted = $wpdb->delete(
+			buddypress()->members->table_name_last_activity,
+
+			// WHERE
+			array(
+				'id' => $existing[ $user_id ]['activity_id'],
+			),
+
+			// WHERE sanitization format
+			array(
+				'%s',
+			)
+		);
+
+		wp_cache_delete( $user_id, 'bp_last_activity' );
+
+		return $deleted;
+	}
 }
 
 
 /**
- * BP_Core_Notification class can be used by any component.
- * It will handle the fetching, saving and deleting of a user notification.
+ * BP_Core_Notification is deprecated.
+ *
+ * Use BP_Notifications_Notification instead.
  *
  * @package BuddyPress Core
+ * @deprecated since BuddyPress (1.9)
  */
-
 class BP_Core_Notification {
 
 	/**
@@ -1240,56 +1506,56 @@ class BP_Core_Notification {
 	 *
 	 * @var integer
 	 */
-	var $id;
+	public $id;
 
 	/**
 	 * The ID to which the notification relates to within the component.
 	 *
 	 * @var integer
 	 */
-	var $item_id;
+	public $item_id;
 
 	/**
 	 * The secondary ID to which the notification relates to within the component.
 	 *
 	 * @var integer
 	 */
-	var $secondary_item_id = null;
+	public $secondary_item_id = null;
 
 	/**
 	 * The user ID for who the notification is for.
 	 *
 	 * @var integer
 	 */
-	var $user_id;
+	public $user_id;
 
 	/**
 	 * The name of the component that the notification is for.
 	 *
 	 * @var string
 	 */
-	var $component_name;
+	public $component_name;
 
 	/**
 	 * The action within the component which the notification is related to.
 	 *
 	 * @var string
 	 */
-	var $component_action;
+	public $component_action;
 
 	/**
 	 * The date the notification was created.
 	 *
 	 * @var string
 	 */
-	var $date_notified;
+	public $date_notified;
 
 	/**
 	 * Is the notification new or has it already been read.
 	 *
 	 * @var boolean
 	 */
-	var $is_new;
+	public $is_new;
 
 	/** Public Methods ********************************************************/
 
@@ -1298,7 +1564,7 @@ class BP_Core_Notification {
 	 *
 	 * @param integer $id
 	 */
-	function __construct( $id = 0 ) {
+	public function __construct( $id = 0 ) {
 		if ( !empty( $id ) ) {
 			$this->id = $id;
 			$this->populate();
@@ -1312,7 +1578,7 @@ class BP_Core_Notification {
 	 * @global wpdb $wpdb WordPress database object
 	 * @return bool Success or failure
 	 */
-	function save() {
+	public function save() {
 		global $bp, $wpdb;
 
 		// Update
@@ -1340,7 +1606,7 @@ class BP_Core_Notification {
 	 * @global BuddyPress $bp The one true BuddyPress instance
 	 * @global wpdb $wpdb WordPress database object
 	 */
-	function populate() {
+	public function populate() {
 		global $bp, $wpdb;
 
 		if ( $notification = $wpdb->get_row( $wpdb->prepare( "SELECT * FROM {$bp->core->table_name_notifications} WHERE id = %d", $this->id ) ) ) {
@@ -1356,7 +1622,7 @@ class BP_Core_Notification {
 
 	/** Static Methods ********************************************************/
 
-	function check_access( $user_id, $notification_id ) {
+	public static function check_access( $user_id, $notification_id ) {
 		global $wpdb, $bp;
 
 		return $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(id) FROM {$bp->core->table_name_notifications} WHERE id = %d AND user_id = %d", $notification_id, $user_id ) );
@@ -1372,7 +1638,7 @@ class BP_Core_Notification {
 	 * @return array Associative array
 	 * @static
 	 */
-	function get_all_for_user( $user_id, $status = 'is_new' ) {
+	public static function get_all_for_user( $user_id, $status = 'is_new' ) {
 		global $bp, $wpdb;
 
 		$is_new = ( 'is_new' == $status ) ? ' AND is_new = 1 ' : '';
@@ -1390,7 +1656,7 @@ class BP_Core_Notification {
 	 * @param string $component_action
 	 * @static
 	 */
-	function delete_for_user_by_type( $user_id, $component_name, $component_action ) {
+	public static function delete_for_user_by_type( $user_id, $component_name, $component_action ) {
 		global $bp, $wpdb;
 
 		return $wpdb->query( $wpdb->prepare( "DELETE FROM {$bp->core->table_name_notifications} WHERE user_id = %d AND component_name = %s AND component_action = %s", $user_id, $component_name, $component_action ) );
@@ -1408,7 +1674,7 @@ class BP_Core_Notification {
 	 * @param integer $secondary_item_id (optional) The secondary item id of the notifications that we wish to use to delete.
 	 * @static
 	 */
-	function delete_for_user_by_item_id( $user_id, $item_id, $component_name, $component_action, $secondary_item_id = false ) {
+	public static function delete_for_user_by_item_id( $user_id, $item_id, $component_name, $component_action, $secondary_item_id = false ) {
 		global $bp, $wpdb;
 
 		$secondary_item_sql = !empty( $secondary_item_id ) ? $wpdb->prepare( " AND secondary_item_id = %d", $secondary_item_id ) : '';
@@ -1426,7 +1692,7 @@ class BP_Core_Notification {
 	 * @param string $component_action The action of the component the notification was sent from.
 	 * @static
 	 */
-	function delete_from_user_by_type( $user_id, $component_name, $component_action ) {
+	public static function delete_from_user_by_type( $user_id, $component_name, $component_action ) {
 		global $bp, $wpdb;
 
 		return $wpdb->query( $wpdb->prepare( "DELETE FROM {$bp->core->table_name_notifications} WHERE item_id = %d AND component_name = %s AND component_action = %s", $user_id, $component_name, $component_action ) );
@@ -1443,7 +1709,7 @@ class BP_Core_Notification {
 	 * @param string $secondary_item_id Optional secondary item id that the notifications are to have.
 	 * @static
 	 */
-	function delete_all_by_type( $item_id, $component_name, $component_action, $secondary_item_id ) {
+	public static function delete_all_by_type( $item_id, $component_name, $component_action, $secondary_item_id ) {
 		global $bp, $wpdb;
 
 		if ( $component_action )
@@ -1461,40 +1727,51 @@ class BP_Core_Notification {
 }
 
 /**
- * BP_Button
+ * API to create BuddyPress buttons.
  *
- * API to create BuddyPress buttons
- *
- * component: Which component this button is for
- * must_be_logged_in: Button only appears for logged in users
- * block_self: Button will not appear when viewing your own profile.
- * wrapper: div|span|p|li|false for no wrapper
- * wrapper_id: The DOM ID of the button wrapper
- * wrapper_class: The DOM class of the button wrapper
- * link_href: The destination link of the button
- * link_title: Title of the button
- * link_id: The DOM ID of the button
- * link_class: The DOM class of the button
- * link_rel: The DOM rel of the button
- * link_text: The text of the button
- * contents: The contents of the button
- *
- * @package BuddyPress Core
  * @since BuddyPress (1.2.6)
+ *
+ * @param array $args {
+ *     Array of arguments.
+ *     @type string $id String describing the button type.
+ *     @type string $component The name of the component the button belongs to.
+ *           Default: 'core'.
+ *     @type bool $must_be_logged_in Optional. Does the user need to be logged
+ *           in to see this button? Default: true.
+ *     @type bool $block_self Optional. True if the button should be hidden
+ *           when a user is viewing his own profile. Default: true.
+ *     @type string|bool $wrapper Optional. HTML element type that should wrap
+ *           the button: 'div', 'span', 'p', or 'li'. False for no wrapper at
+ *           all. Default: 'div'.
+ *     @type string $wrapper_id Optional. DOM ID of the button wrapper element.
+ *           Default: ''.
+ *     @type string $wrapper_class Optional. DOM class of the button wrapper
+ *           element. Default: ''.
+ *     @type string $link_href Optional. Destination link of the button.
+ *           Default: ''.
+ *     @type string $link_class Optional. DOM class of the button. Default: ''.
+ *     @type string $link_id Optional. DOM ID of the button. Default: ''.
+ *     @type string $link_rel Optional. DOM 'rel' attribute of the button.
+ *           Default: ''.
+ *     @type string $link_title Optional. Title attribute of the button.
+ *           Default: ''.
+ *     @type string $link_text Optional. Text to appear on the button.
+ *           Default: ''.
+ * }
  */
 class BP_Button {
 
 	/** Button properties *****************************************************/
 
 	/**
-	 * The button ID
+	 * The button ID.
 	 *
-	 * @var integer
+	 * @var string
 	 */
 	public $id = '';
 
 	/**
-	 * The component name that button belongs to.
+	 * The name of the component that the button belongs to.
 	 *
 	 * @var string
 	 */
@@ -1503,37 +1780,35 @@ class BP_Button {
 	/**
 	 * Does the user need to be logged in to see this button?
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	public $must_be_logged_in = true;
 
 	/**
-	 * True or false if the button should not be displayed while viewing your
-	 * own profile.
+	 * Whether the button should be hidden when viewing your own profile.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	public $block_self = true;
 
 	/** Wrapper ***************************************************************/
 
 	/**
-	 * What type of DOM element to use for a wrapper.
+	 * The type of DOM element to use for a wrapper.
 	 *
-	 *
-	 * @var mixed div|span|p|li, or false for no wrapper
+	 * @var string|bool 'div', 'span', 'p', 'li', or false for no wrapper.
 	 */
 	public $wrapper = 'div';
 
 	/**
-	 * The DOM class of the button wrapper
+	 * The DOM class of the button wrapper.
 	 *
 	 * @var string
 	 */
 	public $wrapper_class = '';
 
 	/**
-	 * The DOM ID of the button wrapper
+	 * The DOM ID of the button wrapper.
 	 *
 	 * @var string
 	 */
@@ -1542,42 +1817,42 @@ class BP_Button {
 	/** Button ****************************************************************/
 
 	/**
-	 * The destination link of the button
+	 * The destination link of the button.
 	 *
 	 * @var string
 	 */
 	public $link_href = '';
 
 	/**
-	 * The DOM class of the button link
+	 * The DOM class of the button link.
 	 *
 	 * @var string
 	 */
 	public $link_class = '';
 
 	/**
-	 * The DOM ID of the button link
+	 * The DOM ID of the button link.
 	 *
 	 * @var string
 	 */
 	public $link_id = '';
 
 	/**
-	 * The DOM rel value of the button link
+	 * The DOM rel value of the button link.
 	 *
 	 * @var string
 	 */
 	public $link_rel = '';
 
 	/**
-	 * Title of the button link
+	 * Title of the button link.
 	 *
 	 * @var string
 	 */
 	public $link_title = '';
 
 	/**
-	 * The contents of the button link
+	 * The contents of the button link.
 	 *
 	 * @var string
 	 */
@@ -1590,12 +1865,13 @@ class BP_Button {
 	/** Methods ***************************************************************/
 
 	/**
-	 * Builds the button based on class parameters:
+	 * Builds the button based on class parameters.
 	 *
 	 * @since BuddyPress (1.2.6)
 	 *
-	 * @param array $args
-	 * @return bool False if not allowed
+	 * @param array $args See {@BP_Button}.
+	 * @return bool|null Returns false when the button is not allowed for
+	 *         the current context.
 	 */
 	public function __construct( $args = '' ) {
 
@@ -1668,18 +1944,18 @@ class BP_Button {
 	}
 
 	/**
-	 * Return contents of button
+	 * Return the markup for the generated button.
 	 *
 	 * @since BuddyPress (1.2.6)
 	 *
-	 * @return string
+	 * @return string Button markup.
 	 */
 	public function contents() {
 		return $this->contents;
 	}
 
 	/**
-	 * Output contents of button
+	 * Output the markup of button.
 	 *
 	 * @since BuddyPress (1.2.6)
 	 */
@@ -1690,12 +1966,12 @@ class BP_Button {
 }
 
 /**
- * BP_Embed
+ * Enable oEmbeds in BuddyPress contexts.
  *
  * Extends WP_Embed class for use with BuddyPress.
  *
- * @package BuddyPress Core
- * @since BuddyPress (1.5)
+ * @since BuddyPress (1.5.0)
+ *
  * @see WP_Embed
  */
 class BP_Embed extends WP_Embed {
@@ -1703,9 +1979,9 @@ class BP_Embed extends WP_Embed {
 	/**
 	 * Constructor
 	 *
-	 * @global unknown $wp_embed
+	 * @global WP_Embed $wp_embed
 	 */
-	function __construct() {
+	public function __construct() {
 		global $wp_embed;
 
 		// Make sure we populate the WP_Embed handlers array.
@@ -1740,9 +2016,12 @@ class BP_Embed extends WP_Embed {
 	/**
 	 * The {@link do_shortcode()} callback function.
 	 *
-	 * Attempts to convert a URL into embed HTML. Starts by checking the URL against the regex of the registered embed handlers.
-	 * Next, checks the URL against the regex of registered {@link WP_oEmbed} providers if oEmbed discovery is false.
-	 * If none of the regex matches and it's enabled, then the URL will be passed to {@link BP_Embed::parse_oembed()} for oEmbed parsing.
+	 * Attempts to convert a URL into embed HTML. Starts by checking the
+	 * URL against the regex of the registered embed handlers. Next, checks
+	 * the URL against the regex of registered {@link WP_oEmbed} providers
+	 * if oEmbed discovery is false. If none of the regex matches and it's
+	 * enabled, then the URL will be passed to {@link BP_Embed::parse_oembed()}
+	 * for oEmbed parsing.
 	 *
 	 * @uses wp_parse_args()
 	 * @uses wp_embed_defaults()
@@ -1754,7 +2033,7 @@ class BP_Embed extends WP_Embed {
 	 * @param string $url The URL attempting to be embeded.
 	 * @return string The embed HTML on success, otherwise the original URL.
 	 */
-	function shortcode( $attr, $url = '' ) {
+	public function shortcode( $attr, $url = '' ) {
 		if ( empty( $url ) )
 			return '';
 
@@ -1806,20 +2085,25 @@ class BP_Embed extends WP_Embed {
 	}
 
 	/**
-	 * Base function so BP components / plugins can parse links to be embedded.
+	 * Base function so BP components/plugins can parse links to be embedded.
+	 *
 	 * View an example to add support in {@link bp_activity_embed()}.
 	 *
 	 * @uses apply_filters() Filters cache.
 	 * @uses do_action() To save cache.
-	 * @uses wp_oembed_get() Connects to oEmbed provider and returns HTML on success.
-	 * @uses WP_Embed::maybe_make_link() Process URL for hyperlinking on oEmbed failure.
+	 * @uses wp_oembed_get() Connects to oEmbed provider and returns HTML
+	 *       on success.
+	 * @uses WP_Embed::maybe_make_link() Process URL for hyperlinking on
+	 *       oEmbed failure.
+	 *
 	 * @param int $id ID to do the caching for.
 	 * @param string $url The URL attempting to be embedded.
 	 * @param array $attr Shortcode attributes from {@link WP_Embed::shortcode()}.
-	 * @param array $rawattr Untouched shortcode attributes from {@link WP_Embed::shortcode()}.
+	 * @param array $rawattr Untouched shortcode attributes from
+	 *        {@link WP_Embed::shortcode()}.
 	 * @return string The embed HTML on success, otherwise the original URL.
 	 */
-	function parse_oembed( $id, $url, $attr, $rawattr ) {
+	public function parse_oembed( $id, $url, $attr, $rawattr ) {
 		$id = intval( $id );
 
 		if ( $id ) {
@@ -1854,19 +2138,24 @@ class BP_Embed extends WP_Embed {
 }
 
 /**
- * Create HTML list of BP nav items
+ * Create HTML list of BP nav items.
  *
- * @since BuddyPress (1.7)
+ * @since BuddyPress (1.7.0)
  */
 class BP_Walker_Nav_Menu extends Walker_Nav_Menu {
+
 	/**
-	 * @since BuddyPress (1.7)
+	 * Description of fields indexes for building markup.
+	 *
+	 * @since BuddyPress (1.7.0)
 	 * @var array
 	 */
 	var $db_fields = array( 'id' => 'css_id', 'parent' => 'parent' );
 
 	/**
-	 * @since BuddyPress (1.7)
+	 * Tree type.
+	 *
+	 * @since BuddyPress (1.7.0)
 	 * @var string
 	 */
 	var $tree_type = array();
@@ -1874,21 +2163,28 @@ class BP_Walker_Nav_Menu extends Walker_Nav_Menu {
 	/**
 	 * Display array of elements hierarchically.
 	 *
-	 * This method is almost identical to the version in {@link Walker::walk()}. The only change is on one line
-	 * which has been commented. An IF was comparing 0 to a non-empty string which was preventing child elements
+	 * This method is almost identical to the version in {@link Walker::walk()}.
+	 * The only change is on one line which has been commented. An IF was
+	 * comparing 0 to a non-empty string which was preventing child elements
 	 * being grouped under their parent menu element.
 	 *
-	 * This caused a problem for BuddyPress because our primary/secondary navigations doesn't have a unique numerical
-	 * ID that describes a hierarchy (we use a slug). Obviously, WordPress Menus use Posts, and those have ID/post_parent.
+	 * This caused a problem for BuddyPress because our primary/secondary
+	 * navigations don't have a unique numerical ID that describes a
+	 * hierarchy (we use a slug). Obviously, WordPress Menus use Posts, and
+	 * those have ID/post_parent.
 	 *
-	 * @param array $elements
-	 * @param int $max_depth
-	 * @return string
+	 * @since BuddyPress (1.7.0)
+	 *
 	 * @see Walker::walk()
-	 * @since BuddyPress (1.7)
+	 *
+	 * @param array $elements See {@link Walker::walk()}.
+	 * @param int $max_depth See {@link Walker::walk()}.
+	 * @return string See {@link Walker::walk()}.
 	 */
-	function walk( $elements, $max_depth ) {
-		$args   = array_slice( func_get_args(), 2 );
+	public function walk( $elements, $max_depth ) {
+		$func_args = func_get_args();
+
+		$args   = array_slice( $func_args, 2 );
 		$output = '';
 
 		if ( $max_depth < -1 ) // invalid parameter
@@ -1965,16 +2261,21 @@ class BP_Walker_Nav_Menu extends Walker_Nav_Menu {
 	}
 
 	/**
-	 * Displays the current <li> that we are on.
+	 * Display the current <li> that we are on.
 	 *
-	 * @param string $output Passed by reference. Used to append additional content.
+	 * @see Walker::start_el() for complete description of parameters .
+	 *
+	 * @since BuddyPress (1.7.0)
+	 *
+	 * @param string $output Passed by reference. Used to append
+	 *        additional content.
 	 * @param object $item Menu item data object.
-	 * @param int $depth Depth of menu item. Used for padding. Optional, defaults to 0.
-	 * @param array $args Optional
+	 * @param int $depth Depth of menu item. Used for padding. Optional,
+	 *        defaults to 0.
+	 * @param array $args Optional. See {@link Walker::start_el()}.
 	 * @param int $current_page Menu item ID. Optional.
-	 * @since BuddyPress (1.7)
 	 */
-	function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
+	public function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
 		// If we're someway down the tree, indent the HTML with the appropriate number of tabs
 		$indent = $depth ? str_repeat( "\t", $depth ) : '';
 
@@ -2002,5 +2303,112 @@ class BP_Walker_Nav_Menu extends Walker_Nav_Menu {
 
 		// $output is byref
 		$output .= apply_filters( 'bp_walker_nav_menu_start_el', $item_output, $item, $depth, $args );
+	}
+}
+
+/**
+ * Create a set of BuddyPress-specific links for use in the Menus admin UI.
+ *
+ * Borrowed heavily from {@link Walker_Nav_Menu_Checklist}, but modified so as not
+ * to require an actual post type or taxonomy, and to force certain CSS classes
+ *
+ * @since BuddyPress (1.9.0)
+ */
+class BP_Walker_Nav_Menu_Checklist extends Walker_Nav_Menu {
+
+	/**
+	 * Constructor.
+	 *
+	 * @see Walker_Nav_Menu::__construct() for a description of parameters.
+	 *
+	 * @param array $fields See {@link Walker_Nav_Menu::__construct()}.
+	 */
+	public function __construct( $fields = false ) {
+		if ( $fields ) {
+			$this->db_fields = $fields;
+		}
+	}
+
+	/**
+	 * Create the markup to start a tree level.
+	 *
+	 * @see Walker_Nav_Menu::start_lvl() for description of parameters.
+	 *
+	 * @param string $output See {@Walker_Nav_Menu::start_lvl()}.
+	 * @param int $depth See {@Walker_Nav_Menu::start_lvl()}.
+	 * @param array $args See {@Walker_Nav_Menu::start_lvl()}.
+	 */
+	public function start_lvl( &$output, $depth = 0, $args = array() ) {
+		$indent = str_repeat( "\t", $depth );
+		$output .= "\n$indent<ul class='children'>\n";
+	}
+
+	/**
+	 * Create the markup to end a tree level.
+	 *
+	 * @see Walker_Nav_Menu::end_lvl() for description of parameters.
+	 *
+	 * @param string $output See {@Walker_Nav_Menu::end_lvl()}.
+	 * @param int $depth See {@Walker_Nav_Menu::end_lvl()}.
+	 * @param array $args See {@Walker_Nav_Menu::end_lvl()}.
+	 */
+	public function end_lvl( &$output, $depth = 0, $args = array() ) {
+		$indent = str_repeat( "\t", $depth );
+		$output .= "\n$indent</ul>";
+	}
+
+	/**
+	 * Create the markup to start an element.
+	 *
+	 * @see Walker::start_el() for description of parameters.
+	 *
+	 * @param string $output Passed by reference. Used to append additional
+	 *        content.
+	 * @param object $item Menu item data object.
+	 * @param int $depth Depth of menu item. Used for padding.
+	 * @param object $args See {@Walker::start_el()}.
+	 * @param int $id See {@Walker::start_el()}.
+	 */
+	function start_el( &$output, $item, $depth = 0, $args = array(), $id = 0 ) {
+		global $_nav_menu_placeholder;
+
+		$_nav_menu_placeholder = ( 0 > $_nav_menu_placeholder ) ? intval($_nav_menu_placeholder) - 1 : -1;
+		$possible_object_id = isset( $item->post_type ) && 'nav_menu_item' == $item->post_type ? $item->object_id : $_nav_menu_placeholder;
+		$possible_db_id = ( ! empty( $item->ID ) ) && ( 0 < $possible_object_id ) ? (int) $item->ID : 0;
+
+		$indent = ( $depth ) ? str_repeat( "\t", $depth ) : '';
+
+		$output .= $indent . '<li>';
+		$output .= '<label class="menu-item-title">';
+		$output .= '<input type="checkbox" class="menu-item-checkbox';
+
+		if ( property_exists( $item, 'label' ) ) {
+			$title = $item->label;
+		}
+
+		$output .= '" name="menu-item[' . $possible_object_id . '][menu-item-object-id]" value="'. esc_attr( $item->object_id ) .'" /> ';
+		$output .= isset( $title ) ? esc_html( $title ) : esc_html( $item->title );
+		$output .= '</label>';
+
+		if ( empty( $item->url ) ) {
+			$item->url = $item->guid;
+		}
+
+		if ( ! in_array( array( 'bp-menu', 'bp-'. $item->post_excerpt .'-nav' ), $item->classes ) ) {
+			$item->classes[] = 'bp-menu';
+			$item->classes[] = 'bp-'. $item->post_excerpt .'-nav';
+		}
+
+		// Menu item hidden fields
+		$output .= '<input type="hidden" class="menu-item-db-id" name="menu-item[' . $possible_object_id . '][menu-item-db-id]" value="' . $possible_db_id . '" />';
+		$output .= '<input type="hidden" class="menu-item-object" name="menu-item[' . $possible_object_id . '][menu-item-object]" value="'. esc_attr( $item->object ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-parent-id" name="menu-item[' . $possible_object_id . '][menu-item-parent-id]" value="'. esc_attr( $item->menu_item_parent ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-type" name="menu-item[' . $possible_object_id . '][menu-item-type]" value="custom" />';
+		$output .= '<input type="hidden" class="menu-item-title" name="menu-item[' . $possible_object_id . '][menu-item-title]" value="'. esc_attr( $item->title ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-url" name="menu-item[' . $possible_object_id . '][menu-item-url]" value="'. esc_attr( $item->url ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-target" name="menu-item[' . $possible_object_id . '][menu-item-target]" value="'. esc_attr( $item->target ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-attr_title" name="menu-item[' . $possible_object_id . '][menu-item-attr_title]" value="'. esc_attr( $item->attr_title ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-classes" name="menu-item[' . $possible_object_id . '][menu-item-classes]" value="'. esc_attr( implode( ' ', $item->classes ) ) .'" />';
+		$output .= '<input type="hidden" class="menu-item-xfn" name="menu-item[' . $possible_object_id . '][menu-item-xfn]" value="'. esc_attr( $item->xfn ) .'" />';
 	}
 }

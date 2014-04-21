@@ -7,7 +7,7 @@ Order: 120
 
   piklist('field', array(
     'type' => 'checkbox'
-    ,'field' => 'show_admin_bar'
+    ,'field' => 'hide_admin_bar'
     ,'label' => 'Frontend Admin Bar'
     ,'choices' => array(
       'true' => 'Remove'

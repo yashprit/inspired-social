@@ -12,7 +12,7 @@ echo $before_widget; ?>
   <?php echo $after_title; ?>
     
     <p>
-      <?php _e('This is a sample widget from','piklist'); ?> <a href="http://piklist.com" target="_blank"><?php _e('Piklist','piklist'); ?></a>
+      <?php _e('This is a sample widget from', 'piklist'); ?> <a href="http://piklist.com" target="_blank"><?php _e('Piklist','piklist'); ?></a>
     </p>
     
 <?php echo $after_widget; ?>

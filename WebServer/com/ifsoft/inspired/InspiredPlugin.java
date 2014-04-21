@@ -2,51 +2,22 @@ package com.ifsoft.inspired;
 
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
-import org.jivesoftware.admin.AuthCheckFilter;
 import org.jivesoftware.openfire.http.HttpBindManager;
-import org.jivesoftware.openfire.XMPPServer;
-import org.jivesoftware.openfire.PrivateStorage;
-import org.jivesoftware.openfire.session.ClientSession;
-import org.jivesoftware.openfire.session.Session;
-import org.jivesoftware.openfire.roster.Roster;
-import org.jivesoftware.database.DbConnectionManager;
-import org.jivesoftware.openfire.roster.*;
-import org.jivesoftware.openfire.user.*;
+;
 import org.jivesoftware.util.*;
-import org.jivesoftware.openfire.muc.*;
-import org.jivesoftware.openfire.muc.spi.*;
-import org.jivesoftware.openfire.forms.spi.*;
-import org.jivesoftware.openfire.forms.*;
-import org.jivesoftware.openfire.group.*;
-import org.jivesoftware.openfire.event.GroupEventDispatcher;
-
-import org.xmpp.component.Component;
-import org.xmpp.component.ComponentException;
-import org.xmpp.component.ComponentManager;
-import org.xmpp.component.ComponentManagerFactory;
 
 import java.util.*;
-import java.text.DateFormat;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Callable;
-import java.util.concurrent.Future;
 
 import org.xmpp.packet.*;
 import java.sql.*;
 import java.io.File;
 import org.dom4j.Element;
-import com.milgra.server.Server;
-
-import org.red5.server.webapp.voicebridge.*;
-import com.sun.voip.server.*;
-import com.ifsoft.cti.OpenlinkComponent;
 
 
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
+public class InspiredPlugin implements Plugin
 
 {
 	private static final String NAME 		= "inspired";
@@ -54,8 +25,6 @@ public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
 
 	private PluginManager manager;
     private File pluginDirectory;
-    private Application application;
-    private OpenlinkComponent component;
 
 
 	public void initializePlugin(PluginManager manager, File pluginDirectory)
@@ -69,19 +38,6 @@ public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
 			try {
 				WebAppContext context = new WebAppContext(contexts, pluginDirectory.getPath(), "/" + NAME);
 				context.setWelcomeFiles(new String[]{"index.php"});
-
-				Log.info("starting Milenia Grafter RTMP Server");
-				new Server(JiveGlobals.getProperty("voicebridge.rtmp.port", "1935"));
-
-				Log.info("starting VOIP Server");
-				component = new OpenlinkComponent(this);
-				application = new Application();
-				application.appStart(component);
-				component.setApplication(application);
-
-				Log.info("starting Openlink Component");
-				component.componentEnable();
-
 			}
 			catch(Exception e) {
 
@@ -133,14 +89,7 @@ public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
 		Log.info( "["+ NAME + "] destroy " + NAME + " plugin resources");
 
 		try {
-				Log.info("stopping Milenia Grafter RTMP Server");
-				Server.closeRequest();
 
-				Log.info("stopping VOIP Server");
-				application.appStop();
-
-				Log.info("stopping Openlink Component");
-				component.componentDestroyed();
 
 		}
 		catch (Exception e) {
@@ -156,17 +105,6 @@ public class InspiredPlugin implements Red5Container, Plugin, InspiredConstants
 	public String getDescription()
 	{
 		return DESCRIPTION;
-	}
-
-	public OpenlinkComponent getComponent()
-	{
-		return component;
-	}
-
-
-    public Red5AudioHandler createRed5AudioHandler()
-    {
-		return null;
 	}
 
 }

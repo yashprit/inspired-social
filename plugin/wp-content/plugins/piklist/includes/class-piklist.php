@@ -1,8 +1,19 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList
-{      
+{
+  public static $version;
+      
+  public static $urls = array();
+
   public static $paths = array();
+
+  public static $domains = array();
   
   public static $plurals = array(
     'plural' => array(
@@ -81,14 +92,17 @@ class PikList
     )
   );
   
-  public static $prefix = 'pik_';
+  public static $prefix = '_';
   
   public static function load()
-  {    
-    self::$paths['plugin'] = dirname(dirname(__FILE__));
+  {
+    self::add_plugin('piklist', dirname(dirname(__FILE__)));
 
-    load_plugin_textdomain( 'piklist', false, dirname(dirname(plugin_basename(__FILE__ ))) . '/languages' );
+    self::$version = current(get_file_data(self::$paths['piklist'] . '/piklist.php', array('version' => 'Version')));
+
+    load_plugin_textdomain('piklist', false, self::$paths['piklist'] . '/languages');
     
+    // TODO: what if included in theme?
     register_activation_hook('piklist/piklist.php', array('piklist', 'activate'));
    
     self::auto_load();
@@ -96,13 +110,13 @@ class PikList
   
   public static function auto_load()
   {
-    $includes = self::get_directory_list(self::$paths['plugin'] . '/includes');
+    $includes = self::get_directory_list(self::$paths['piklist'] . '/includes');
     foreach ($includes as $include)
     {
       $class_name = str_replace(array('.php', 'class_'), array('', ''), self::slug($include));
       if ($include != __FILE__)
       {
-        include_once self::$paths['plugin'] . '/includes/' . $include;
+        include_once self::$paths['piklist'] . '/includes/' . $include;
      
         if (class_exists($class_name) && method_exists($class_name, '_construct') && !is_subclass_of($class_name, 'WP_Widget'))
         {
@@ -116,38 +130,147 @@ class PikList
   {
     piklist::check_network_propagate('do_action', 'piklist_activate');
   }
-  
-  public static function render($view, $arguments = array(), $return = false) 
+
+  public static function plugin_dir()
   {
-    global $post, $posts, $post_id, $current_user, $wpdb, $wp_query;
+    $dir = plugin_dir_path(__FILE__);
+    $dir = substr($dir, 0, -18);  
+
+    return apply_filters('piklist_plugin_dir', $dir);
+  }
+  
+  public static function add_plugin($type, $path)
+  {
+    self::$paths[$type] = $path;        
+
+    $path = str_replace(chr(92), '/', $path);
+
+    self::$urls[$type] = plugins_url() . substr($path, strrpos($path, '/'));
+  }
+  
+  public static function render($view, $arguments = array(), $return = false, $loop = null) 
+  {
+    global $post, $posts, $post_id, $current_user, $wpdb, $wp_query, $pagenow, $typenow, $hook_suffix, $current_screen, $wp_version, $wp_did_header, $wp_rewrite, $wp, $id, $comment, $user_ID;
+
+    $_windows_os = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+    $_path_seperator = $_windows_os ? '\\' : '/';
+
+    $_backtrace = debug_backtrace();
+
+    if (isset($_backtrace[1]['file']))
+    {
+      $_origin = $_backtrace[1]['file'];
+      
+      if (is_string($_origin) && ((!$_windows_os && substr($_origin, 0, 1) == $_path_seperator) || ($_windows_os && substr($_origin, 1, 1) == ':')))
+      { 
+        $view .= strstr($view, '.php') ? '' : '.php';
+        $_path = substr($_origin, 0, strrpos($_origin, $_path_seperator));     
+        foreach (array(STYLESHEETPATH, TEMPLATEPATH) as $_theme_path)
+        {
+          if ($_path == $_theme_path && file_exists($_theme_path . $_path_seperator . $view))
+          {
+            $_file = path_is_absolute($view) ? $view : $_theme_path . $_path_seperator . $view;
+          }
+        }
+      }
+    }
+    
+    
+    if (!isset($_file))
+    {
+      foreach (self::$paths as $_display => $_path)
+      {
+        $_file = (path_is_absolute($view) ? $view : self::$paths[$_display] . $_path_seperator . 'parts' . $_path_seperator . $view) . (strstr($view, '.php') ? '' : '.php');
+
+        // Check for theme overrides
+        if (stristr($_file, '/parts/'))
+        {
+          $_part = '';
+          $_directories = explode($_path_seperator, $_file);
+          for ($i = count($_directories); $i >= 0; $i--)
+          {
+            if (isset($_directories[$i]))
+            {
+              $_part = $_directories[$i] . (empty($_part) ? '' : $_path_seperator) . $_part;  
+              if ($_directories[$i] == 'parts')
+              {
+                $_part = $_path_seperator . $_directories[$i - 1] . $_path_seperator . $_part;  
+                break;
+              }
+            }
+          }
+        }
+        
+        foreach (array('theme', 'parent-theme') as $_theme)
+        {
+          if (isset(self::$paths[$_theme]))
+          {
+            if (file_exists(self::$paths[$_theme] . $_part))
+            {
+              $_file = self::$paths[$_theme] . $_part;
+              break;
+            }
+          }
+        }
+
+        if (file_exists($_file))
+        {
+          break;
+        }
+      }   
+    }
     
     if ($return)
     {
       ob_start();
     }
 
-    foreach (self::$paths as $_display => $_path)
+    foreach (array($wp_query->query_vars, $arguments) as $_object)
     {
-      $_file = (path_is_absolute($view) ? $view : self::$paths[$_display] . '/parts/' . $view) . (strstr($view, '.php') ? '' : '.php');
-
-      if (file_exists($_file))
-      {      
-        foreach ($arguments as $_key => $_value) 
+      foreach ($_object as $_key => $_value)
+      {
+        $$_key = $_value;
+      }
+    }
+    
+    $_file = apply_filters('piklist_render', $_file, $view, $arguments);
+    
+    if ($_file)
+    {
+      if ($loop && self::is_associative_array($arguments[$loop]))
+      {
+        $_depth = 1;
+        
+        foreach ($arguments[$loop] as $_key => $_value)
         {
-          $$_key = $_value;
+          $_depth = is_array($_value) ? (count($_value) > $_depth ? count($_value) : $_depth) : 1;
         }
         
-        include $_file;
-        
-        $_included = true;
-        
-        break;
+        for ($i = 0; $i < $_depth; $i++)
+        {  
+          $_loop = array();
+          foreach ($arguments[$loop] as $_key => $_value)
+          {  
+            $_loop[$_key] = isset($_value[$i]) ? $_value[$i] : null;
+          }
+          $$loop = $_loop;
+          
+          include $_file;
+        }
       }
-    }    
-
-    if (!$_included)
-    {
-      self::pre('File Not Found: ' . $_file);
+      else if ($loop)
+      {
+        for ($i = 0; $i < count($arguments[$loop]); $i++)
+        {    
+          $$loop = $arguments[$loop][$i];
+              
+          include $_file;
+        }
+      }
+      else if (file_exists($_file))
+      {
+        include $_file;
+      }
     }
     
     if ($return)
@@ -203,13 +326,16 @@ class PikList
     }
   }
   
-  public static function pre($output)
+  public static function pre($output, $source = false)
   {
-    echo "<pre>";
-    
+    echo "<pre " . ($source ? 'style="display: none !important;"' : null) . ">\r\n";
+  
     print_r($output);
   
     echo "</pre>\r\n";
+    
+    @ob_flush();
+    @flush();
   }
   
   public static function get_prefixed_post_types($prefix)
@@ -323,17 +449,17 @@ class PikList
   public static function delete_table($table_name) 
   {
     global $wpdb;
-
+    
     $wpdb->query('DROP TABLE IF EXISTS ' . $wpdb->prefix . $table_name);
   }
-  
+
   public static function post_type_labels($label)
   {
     return array(
       'name' => __(self::pluralize($label), 'piklist')
       ,'singular_name' => __(self::singularize($label), 'piklist')
-
-      ,'add_new' => __('Add New ' . self::singularize($label), 'piklist')
+      ,'all_items' => __('All ' . self::pluralize($label), 'piklist')
+      ,'add_new' => __('Add New', 'piklist')
       ,'add_new_item' => __('Add New ' . self::singularize($label), 'piklist')
       ,'edit_item' => __('Edit ' . self::singularize($label), 'piklist')
       ,'new_item' => __('Add New ' . self::singularize($label), 'piklist')
@@ -341,6 +467,8 @@ class PikList
       ,'search_items' => __('Search ' . self::pluralize($label), 'piklist')
       ,'not_found' => __('No ' . self::pluralize(strtolower($label)) . ' found', 'piklist')
       ,'not_found_in_trash' => __('No ' . self::pluralize(strtolower($label)) . ' found in trash', 'piklist')
+      ,'parent_item_colon' => __('Parent ' . self::pluralize($label) . ':', 'piklist')
+      ,'menu_name' => __(self::pluralize($label), 'piklist')
     );
   }
   
@@ -351,13 +479,20 @@ class PikList
       ,'singular_name' => __(self::singularize($label), 'piklist')
       ,'search_items' =>  __('Search ' . self::pluralize($label), 'piklist')
       ,'all_items' => __('All ' . self::pluralize($label), 'piklist')
-      ,'parent_item' => __('Parent'  . self::pluralize($label), 'piklist')
+      ,'parent_item' => __('Parent '  . self::pluralize($label), 'piklist')
       ,'parent_item_colon' => __('Parent ' . self::pluralize($label) . ':', 'piklist')
       ,'edit_item' => __('Edit ' . self::singularize($label), 'piklist')
       ,'update_item' => __('Update ' . self::singularize($label), 'piklist')
       ,'add_new_item' => __('Add New ' . self::singularize($label), 'piklist')
+      ,'view_item' => __('View ' . self::singularize($label), 'piklist')
+      ,'popular_items' => __('Popular ' . self::pluralize($label), 'piklist')
       ,'new_item_name' => __('New ' . self::singularize($label) . ' Name', 'piklist')
+      ,'separate_items_with_commas' => __('Separate ' . self::pluralize($label) . ' with commas', 'piklist')
+      ,'add_or_remove_items' => __('Add or remove ' . self::pluralize($label), 'piklist')
+      ,'choose_from_most_used' => __('Choose from the most used ' . self::pluralize($label), 'piklist')
+      ,'not_found' => __('No ' . self::pluralize($label) . ' found.', 'piklist')
       ,'menu_name' => __(self::pluralize($label), 'piklist')
+      ,'name_admin_bar' => $label
     );
   }
   
@@ -415,7 +550,6 @@ class PikList
     return $string;
   }
   
-  // Special Thanks to MikeSchinkel
   public static function add_admin_menu_separator($position) 
   {
     global $menu;
@@ -555,6 +689,11 @@ class PikList
     
     return true;
   }
+  
+  public static function unique_id()
+  {
+    return substr(md5(rand()), 0, 7);
+  }
 
   public static function object_id($object)
   {
@@ -570,6 +709,26 @@ class PikList
     }
     
     return spl_object_hash($object) . $object->__unique;
+  }
+  
+  public static function object_to_array($object) 
+  {
+    if (!is_array($object) && !is_object($object))
+    {
+      return $object;
+    }
+
+    if (is_object($object))
+    {
+      $object = get_object_vars($object);
+    }
+    
+    return array_map(array('piklist', 'object_to_array'), $object);
+  }
+  
+  public static function is_associative_array($array)
+  {
+      return array_keys($array) !== range(0, count($array) - 1);
   }
   
   public static function get_settings($option, $setting)
@@ -599,6 +758,11 @@ class PikList
     return $a['args']['order'] - $b['args']['order'];
   }
   
+  public static function sort_by_config_order($a, $b) 
+  {
+    return $a['config']['order'] - $b['config']['order'];
+  }
+  
   public static function array_next($array, $needle)
   {
     $keys = array_keys($array);
@@ -611,25 +775,204 @@ class PikList
     
     return $needle;
   }
-    
-  public static function object_custom($type, $id)
+  
+  public static function array_filter($value)
   {
-    $meta = get_metadata($type, $id);
+    return $value !== false && $value !== null && $value !== '';
+  }
+    
+  public static function object($type, $id)
+  {
+    $data = $type == 'option' ? get_option($id) : get_metadata($type, $id);
 
-    foreach ($meta as $meta_key => $values)
+    if (!empty($data))
     {
-      foreach ($values as $value_key => $value)
+      foreach ($data as $key => $value)
       {
-        $meta[$meta_key][$value_key] = maybe_unserialize($value);
+        $data[$key] = self::object_value(maybe_unserialize($value));
       }
+    }
 
-      if (count($values) == 1 && !is_array($values[0])) 
+    return $data;
+  }
+  
+  public static function object_value($object)
+  {
+    if (is_array($object) && count($object) == 1 && self::is_flat($object))
+    {
+      return maybe_unserialize(current($object));
+    }
+    else if (is_array($object))
+    {
+      foreach ($object as $key => $value)
       {
-        $meta[$meta_key] = maybe_unserialize($values[0]);
+        $value = maybe_unserialize($value);
+        
+        if (is_array($value) && is_numeric($key) && count($value) == 1 && self::is_flat($object))
+        {
+          $object = current($value);
+        }
+        else if (is_array($value))
+        {
+          $object[$key] = self::object_value($value);
+        }
       }
     }
     
-    return $meta;
+    return maybe_unserialize($object);
+  }
+  
+  public static function is_flat($object)
+  {
+    return count($object) == count($object, COUNT_RECURSIVE);
+  }
+  
+  public static function explode($delimiter, $string)
+  {
+    return array_map('trim', explode($delimiter, $string));
+  }
+  
+  public static function include_meta_boxes($keep, $post_type = null)
+  {
+    global $wp_meta_boxes, $typenow;
+    
+    $post_type = $post_type ? $post_type : $typenow;
+    
+    array_push($keep, 'submitdiv');
+    
+    $post_type = $post_type ? $post_type : $typenow;
+    
+    foreach ($wp_meta_boxes[$post_type] as $meta_boxes)
+    {
+      foreach (array('normal', 'advanced', 'side') as $context)
+      {
+        foreach (array('high', 'core', 'default', 'low') as $priority)
+        {
+          if (isset($meta_boxes[$priority]))
+          {
+            foreach ($meta_boxes[$priority] as $id => $config)
+            {
+              if (!in_array($id, $keep))
+              {
+                remove_meta_box($id, $post_type, $context);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
+  public static function include_actions($tags)
+  {
+    global $wp_filter;
+    
+    // TODO: Redo with below...
+    foreach ($tags as $tag => $keep)
+    {
+      foreach ($wp_filter[$tag] as $priority => $callback)
+      {
+        foreach ($callback as $id => $config)
+        {
+          if (!in_array($id, $keep))
+          {
+            unset($wp_filter[$tag][$priority][$id]);
+          }
+        }
+      }
+    }    
+  }
+  
+  public static function include_user_profile_fields($arguments)
+  {
+    global $wp_filter;
+    
+    $tags = array(
+      'show_user_profile'
+      ,'edit_user_profile'
+      ,'personal_options_update'
+      ,'edit_user_profile_update'
+    );
+    
+    if (isset($arguments['actions']))
+    {
+      foreach ($tags as $tag)
+      {
+        foreach ($wp_filter[$tag] as $priority => $callback)
+        {
+          foreach ($callback as $id => $config)
+          {
+            foreach ($arguments['actions'] as $action)
+            {
+              if (strstr($id, $action))
+              {
+                $idx = _wp_filter_build_unique_id($action, $id, $priority);
+                if ($idx == $id)
+                {
+                  array_push($arguments['actions'], $id);
+                }
+              }
+            }
+
+            if (!in_array($id, $arguments['actions']) && ($wp_filter[$tag][$priority][$id]['function'][0] != 'piklist_form' && $wp_filter[$tag][$priority][$id]['function'][0] != 'save_fields'))
+            {
+              unset($wp_filter[$tag][$priority][$id]);
+            }
+          }
+        
+          if (empty($wp_filter[$tag][$priority]))
+          {
+            unset($wp_filter[$tag][$priority]);
+          }
+        }
+      
+        if (empty($wp_filter[$tag]))
+        {
+          unset($wp_filter[$tag]);
+        }
+      }
+    }
+    
+    // if ($arguments['sections'])
+    // {
+    //   $sections = array(
+    //     'Personal Options'
+    //     ,'Name'
+    //     ,'Contact Info'
+    //     ,'About the user'
+    //     ,'About Yourself'
+    //   );
+    //   
+    //   foreach ($sections as $section)
+    //   {
+    //     if (in_array($section, $arguments['sections']))
+    //     {
+    //       unset($sections[array_search($section, $sections)]);
+    //     }
+    //   }
+    // }
+    
+    piklist('shared/admin-user-profile-fields', array(
+      'sections' => isset($arguments['sections']) ? $arguments['sections'] : array()
+    ));
+  }
+  
+  public function get_ip_address() 
+  {
+    if (!empty($_SERVER['HTTP_CLIENT_IP'])) 
+    {
+      $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+    } 
+    elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) 
+    {
+      $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+    }
+    else
+    {
+      $ip_address = $_SERVER['REMOTE_ADDR'];
+    }
+
+    return $ip_address;
   }
   
   public static function performance()
@@ -700,6 +1043,12 @@ function piklist($option, $arguments = array())
         
       break;
       
+      case 'list_table':
+        
+        piklist_list_table::render($arguments);
+      
+      break;
+      
       case 'post_type_labels':
 
         return piklist::post_type_labels($arguments);
@@ -712,33 +1061,51 @@ function piklist($option, $arguments = array())
         
       break;
       
+      case 'option':
       case 'post_custom':
+      case 'post_meta':
       case 'get_post_custom':
+      case 'user_custom':
+      case 'user_meta':
       case 'get_user_custom':
+      case 'term_custom':
+      case 'term_meta':
       case 'get_term_custom':
         
         switch ($option)
         {
+          case 'user_custom':
+          case 'user_meta':
           case 'get_user_custom':
           
             $type = 'user';
             
           break;
           
+          case 'term_custom':
+          case 'term_meta':
           case 'get_term_custom':
           
             $type = 'term';
             
           break;
           
-          default: 
+          case 'post_custom':
+          case 'post_meta':
+          case 'get_post_custom':
           
             $type = 'post';
             
           break;
+
+          default: 
+          
+            $type = 'option';
+            
+          break;
         }
         
-        return piklist::object_custom($type, $arguments);
+        return piklist::object($type, $arguments);
         
       break;
       
@@ -760,13 +1127,62 @@ function piklist($option, $arguments = array())
         
       break;
       
+      case 'include_meta_boxes':
+      
+        // TODO: Improve
+        if (isset($arguments['post_type']))
+        {
+          $post_type = $arguments['post_type'];
+          unset($arguments['post_type']);
+        }
+        else
+        {
+          $post_type = null;
+        }
+
+        piklist::include_meta_boxes($arguments, $post_type);
+
+      break;
+      
+      case 'include_actions':
+        
+        // TODO: Improve
+        if (isset($arguments['action']))
+        {
+          $post_type = $arguments['action'];
+          unset($arguments['action']);
+        }
+        
+        piklist::include_actions($action, $arguments);
+      
+      break;
+      
+      case 'include_user_profile_fields':
+      
+        piklist::include_user_profile_fields($arguments);
+        
+      break;
+      
+      case 'comments_template':
+
+        $file = isset($arguments[0]) ? $arguments[0] : '/comments.php';
+        $seperate_comments = isset($arguments[1]) ? $arguments[1] : false;
+
+        piklist_comments::comments_template($file, $seperate_comments);
+
+      break;
+      
       default:
         
-        return piklist::render($option, $arguments, isset($arguments['return']) ? $arguments['return'] : false); 
+        $return = isset($arguments['return']) ? $arguments['return'] : false;
+        $loop = isset($arguments['loop']) ? $arguments['loop'] : null;
+        
+        unset($arguments['return']);
+        unset($arguments['loop']);
+
+        return piklist::render($option, $arguments, $return, $loop); 
         
       break;
     }
   }
 }
-
-?>

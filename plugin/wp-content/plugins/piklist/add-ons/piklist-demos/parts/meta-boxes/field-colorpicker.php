@@ -1,10 +1,17 @@
 <?php
 /*
-Title: ColorPicker Fields <span class="piklist-title-right">Order 60</span>
+Title: ColorPicker Fields
 Post Type: piklist_demo
 Order: 60
-Collapse: false
+Collapse: true
 */
+?>
+
+<h3 class="demo-highlight">
+  <?php _e('WordPress ColorPicker fields are super simple to create. Piklist handles all the Javascript.','piklist');?>
+</h3>
+
+<?php
     
   piklist('field', array(
     'type' => 'colorpicker'
@@ -14,20 +21,20 @@ Collapse: false
       'value' => 'lock'
     )
   ));
-  
+
   piklist('field', array(
     'type' => 'colorpicker'
-    ,'field' => 'color_add_more'
     ,'add_more' => true
-    ,'label' => 'Add More'
-    ,'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+    ,'field' => 'color_add_more'
+    ,'label' => 'Color Picker'
     ,'on_post_status' => array(
       'value' => 'lock'
     )
   ));
   
-  piklist('shared/meta-box-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
   
 ?>

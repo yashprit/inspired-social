@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="PHP Plugin" default="jar">
+	<description>PHP Plugin Build</description>
+	<property name="openfire.home" value="C:\Program Files (x86)\Openfire" />
+	<property name="working.dir.dir" value="C:\Projects\InspiredProject\inspired-social\PHP-Plugin" />
+
+	<path id="build.classpath">
+		<fileset dir="C:\Projects\InspiredProject\php\lib" includes="*.jar"/>
+		<fileset dir="${openfire.home}\lib" includes="openfire.jar"/>
+		<fileset dir="${openfire.home}\lib" includes="servlet.jar"/>
+	</path>
+		
+	<target name="compile">
+		<javac debug="true" deprecation="true" srcdir="${working.dir.dir}" destdir="${working.dir.dir}">
+			<classpath refid="build.classpath"/>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<jar destfile="${working.dir.dir}\php.jar">
+			<fileset dir="${working.dir.dir}">
+				<include name="**" />
+			</fileset>
+		</jar>
+	</target>
+	
+</project>
+

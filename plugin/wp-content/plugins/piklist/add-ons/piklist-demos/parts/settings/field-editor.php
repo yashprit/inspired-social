@@ -12,7 +12,7 @@ Order: 20
     ,'label' => __('HTML Content')
     ,'description' => __('Lorem ipsum dolor sit amet, consectetur adipiscing elit.')
     ,'value' => __('Lorem ipsum dolor sit amet, consectetur adipiscing elit.')
-    ,'attributes' => array(
+    ,'options' => array(
       'wpautop' => true
       ,'media_buttons' => true
       ,'tabindex' => ''
@@ -24,4 +24,11 @@ Order: 20
       ,'quicktags' => true
     )
   ));
-  
+
+  piklist('shared/code-locater', array(
+    'location' => __FILE__
+    ,'type' => 'Settings Section'
+  ));
+
+
+?>

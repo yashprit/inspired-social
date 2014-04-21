@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Widget
 {
   public static $current_widget = null;
@@ -26,9 +31,9 @@ class PikList_Widget
     foreach ($sidebars as $sidebar)
     {
       register_sidebar(array_merge(array(
-        'name' => __($sidebar['name'])
+        'name' => $sidebar['name']
         ,'id' => sanitize_title_with_dashes($sidebar['name'])
-        ,'description' => isset($sidebar['description']) ? __($sidebar['description']) : null
+        ,'description' => isset($sidebar['description']) ? $sidebar['description'] : null
         ,'before_widget' => isset($sidebar['before_widget']) ? $sidebar['before_widget'] : '<div id="%1$s" class="widget-container %2$s">'
         ,'after_widget' => isset($sidebar['after_widget']) ? $sidebar['after_widget'] : '</div>'
         ,'before_title' => isset($sidebar['before_title']) ? $sidebar['before_title'] : '<h3 class="widget-title">'
@@ -54,7 +59,7 @@ class PikList_Widget
           $title = piklist_add_on::$available_add_ons[$from]['Name'] . ' ' . __('Widgets','piklist');
           $description = strip_tags(piklist_add_on::$available_add_ons[$from]['Description']);
         }
-        else if ($from == 'plugin')
+        else if ($from == 'piklist')
         {
           $title = __('Piklist Widgets','piklist');
           $description = __('Core Widgets for Piklist.','piklist');
@@ -63,7 +68,7 @@ class PikList_Widget
         {
           global $wp_version;
           
-          $current_theme = ($wp_version >= 3.4 ? wp_get_theme() : get_current_theme());
+          $current_theme = wp_get_theme();
 
           $title = $current_theme . ' ' . __('Widgets','piklist');
           $description = sprintf(__('Widgets for the %s Theme', 'piklist'), $current_theme);
@@ -78,7 +83,7 @@ class PikList_Widget
   {
     global $wp_widget_factory;
 
-    return $wp_widget_factory->widgets[self::$current_widget];
+    return isset($wp_widget_factory->widgets[self::$current_widget]) ? $wp_widget_factory->widgets[self::$current_widget] : null;
   }
 
   public static function dynamic_sidebar_params($params) 
@@ -93,7 +98,7 @@ class PikList_Widget
 
     $class = 'class="widget-' . self::$widget_classes[$id] . ' ';
 
-    if (self::$widget_classes[$id] % 2)
+    if (self::$widget_classes[$id] % 2 == 0)
     {
       $class .= 'widget-even ';
       $class .= 'widget-alt ';
@@ -108,5 +113,3 @@ class PikList_Widget
     return $params;
   }
 }
-
-?>

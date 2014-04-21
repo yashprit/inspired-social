@@ -29,7 +29,7 @@ function bp_core_admin_components_settings() {
 			<?php bp_core_admin_components_options(); ?>
 
 			<p class="submit clear">
-				<input class="button-primary" type="submit" name="bp-admin-component-submit" id="bp-admin-component-submit" value="<?php _e( 'Save Settings', 'buddypress' ) ?>"/>
+				<input class="button-primary" type="submit" name="bp-admin-component-submit" id="bp-admin-component-submit" value="<?php esc_attr_e( 'Save Settings', 'buddypress' ) ?>"/>
 			</p>
 
 			<?php wp_nonce_field( 'bp-admin-component-setup' ); ?>
@@ -58,12 +58,20 @@ function bp_core_admin_components_options() {
 		'xprofile' => array(
 			'title'       => __( 'Extended Profiles', 'buddypress' ),
 			'description' => __( 'Customize your community with fully editable profile fields that allow your users to describe themselves.', 'buddypress' )
-		)
+		),
+		'settings' => array(
+			'title'       => __( 'Account Settings', 'buddypress' ),
+			'description' => __( 'Allow your users to modify their account and notification settings directly from within their profiles.', 'buddypress' )
+		),
+		'notifications' => array(
+			'title'       => __( 'Notifications', 'buddypress' ),
+			'description' => __( 'Notify members of relevant activity with a toolbar bubble and/or via email, and allow them to customize their notification settings.', 'buddypress' )
+		),
 	);
 
 	$optional_components = bp_core_admin_get_components( 'optional' );
 	$required_components = bp_core_admin_get_components( 'required' );
-	$retired_components = bp_core_admin_get_components( 'retired' );
+	$retired_components  = bp_core_admin_get_components( 'retired'  );
 
 	// Don't show Forums component in optional components if it's disabled
 	if ( ! bp_is_active( 'forums' ) ) {
@@ -239,7 +247,7 @@ function bp_core_admin_components_settings_handler() {
 		$bp = buddypress();
 
 		// Save settings and upgrade schema
-		require_once( BP_PLUGIN_DIR . '/bp-core/admin/bp-core-schema.php' );
+		require_once( $bp->plugin_dir . '/bp-core/admin/bp-core-schema.php' );
 
 		$submitted = stripslashes_deep( $_POST['bp_components'] );
 		$bp->active_components = bp_core_admin_get_active_components_from_submitted_settings( $submitted );
@@ -254,6 +262,7 @@ function bp_core_admin_components_settings_handler() {
 
 	// Redirect
 	wp_redirect( $base_url );
+	die();
 }
 add_action( 'bp_admin_init', 'bp_core_admin_components_settings_handler' );
 
@@ -369,7 +378,11 @@ function bp_core_admin_get_components( $type = 'all' ) {
 		),
 		'activity' => array(
 			'title'       => __( 'Activity Streams', 'buddypress' ),
-			'description' => __( 'Global, personal, and group activity streams with threaded commenting, direct posting, favoriting and @mentions, all with full RSS feed and email notification support.', 'buddypress' )
+			'description' => __( 'Global, personal, and group activity streams with threaded commenting, direct posting, favoriting, and @mentions, all with full RSS feed and email notification support.', 'buddypress' )
+		),
+		'notifications' => array(
+			'title'       => __( 'Notifications', 'buddypress' ),
+			'description' => __( 'Notify members of relevant activity with a toolbar bubble and/or via email, and allow them to customize their notification settings.', 'buddypress' )
 		),
 		'groups'   => array(
 			'title'       => __( 'User Groups', 'buddypress' ),
@@ -408,5 +421,5 @@ function bp_core_admin_get_components( $type = 'all' ) {
 
 	}
 
-	return $components;
+	return apply_filters( 'bp_core_admin_get_components', $components, $type );
 }

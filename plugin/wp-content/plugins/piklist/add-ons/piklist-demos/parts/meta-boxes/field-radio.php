@@ -1,9 +1,9 @@
 <?php
 /*
-Title: Radio Fields <span class="piklist-title-right">Order 30</span>
+Title: Radio Fields
 Post Type: piklist_demo
 Order: 30
-Collapse: false
+Collapse: true
 */
 
   piklist('field', array(
@@ -101,8 +101,9 @@ Collapse: false
     )
   ));
 
-  piklist('shared/meta-box-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
   
 ?>

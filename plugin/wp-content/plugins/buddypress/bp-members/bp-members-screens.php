@@ -35,7 +35,7 @@ function bp_members_screen_display_profile() {
  * @uses apply_filters()
  */
 function bp_members_screen_index() {
-	if ( !bp_is_user() && bp_is_members_component() ) {
+	if ( bp_is_members_directory() ) {
 		bp_update_is_directory( true, 'members' );
 
 		do_action( 'bp_members_screen_index' );
@@ -67,10 +67,6 @@ function bp_core_screen_signup() {
 		return;
 	}
 
-	if ( !isset( $bp->signup ) ) {
-		$bp->signup = new stdClass;
-	}
-
 	$bp->signup->step = 'request-details';
 
  	if ( !bp_get_signup_allowed() ) {
@@ -78,6 +74,8 @@ function bp_core_screen_signup() {
 
 	// If the signup page is submitted, validate and save
 	} elseif ( isset( $_POST['signup_submit'] ) && bp_verify_nonce_request( 'bp_new_signup' ) ) {
+
+		do_action( 'bp_signup_pre_validate' );
 
 		// Check the base account details for problems
 		$account_details = bp_core_validate_user_signup( $_POST['signup_username'], $_POST['signup_email'] );
@@ -228,6 +226,19 @@ function bp_core_screen_activation() {
 	if ( !bp_is_current_component( 'activate' ) )
 		return false;
 
+	// If the user is logged in, redirect away from here
+	if ( is_user_logged_in() ) {
+		if ( bp_is_component_front_page( 'activate' ) ) {
+			$redirect_to = trailingslashit( bp_get_root_domain() . '/' . bp_get_members_root_slug() );
+		} else {
+			$redirect_to = trailingslashit( bp_get_root_domain() );
+		}
+
+		bp_core_redirect( apply_filters( 'bp_loggedin_activate_page_redirect_to', $redirect_to ) );
+
+		return;
+	}
+
 	// Check if an activation key has been passed
 	if ( isset( $_GET['key'] ) ) {
 
@@ -240,11 +251,7 @@ function bp_core_screen_activation() {
 			bp_core_redirect( trailingslashit( bp_get_root_domain() . '/' . $bp->pages->activate->slug ) );
 		}
 
-		// Check for an uploaded avatar and move that to the correct user folder
-		if ( is_multisite() )
-			$hashed_key = wp_hash( $_GET['key'] );
-		else
-			$hashed_key = wp_hash( $user );
+		$hashed_key = wp_hash( $_GET['key'] );
 
 		// Check if the avatar folder exists. If it does, move rename it, move
 		// it and delete the signup avatar dir
@@ -352,13 +359,13 @@ class BP_Members_Theme_Compat {
 	public function directory_dummy_post() {
 		bp_theme_compat_reset_post( array(
 			'ID'             => 0,
-			'post_title'     => __( 'Members', 'buddypress' ),
+			'post_title'     => bp_get_directory_title( 'members' ),
 			'post_author'    => 0,
 			'post_date'      => 0,
 			'post_content'   => '',
 			'post_type'      => 'bp_members',
 			'post_status'    => 'publish',
-			'is_archive'     => true,
+			'is_page'        => true,
 			'comment_status' => 'closed'
 		) );
 	}
@@ -369,13 +376,13 @@ class BP_Members_Theme_Compat {
 	 * @since BuddyPress (1.7)
 	 */
 	public function directory_content() {
-		bp_buffer_template_part( 'members/index' );
+		return bp_buffer_template_part( 'members/index', null, false );
 	}
 
 	/** Single ****************************************************************/
 
 	/**
-	 * Add custom template hierarchy to theme compat for member pages. 
+	 * Add custom template hierarchy to theme compat for member pages.
 	 *
 	 * This is to mirror how WordPress has {@link https://codex.wordpress.org/Template_Hierarchy template hierarchy}.
 	 *
@@ -385,8 +392,8 @@ class BP_Members_Theme_Compat {
 	 * @return array $templates Array of custom templates to look for.
 	 */
 	public function single_template_hierarchy( $templates ) {
-		// Setup some variables we're going to reference in our custom templates 
-		$user_nicename = buddypress()->displayed_user->userdata->user_nicename; 
+		// Setup some variables we're going to reference in our custom templates
+		$user_nicename = buddypress()->displayed_user->userdata->user_nicename;
 
 		// Setup our templates based on priority
 		$new_templates = apply_filters( 'bp_template_hierarchy_members_single_item', array(
@@ -418,7 +425,7 @@ class BP_Members_Theme_Compat {
 			'post_content'   => '',
 			'post_type'      => 'bp_members',
 			'post_status'    => 'publish',
-			'is_archive'     => true,
+			'is_page'        => true,
 			'comment_status' => 'closed'
 		) );
 	}
@@ -429,7 +436,7 @@ class BP_Members_Theme_Compat {
 	 * @since BuddyPress (1.7)
 	 */
 	public function single_dummy_content() {
-		bp_buffer_template_part( 'members/single/home' );
+		return bp_buffer_template_part( 'members/single/home', null, false );
 	}
 }
 new BP_Members_Theme_Compat();
@@ -534,7 +541,7 @@ class BP_Registration_Theme_Compat {
 			'post_content'   => '',
 			'post_type'      => $post_type,
 			'post_status'    => 'publish',
-			'is_archive'     => true,
+			'is_page'        => true,
 			'comment_status' => 'closed'
 		) );
 	}
@@ -546,9 +553,9 @@ class BP_Registration_Theme_Compat {
 	 */
 	public function dummy_content() {
 		if ( bp_is_register_page() ) {
-			bp_buffer_template_part( 'members/register' );
+			return bp_buffer_template_part( 'members/register', null, false );
 		} else {
-			bp_buffer_template_part( 'members/activate' );
+			return bp_buffer_template_part( 'members/activate', null, false );
 		}
 	}
 }

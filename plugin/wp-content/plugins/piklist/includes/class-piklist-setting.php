@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Setting
 {
   private static $setting_tabs = array();
@@ -20,25 +25,24 @@ class PikList_Setting
     $pages[] = array(
       'page_title' => 'About'
       ,'menu_title' => 'Piklist'
-      ,'capability' => 'manage_options'
+      ,'capability' => defined('PIKLIST_SETTINGS_CAP') ? PIKLIST_SETTINGS_CAP : 'manage_options'
       ,'menu_slug' => 'piklist'
       ,'single_line' => false
-      ,'icon_url' => plugins_url('piklist/parts/img/piklist-icon.png') 
-      ,'icon' => 'piklist-page'
-      ,'default_tab' => 'Introduction'
+      ,'menu_icon' => piklist_admin::responsive_admin() == true ? plugins_url('piklist/parts/img/piklist-icon.svg') : plugins_url('piklist/parts/img/piklist-icon.png')
+      ,'page_icon' => plugins_url('piklist/parts/img/piklist-page-icon-32.png')
     );
     
     $pages[] = array(
-      'page_title' => 'Piklist Settings'
-      ,'menu_title' => 'Settings'
-      ,'capability' => 'manage_options'
+      'page_title' => __('Piklist Settings', 'piklist')
+      ,'menu_title' => __('Settings', 'piklist')
+      ,'capability' => defined('PIKLIST_SETTINGS_CAP') ? PIKLIST_SETTINGS_CAP : 'manage_options'
       ,'sub_menu' => 'piklist'
-      ,'menu_slug' => 'piklist-settings'
-      ,'setting' => 'piklist'
-      ,'single_line' => false
-      ,'icon_url' => plugins_url('piklist/parts/img/piklist-icon.png') 
-      ,'icon' => 'piklist-page'
+      ,'menu_slug' => 'piklist-core-settings'
+      ,'setting' => 'piklist_core'
+      ,'menu_icon' => piklist_admin::responsive_admin() == true ? plugins_url('piklist/parts/img/piklist-icon.svg') : plugins_url('piklist/parts/img/piklist-icon.png') 
+      ,'page_icon' => plugins_url('piklist/parts/img/piklist-page-icon-32.png')
       ,'default_tab' => 'General'
+      ,'single_line' => true
     );
 
     return $pages;
@@ -58,7 +62,7 @@ class PikList_Setting
     foreach (self::$settings as $setting => $sections)
     {
       add_filter('pre_update_option_' . $setting, array('piklist_setting', 'pre_update_option'), 10, 2);
-      register_setting($setting, $setting, array('piklist_setting', 'validate_setting'));
+      register_setting($setting, $setting);
       
       uasort($sections, array('piklist', 'sort_by_order'));
       
@@ -103,15 +107,14 @@ class PikList_Setting
   public static function register_setting($field)
   {
     add_settings_field(
-      $field['field']
-      ,isset($field['label']) ? $field['label'] : null
+      isset($field['field']) ? $field['field'] : null
+      ,isset($field['label']) ? piklist_form::field_label($field) : null
       ,array('piklist_setting', 'render_setting')
       ,self::$active_section['setting']
       ,self::$active_section['slug']
       ,array(
         'field' => $field
         ,'section' => self::$active_section
-        //,'label_for' => $field['field'] Change to ID
       ) 
     );
   }
@@ -146,18 +149,42 @@ class PikList_Setting
 
   public static function pre_update_option($new, $old = false)
   {
-    $fields = get_transient(piklist::$prefix . $_REQUEST['piklist']['fields_id']);
-    $_old = $old;
-    
-    foreach (current($fields) as $field => $data)
+    if (piklist_validate::check())
     {
-      if (!isset($new[$field]) && isset($_old[$field]))
+      $fields = get_transient(piklist::$prefix . $_REQUEST[piklist::$prefix]['fields_id']);
+      $_old = $old;
+    
+      foreach (current($fields) as $field => $data)
       {
-        unset($_old[$field]);
+        if (!isset($new[$field]) && isset($_old[$field]))
+        {
+          unset($_old[$field]);
+        }
+        
+        if (((isset($data['add_more']) && !$data['add_more']) || !isset($data['add_more'])) && (isset($new[$field]) && isset($new[$field][0]) && count($new[$field]) == 1))
+        {
+          $new[$field] = $new[$field][0];
+        }
+        
+        // TODO: Make recursive to account for infinite add-mores
+        if (isset($new[$field]) && is_array($new[$field]) && count($new[$field]) > 1 && empty($new[$field][0]) && isset($new[$field][0]))
+        {
+          unset($new[$field][0]);
+          $new[$field] = array_values($new[$field]);
+        }
       }
+    
+      $settings = wp_parse_args($new, $_old);
+    }
+    else
+    {
+      $settings = $old;
     }
     
-    $settings = wp_parse_args($new, $_old);
+    if (isset($_FILES) && !empty($_FILES))
+    {
+      $settings = piklist_form::save_upload(current($_FILES), $settings);
+    }
 
     return apply_filters('piklist_pre_update_option', $settings, $new, $old);
   }
@@ -167,6 +194,7 @@ class PikList_Setting
     piklist_form::render_field(wp_parse_args(
       array(
         'scope' => $setting['section']['setting']
+        ,'prefix' => false
         ,'disable_label' => true
         ,'position' => false
         ,'value' => piklist_form::get_field_value($setting['section']['setting'], $setting['field'], 'option')
@@ -174,13 +202,4 @@ class PikList_Setting
       ,$setting['field']
     ));
   }
-  
-  public static function validate_setting($setting)
-  {
-    // NOTE: Validation
-
-    return $setting;
-  }
 }
-
-?>

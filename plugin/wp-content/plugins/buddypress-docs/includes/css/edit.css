@@ -30,8 +30,14 @@ form.standard-form input[type="text"]#doc-title {
 	width: 98%;
 }
 
+#buddypress .standard-form label#content-label,
 #content-label {
 	margin-bottom: -30px;
+}
+
+td.content-column select {
+	width: 90%;
+	min-width: 150px;
 }
 
 /* HTML mode tweaks */
@@ -54,6 +60,10 @@ form.standard-form input[type="text"]#doc-title {
 #buddypress table.mceLayout td,
 #buddypress table.mceLayout tr th {
 	padding: inherit;
+}
+
+.uploader-editor {
+	display: none;
 }
 
 /* Theme compat: Text mode editor */
@@ -175,6 +185,9 @@ form.standard-form input[type="text"]#doc-title {
 #editorcontainer textarea {
     width: 99%; border: none;
     border-radius: 0; -webkit-border-radius: 0; -moz-border-radius: 0; margin-top: -1px; }
+.wp-editor-container {
+	border: 1px solid #eaeaea;
+}
 #edButtonHTML,
 #edButtonPreview {
     background-color: #F1F1F1; padding: 2px 10px;

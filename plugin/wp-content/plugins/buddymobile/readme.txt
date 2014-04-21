@@ -1,15 +1,14 @@
 === BuddyMobile ===
-Contributors: modemlooper, taptappress
+Contributors: modemlooper
 Tags: buddypress, mobile, ios, iphone, android
-Tested up to: 3.5
-BuddyPress: 1.6.4
-Version: 1.6.9
+Tested up to: 3.8
+BuddyPress: 1.9
+Version: 1.9.4
+Stable Tag: 1.9.4
 
 
 == Description ==
-BuddyMobile transforms your site into a mobile app like experience for your users when viewed from popular mobile devices like the iPhone, iPod touch, Android, and BlackBerry OS6+ devices.
-
-Want more features and themes? Get BuddyMobile Pro. <a href="http://shop.taptappress.com">http://shop.taptappress.com</a>
+Mobile plugin for optimized mobile experience on BuddyPress sites.
 
 == Installation ==
 
@@ -25,38 +24,64 @@ Want more features and themes? Get BuddyMobile Pro. <a href="http://shop.taptapp
 1. Upload `buddymobile` to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
 
-
-= Set Up =
-
-1.Create a page titled 'mobile' for a custom mobile homepage.
-2.Create a mobile menu in the admin and save to the mobile menu location
-
 == Screenshots ==
-1. Profile
-2. Forums
-3. Home Page
-4. Members
-5. Activity
+
+1. **Activity Stream**
+2. **Profile**
+
 
 == Notes ==
 
-== FAQ ==
-Mobile Menu
-Visit the WordPress admin Appearance > Menus and create a menu and add it to the mobile menu location.
-Mobile Home Page
-
-Visit the WordPress admin Pages > Add New and create a page titled mobile. Add content to the text editor. The mobile theme will display this page.
-
 
 == Changelog ==
-= 1.6.9 =
-css fixes
+= 1.9.4 =
+fixed bp-themeswitch undefined error
 
-= 1.6.4 =
-added call to language file
+= 1.9.3 =
+fixed iPad option not working
 
-= 1.6.4 =
-* admin options clean up. added option to change toolbar color.
+= 1.9.2 =
+fixed menu not opening on Android
 
-= 1.6.1 =
-* fixes
+= 1.9.1 =
+added template files for notifications component
+
+= 1.9 =
+updates and fixes
+
+Updated some styles to fit into current flat UI dsign trends. Removed some deprecated settings. This update is a prelude to version 2.0 which will be a complete rewrite of the plugin.
+
+= 1.8.7.3 =
+some iOS 7 fixes
+
+= 1.8.7.2 =
+fixes and updates
+
+= 1.8.7.1 =
+CSS cleaning and fix for activity stream tabs not refreshing stream
+
+= 1.8.7 =
+fixes for footer link to full website
+
+= 1.8.6 =
+Added option to show mobile theme on iPad
+
+= 1.8.5 =
+Fixing blog/home page funniness when choosing reading options
+
+= 1.8.4 =
+Fixed missing browser title
+Added more iOS homescreen options
+Added background color option
+
+= 1.8.3 =
+fixed front page being blank when a custom page template is used
+
+= 1.8.2 =
+added missing Profile menu item
+
+= 1.8 =
+BuddyPress 1.7 support
+Two new themes
+Child theme support
+Improved blog post listing

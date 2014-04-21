@@ -6,7 +6,6 @@
 <link rel="stylesheet" type="text/css" href="chat/css/window.css" />
 <script type="text/javascript" src="chat/js/jquery.js"></script>
 <script type="text/javascript" src="chat/js/interfaceUI.js"></script>
-<script type="text/javascript" src="chat/js/webrtc.js"></script>
 <script type="text/javascript" src="chat/php/get.php?l=en&t=js&g=mini.xml"></script>
 
 
@@ -119,7 +118,7 @@
 
 				if (videoXid)
 				{
-					WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(videoXid), getXIDNick(videoXid), "leave");
+					//WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(videoXid), getXIDNick(videoXid), "leave");
 					jQuery('#jappix_mini #chat-' + hex_md5(videoXid)).remove();
 				}
 			}

@@ -1,23 +1,37 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Theme
 {
   private static $themes;
+
+  private static $post_class;
     
   public static function _construct()
   {    
-    self::$themes = piklist::get_directory_list(piklist::$paths['plugin'] . '/themes');
+    self::$themes = piklist::get_directory_list(piklist::$paths['piklist'] . '/themes');
     
     add_action('init', array('piklist_theme', 'init'));
     add_action('setup_theme', array('piklist_theme', 'setup_theme'));
-    add_action('wp_enqueue_scripts', array('piklist_theme', 'scripts'));
-    add_action('admin_enqueue_scripts', array('piklist_theme', 'scripts'));
+
     add_action('wp_head', array('piklist_theme', 'conditional_scripts_start'), -1);
     add_action('wp_footer', array('piklist_theme', 'conditional_scripts_start'), -1);
+    add_action('admin_head', array('piklist_theme', 'conditional_scripts_start'), -1);
+    add_action('admin_footer', array('piklist_theme', 'conditional_scripts_start'), -1);
+
     add_action('wp_head', array('piklist_theme', 'conditional_scripts_end'), 101);
     add_action('wp_footer', array('piklist_theme', 'conditional_scripts_end'), 101);
+    add_action('admin_head', array('piklist_theme', 'conditional_scripts_end'), 101);
+    add_action('admin_footer', array('piklist_theme', 'conditional_scripts_end'), 1001);
     
     add_filter('body_class', array('piklist_theme', 'body_class'));
+    add_filter('post_class', array('piklist_theme', 'post_class'));
+    
+    add_filter('piklist_assets', array('piklist_theme', 'assets'));
   }
   
   public static function init()
@@ -26,35 +40,60 @@ class PikList_Theme
     self::register_themes();
   }
   
-  public function setup_theme()
+  public static function setup_theme()
   {
     if (is_dir($path = get_stylesheet_directory() . '/piklist'))
     {
       piklist::$paths['theme'] = $path;
     }
+    
+    if (get_template_directory() != get_stylesheet_directory() && is_dir($path = get_template_directory() . '/piklist'))
+    {
+      piklist::$paths['parent-theme'] = $path;
+    }   
   }
   
-  public function scripts()
+  public static function assets($assets)
   {
-    // NOTE: Conditionally include based on whether its used.
-    wp_enqueue_script('farbtastic');
+    array_push($assets['scripts'], array(
+      'handle' => 'piklist'
+      ,'src' => piklist::$urls['piklist'] . '/parts/js/piklist.js'
+      ,'ver' => piklist::$version
+      ,'deps' => 'jquery'
+      ,'enqueue' => true
+      ,'in_footer' => true
+      ,'admin' => true
+    ));
+    
+    array_push($assets['scripts'], array(
+      'handle' => 'jquery.placeholder'
+      ,'src' => piklist::$urls['piklist'] . '/parts/js/jquery.placeholder.js'
+      ,'ver' => '1.0'
+      ,'deps' => 'jquery'
+      ,'enqueue' => true
+      ,'in_footer' => true
+      ,'admin' => true
+    ));
+    
+    // TODO: Dependency
+    wp_enqueue_script('jquery-ui-sortable');
 
-    wp_enqueue_script('piklist-plugin', WP_CONTENT_URL . '/plugins/piklist/parts/js/pik.js', array('jquery'));     
+    return $assets;
   }
   
-  public function conditional_scripts_start()
+  public static function conditional_scripts_start()
   {
     ob_start();
   }
   
-  public function conditional_scripts_end()
+  public static function conditional_scripts_end()
   {
     $output = ob_get_contents();
-
+    
     ob_end_clean();
 
     global $wp_scripts;
-    
+
     foreach ($wp_scripts->registered as $script)
     {
       if (isset($script->extra['conditional']))
@@ -99,6 +138,11 @@ class PikList_Theme
       {
         if (!is_admin() || (isset($asset['admin']) && $asset['admin']))
         {
+          if (isset($asset['deps']) && !is_array($asset['deps']))
+          {
+            $asset['deps'] = array($asset['deps']);
+          }
+          
           if ($type == 'scripts')
           {
             wp_register_script($asset['handle'], $asset['src'], isset($asset['deps']) ? $asset['deps'] : array(), isset($asset['ver']) ? $asset['ver'] : false, isset($asset['in_footer']) ? $asset['in_footer'] : true);
@@ -128,7 +172,7 @@ class PikList_Theme
         }
       }
     }
-
+    
     foreach ($assets_to_enqueue as $type => $assets)
     {
       foreach ($assets as $asset)
@@ -180,6 +224,12 @@ class PikList_Theme
     return $classes;
   }
   
-}
+  public static function post_class($post_class)
+  {
+    self::$post_class = self::$post_class == 'odd' ? 'even' : 'odd';
 
-?>
+    $post_class[] = self::$post_class;
+    
+    return $post_class;
+  }
+}

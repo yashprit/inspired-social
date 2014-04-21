@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="VoiceBridgePlugin" default="jar">
 	<description>VoiceBridge Plugin Build</description>
-	<property name="openfire.home" value="D:\Work\Projects\2010.04.21-iTrader\Workspace\openfire_3_7_0\target\openfire" />
-	<property name="working.dir.dir" value="C:\Projects\InspiredProject\inspired\WebServer" />
+	<property name="openfire.home" value="C:\Work\Projects\2010.04.21-iTrader\Workspace\openfire_3_9_0\target\openfire" />
+	<property name="working.dir.dir" value="C:\Projects\InspiredProject\inspired-social\WebServer" />
 
 	<path id="build.classpath">
-		<fileset dir="C:\Projects\InspiredProject\inspired\plugin\lib" includes="*.jar"/>
+		<fileset dir="C:\Projects\InspiredProject\inspired-social\plugin\lib" includes="*.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="openfire.jar"/>
 		<fileset dir="${openfire.home}\lib" includes="servlet.jar"/>
 	</path>

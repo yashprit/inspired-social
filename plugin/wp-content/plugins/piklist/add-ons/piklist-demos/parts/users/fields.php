@@ -3,7 +3,25 @@
 Title: Piklist Demo Fields
 Description: This is an example of some fields built with Piklist. Only displays for users with the capability of manage_options.
 Capability: manage_options
+Order: 10
 */
+
+  piklist('field', array(
+    'type' => 'checkbox'
+    ,'scope' => 'taxonomy'
+    ,'field' => 'piklist_demo_user_type'
+    ,'label' => 'Demo User Types'
+    ,'description' => 'Terms will appear when they are added to this taxonomy.'
+    ,'choices' => piklist(
+      get_terms('piklist_demo_user_type', array(
+        'hide_empty' => false
+      ))
+      ,array(
+        'term_id'
+        ,'name'
+      )
+    )
+  ));
 
   piklist('field', array(
     'type' => 'text'
@@ -14,6 +32,41 @@ Capability: manage_options
     ,'attributes' => array(
       'class' => 'small-text'
     )
+  ));
+
+  piklist('field', array(
+    'type' => 'text'
+    ,'field' => 'text_required'
+    ,'label' => 'Text Required'
+    ,'description' => "required' => true"
+    ,'attributes' => array(
+      'class' => 'small-text'
+    )
+    ,'required' => true
+  ));
+
+  piklist('field', array(
+    'type' => 'text'
+    ,'field' => 'text_null'
+    ,'label' => 'Text Null'
+    ,'value' => 'null'
+    ,'description' => "required' => true"
+    ,'attributes' => array(
+      'class' => 'small-text'
+    )
+    ,'required' => true
+  ));
+
+  piklist('field', array(
+    'type' => 'text'
+    ,'field' => 'text_false'
+    ,'label' => 'Text False'
+    ,'value' => 'false'
+    ,'description' => "required' => true"
+    ,'attributes' => array(
+      'class' => 'small-text'
+    )
+    ,'required' => true
   ));
 
   piklist('field', array(
@@ -126,42 +179,20 @@ Capability: manage_options
   ));
 
   piklist('field', array(
-    'type' => 'group'
-    ,'field' => 'date_time'
-    ,'label' => 'Date / Time'
-    ,'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
-    ,'fields' => array(
-      array(
-        'type' => 'datepicker'
-        ,'field' => 'date'
-        ,'label' => 'Date'
-        ,'description' => 'Choose a date'
-        ,'options' => array(
-          'dateFormat' => 'M d, yy'
-        )
-        ,'attributes' => array(
-          'size' => 12
-        )
-        ,'value' => date('M d, Y', time() + 604800)
-        ,'columns' => 3
-      )
-      ,array(
-        'type' => 'timepicker'
-        ,'field' => 'time'
-        ,'label' => 'Time'
-        ,'description' => 'Choose a time'
-        ,'options' => array(
-          'startTime' => date('H:m A')
-          ,'show24Hours' => false
-          ,'separator' => ':'
-          ,'step' => 15
-        )
-        ,'attributes' => array(
-          'size' => 12
-        )
-        ,'value' => date('H:m A')
-        ,'columns' => 3
-      )
+    'type' => 'datepicker'
+    ,'field' => 'date_add_more'
+    ,'add_more' => true
+    ,'label' => 'Add More'
+    ,'description' => 'Choose a date'
+    ,'options' => array(
+      'dateFormat' => 'M d, yy'
+    )
+    ,'attributes' => array(
+      'size' => 12
+    )
+    ,'value' => date('M d, Y', time() + 604800)
+    ,'on_post_status' => array(
+      'value' => 'lock'
     )
   ));
   
@@ -170,6 +201,17 @@ Capability: manage_options
     ,'field' => 'color'
     ,'label' => 'Color Picker'
     ,'value' => '#03ADEF'
+  ));
+
+  piklist('field', array(
+    'type' => 'colorpicker'
+    ,'field' => 'color_add_more'
+    ,'add_more' => true
+    ,'label' => 'Add More'
+    ,'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'
+    ,'on_post_status' => array(
+      'value' => 'lock'
+    )
   ));
 
   piklist('field', array(
@@ -224,12 +266,12 @@ Capability: manage_options
   piklist('field', array(
     'type' => 'text'
     ,'field' => 'update_field'
+    ,'value' => 'Hello World!' 
     ,'label' => 'Update This Field'
     ,'description' => 'This field is updated by the field above'
   ));
 
-  piklist('shared/meta-field-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'User Meta Section'
   ));
-  
-?>

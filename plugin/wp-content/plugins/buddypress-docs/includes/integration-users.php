@@ -24,7 +24,6 @@ class BP_Docs_Users_Integration {
 
 		// Taxonomy helpers
 		add_filter( 'bp_docs_taxonomy_get_item_terms', 	array( &$this, 'get_user_terms' ) );
-		add_action( 'bp_docs_taxonomy_save_item_terms', array( &$this, 'save_user_terms' ) );
 	}
 
 	/**
@@ -120,11 +119,11 @@ class BP_Docs_Users_Integration {
 				bp_core_new_subnav_item( array(
 					'name'            => $doc->post_title,
 					'slug'            => $doc->post_name,
-					'parent_url'      => trailingslashit( bp_loggedin_user_domain() . bp_docs_get_slug() ),
-					'parent_slug'     => bp_docs_get_slug(),
+					'parent_url'      => trailingslashit( bp_loggedin_user_domain() . bp_docs_get_docs_slug() ),
+					'parent_slug'     => bp_docs_get_docs_slug(),
 					'screen_function' => array( $bp->bp_docs, 'template_loader' ),
 					'position'        => 30,
-					'user_has_access' => true // todo
+					'user_has_access' => true, // todo
 				) );
 			}
 		}
@@ -152,12 +151,56 @@ class BP_Docs_Users_Integration {
 	 * @return array $terms
 	 */
 	function get_user_terms( $terms = array() ) {
+		global $wpdb;
 
-		if ( bp_is_user() ) {
-			$terms = bp_get_user_meta( bp_displayed_user_id(), 'bp_docs_terms', true );
+		if ( ! bp_is_user() ) {
+			return $terms;
+		}
 
-			if ( empty( $terms ) )
-				$terms = array();
+		$query_args = array(
+			'post_type'         => bp_docs_get_post_type_name(),
+			'update_meta_cache' => false,
+			'update_term_cache' => true,
+			'showposts'         => '-1',
+			'posts_per_page'    => '-1',
+		);
+
+		if ( bp_docs_is_edited_by() ) {
+			$query_args['post__in'] = BP_Docs_Query::get_edited_by_post_ids_for_user( bp_displayed_user_id() );
+			$query_args['post_status'] = array( 'publish' );
+		} else if ( bp_docs_is_started_by() ) {
+			$query_args['author'] = bp_displayed_user_id();
+			$query_args['post_status'] = array( 'publish', 'trash' );
+		} else {
+			// Just in case
+			$query_args['post__in'] = array( 0 );
+		}
+
+		$user_doc_query = new WP_Query( $query_args );
+
+		$terms = array();
+		foreach ( $user_doc_query->posts as $p ) {
+			$p_terms = wp_get_post_terms( $p->ID, buddypress()->bp_docs->docs_tag_tax_name );
+			foreach ( $p_terms as $p_term ) {
+				if ( ! isset( $terms[ $p_term->slug ] ) ) {
+					$terms[ $p_term->slug ] = array(
+						'name' => $p_term->name,
+						'posts' => array(),
+					);
+				}
+
+				if ( ! in_array( $p->ID, $terms[ $p_term->slug ]['posts'] ) ) {
+					$terms[ $p_term->slug ]['posts'][] = $p->ID;
+				}
+			}
+		}
+
+		foreach ( $terms as &$t ) {
+			$t['count'] = count( $t['posts'] );
+		}
+
+		if ( empty( $terms ) ) {
+			$terms = array();
 		}
 
 		return apply_filters( 'bp_docs_taxonomy_get_user_terms', $terms );
@@ -166,18 +209,28 @@ class BP_Docs_Users_Integration {
 	/**
 	 * Saves the list of terms used by a user's docs
 	 *
+	 * No longer used.
+	 *
 	 * @package BuddyPress_Docs
 	 * @subpackage Users
 	 * @since 1.2
 	 *
 	 * @param array $terms The terms to be saved to usermeta
 	 */
-	function save_user_terms( $terms ) {
-		if ( bp_is_user() ) {
-			bp_update_user_meta( bp_displayed_user_id(), 'bp_docs_terms', $terms );
-		}
-	}
+	function save_user_terms( $terms ) {}
 
 }
 
-?>
+/**
+ * Get the name to show in the users tab
+ *
+ * @since 1.5
+ * @return string
+ */
+function bp_docs_get_user_tab_name() {
+	$name = get_option( 'bp-docs-user-tab-name' );
+	if ( empty( $name ) ) {
+		$name = __( 'Docs', 'bp-docs' );
+	}
+	return apply_filters( 'bp_docs_get_user_tab_name', $name );
+}

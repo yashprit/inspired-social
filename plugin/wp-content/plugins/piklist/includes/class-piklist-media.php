@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Media
 {
   private static $meta_boxes = array();
@@ -16,9 +21,14 @@ class PikList_Media
 
   public static function attachment_fields_to_edit($form_fields, $post)
   {
-    if ($meta_boxes = self::meta_box($post))
+    global $typenow;
+    
+    if ($typenow =='attachment')
     {
-      $form_fields['_final'] = $meta_boxes . '<tr class="final"><td colspan="2">' . (isset($form_fields['_final']) ? $form_fields['_final'] : '');
+      if ($meta_boxes = self::meta_box($post))
+      {
+        $form_fields['_final'] = $meta_boxes . '<tr class="final"><td colspan="2">' . (isset($form_fields['_final']) ? $form_fields['_final'] : '');
+      }
     }
     
     return $form_fields;
@@ -83,8 +93,8 @@ class PikList_Media
         piklist_form::render_field(array(
           'type' => 'hidden'
           ,'field' => 'nonce'
-          ,'value' => wp_create_nonce('piklist/piklist.php')
-          ,'scope' => 'piklist'
+          ,'value' => wp_create_nonce(plugin_basename(piklist::$paths['piklist'] . '/piklist.php'))
+          ,'scope' => piklist::$prefix
         ));
       
         self::$meta_box_nonce = true;
@@ -132,5 +142,3 @@ class PikList_Media
     return $post;
   }
 }
-
-?>

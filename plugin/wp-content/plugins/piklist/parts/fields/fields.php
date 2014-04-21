@@ -2,10 +2,13 @@
 <?php
   piklist('field', array(
     'type' => 'hidden'
-    ,'scope' => 'piklist'
+    ,'scope' => piklist::$prefix
     ,'field' => 'fields_id'
     ,'value' => $fields_id
     ,'widget' => false
+    ,'attributes' => array(
+      'class' => 'piklist-fields-id'
+    )
   ));
 ?>
 
