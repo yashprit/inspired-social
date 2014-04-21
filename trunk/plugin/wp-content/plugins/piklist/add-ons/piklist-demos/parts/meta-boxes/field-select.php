@@ -1,9 +1,9 @@
 <?php
 /*
-Title: Select Fields <span class="piklist-title-right">Order 20</span>
+Title: Select Fields
 Post Type: piklist_demo
 Order: 20
-Collapse: false
+Collapse: true
 */
 
   piklist('field', array(
@@ -38,8 +38,8 @@ Collapse: false
     )
   ));
 
-  piklist('shared/meta-box-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
-  
 ?>

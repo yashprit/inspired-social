@@ -1,13 +1,14 @@
-=== PIKLIST | Rapid Development Framework ===
+=== PIKLIST | Rapid development framework ===
 Contributors: piklist, p51labs, sbruner
 Tags: piklist, framework, cms, custom post types, post type, custom taxonomies, taxonomy, custom comment type, comments, settings, widgets
-Tested up to: 3.5
-Requires at least: 3.3.2
-Stable tag: 0.7.2
+Tested up to: 3.9
+Requires at least: 3.6
+Stable tag: 0.9.3.1
+Donate link: http://piklist.com/get-involved/
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-A Rapid Development Framework for WordPress.
+A rapid development framework for WordPress.
 
 == Description ==
 
@@ -21,14 +22,13 @@ Piklist is the developers best friend. A rapid development framework for WordPre
 *   Build Fields for Settings page, Widgets, Custom Post Types, Custom Taxonomies and User Profiles with minimal code.
 *   Conditionally show fields (or their values), based on Post Status and/or User Role.
 *   Define Custom Post Statuses
+*   Relate Post-to-Posts.
 *   <a href="http://piklist.com">and more...</a>
 
-= COMING SOON =
-*   Drag-and-drop Field and Form builder.
-*   Out-of-the-box applications: Contact Manager, Order Management, etc.
 
 = LEARN MORE =
 *   <a href="http://piklist.com/user-guide/">Piklist User Guide</a>
+
 
 = Better Custom Post Types =
 *   Powerful Custom Post Types 
@@ -83,12 +83,106 @@ Piklist is the developers best friend. A rapid development framework for WordPre
 *   Hide/Show based on the users capability.
 *   Hide form fields, and just show field values
 
+= Translators =
+* French (fr) - Daniel Ménard
+* Slovak (sk) - Branco
+
 == Installation ==
 
 *   Install and activate Piklist like any other plugin.
 *   DEVELOPERS: <a href="http://piklist.com">Learn how to develop</a> Piklist Powered Themes and Plugins.
 
 == Changelog ==
+
+= 0.9.3.1 =
+* FIXED: Addmore field bug fix.
+
+= 0.9.3 =
+* FIXED: Checkboxes save properly.
+
+= 0.9.2 =
+* NEW: Multiselect field.
+* NEW DEMO: Post Editor in an Add-more.
+* IMPROVED: Add-mores are better than ever.
+* FIXED: Dashboard widgets drag-and-drop properly.
+* FIXED: Fixed Notices.
+
+= 0.9.1 =
+* FIXED: Add-mores can now contain empty values.
+* FIXED: body_class function works better with Jetpack.
+
+= 0.9.0 =
+* NEW: Add Tooltip Help to any Piklist field.
+* NEW: post_states parameter.
+* NEW: Set page icon on Taxonomy and User Taxonomy pages.
+* NEW: Dashicons now included.
+* NEW: Piklist grid css.
+* IMPROVED: Comma-seperated list of Taxonomies can be passed in a term file.
+* IMPROVED: Comma-separated lists of Post Types or Taxonomies in meta-boxes or term files can contain spaces.
+* IMPROVED: Use $page_icon instead of $icon.
+* IMPROVED: Use $menu_icon instead of $icon_url.
+* FIXED: Editing text boxes for Add-mores work in Firefox.
+* FIXED: Dashboard widget layout saves properly.
+* FIXED: $attributes in Editor field should be $options.
+* FIXED: Custom Post Statuses retain order when used with multiple CPTs.
+
+= 0.8.0b6 =
+* IMPROVED: Multiple Author Roles are turned off by default.
+* IMPROVED: Add-mores are now even more awesome.
+* FIXED: Checkboxes.
+* FIXED: Tab Spacing.
+* FIXED: User Taxonomy data saves properly.
+* FIXED: WorkFlow tabs save properly for Post Types.
+* FIXED: Widgets work better than ever.
+* FIXED: Lots of bugs squashed!
+
+= 0.8.0b5 =
+* NEW: Comment Field.
+* IMPROVED: Assets for Javascript fields only load when the field is in use.
+* FIXED: Windows Path Error.
+* FIXED: Image upload for Widgets.
+
+= 0.8.0b4 =
+* NEW: Replace standard Right Now widget on WordPress dashboard.
+* FIXED: REALLY fixed the Javascript error that broke visual editor and Help Tabs.
+* FIXED: Widgets
+
+= 0.8.0b3 =
+* FIXED: Javascript error that broke visual editor and Help Tabs.
+
+= 0.8.0b2 =
+* NEW: Upload File field!
+* Bug Fixes
+
+= 0.8.0b1 =
+* Now requires WordPress 3.4+.
+* NEW: Infinite Add-Mores!
+* NEW: Relationship field!
+* NEW: Multiple User Roles!
+* NEW: User Taxonomies!
+* NEW: Work Flow!
+* NEW: Help Tabs!
+* NEW: Dashboard Widgets!
+* NEW: Required option for fields!
+* New: Remove Meta Box around custom fields!
+* NEW: Show meta fields by Page Template. Props @James_Mc.
+* NEW: hide_screen_options parameter when registering Post Types.
+* NEW: admin_body_class parameter when registering Post Types.
+* NEW: Remove Save functionality for settings page.
+* NEW: Change Save button text.
+* NEW: French translation by Daniel Ménard.
+* NEW: Slovak translation by Branco.
+* IMPROVED: Extended admin_body_class for Post Types and Taxonomies.
+* IMPROVED: Better display for settings page for both Tabs/no Tabs, and single line.
+* IMPROVED: Add or auto generate Form ID.
+* IMPROVED: Stops Webkit browsers from auto-filling user fields in the admin.
+* IMPROVED: More localized strings. Props @Daniel Ménard.
+* FIXED: HTTPS works properly.
+* FIXED: Comment field no longer duplicates comments.
+* FIXED: Administrators can edit other users meta.
+* FIXED: HTML escaped neccessary fields.
+* FIXED: Better garbage collection.
+* FIXED: CSS for h2.nav-tab-wrapper.
 
 = 0.7.2 =
 * NEW: Plugin updates...the Piklist way.
@@ -103,116 +197,116 @@ Piklist is the developers best friend. A rapid development framework for WordPre
 * FIXED: Empty Time and Date fields no longer return "false".
 
 = 0.7.0 =
-* NEW FEATURE: Disable Piklist Deactivation.
-* NEW FEATURE: Customize the "Enter Title Here" text in Post Type Titles.
+* NEW: Disable Piklist Deactivation.
+* NEW: Customize the "Enter Title Here" text in Post Type Titles.
 * FIXED: Error when saving Media meta. Props @James_Mc
 * FIXED: Removed legacy less_styles() function.
 * FIXED: Added Text Domain to all localized strings.
 
 = 0.6.9 =
-* Bugfix: Metaboxes jQuery conflict fixed for Firefox.
+* FIXED: Metaboxes jQuery conflict fixed for Firefox.
 
 = 0.6.8 =
-* Better upgrade notice in admin.
-* Nicer jQuery animation for certain fields.
-* Update uninstall.php to remove Piklist tables.
-* Bugfix: Conditionals now working.
+* IMPROVED: Better upgrade notice in admin.
+* IMPROVED: Nicer jQuery animation for certain fields.
+* IMPROVED: Update uninstall.php to remove Piklist tables.
+* FIXED: Conditionals now working.
 
 = 0.6.7 =
 * Our most significant update since the initial release:
-* Add Taxonomy Meta!
-* Add User Meta!
-* Add Media Meta!
-* New super powers for tax_query and meta_query!
-* Add meta box to a specific Page/Post ID. Props @kattagami and @James_Mc
-* Bugfix: Network Activated plugins did not work properly.
-* Bugfix: In function post_type_labels, view_item should be singularize. Props @James_Mc
-* Bugfix: Allow creating of field-less meta boxes. Props @James_Mc
-* Bugfix: Register Taxonomies before Custom Post Types. Props @Daniel Ménard
+* NEW: Add Taxonomy Meta!
+* NEW: Add User Meta!
+* NEW: Add Media Meta!
+* NEW: New super powers for tax_query and meta_query!
+* NEW: Add meta box to a specific Page/Post ID. Props @kattagami and @James_Mc
+* FIXED: Network Activated plugins did not work properly.
+* FIXED: In function post_type_labels, view_item should be singularize. Props @James_Mc
+* FIXED: Allow creating of field-less meta boxes. Props @James_Mc
+* FIXED: Register Taxonomies before Custom Post Types. Props @Daniel Ménard
 
 = 0.6.6 =
-* uninstall.php file added.
-* Language folder added.
-* Bugfix: Stopped some installs from receiving upgrade notices.
-* Bugfix: Settings Tabs in submenu's didn't always work.
+* NEW: uninstall.php file added.
+* NEW: Language folder added.
+* FIXED: Stopped some installs from receiving upgrade notices.
+* FIXED: Settings Tabs in submenu's didn't always work.
 
 = 0.6.5 =
-* Taxonomy save function update.
-* Auto-columns for checkboxes and radio buttons.
-* Asset loader supports admin.
+* IMPROVED: Taxonomy save function.
+* NEW: Auto-columns for checkboxes and radio buttons.
+* NEW: Asset loader supports admin.
 
 = 0.6.4 =
-* Save button can be removed for individual Settings pages.
-* Show file uploads in Piklist Demos.
-* Bugfix: Publish box fixes.
-* Bugfix: Taxonomy save/edit.
-* Bugfix: 3.3.2 support.
+* NEW: Save button can be removed for individual Settings pages.
+* NEW: Show file uploads in Piklist Demos.
+* FIXED: Publish box fixes.
+* FIXED: Taxonomy save/edit.
+* FIXED: 3.3.2 support.
 
 = 0.6.3 =
-* New field! Upload files.
-* Added new Piklist XML class.
-* Updated Piklist get_terms function.
-* Removed ability to run any shortcode in a widget. Moved to WordPress-Helpers plugin.
-* Many notices have been fixed.
+* NEW: New field! Upload files.
+* NEW: Added new Piklist XML class.
+* NEW: Updated Piklist get_terms function.
+* NEW: Removed ability to run any shortcode in a widget. Moved to WordPress-Helpers plugin.
+* FIXED: notice issues.
 
 = 0.6.2 =
-* Bugfix: Publish box wasn't always publishing.
-* Bugfix: Fixed settings issues with multisite.
-* Bugfix: Grouped fields were not laying out properly.
+* FIXED: Publish box wasn't always publishing.
+* FIXED: Fixed settings issues with multisite.
+* FIXED: Grouped fields were not laying out properly.
 
 = 0.6.1 =
-* Bugfix: Group fields stying
+* FIXED: Group fields stying
 
 = 0.6.0 =
-* Bugfix: Published posts revert to draft on save.
-* Bugfix: Tabbed Settings page were not saving.
-* Field names and ID's are now prefixed on frontend.
+* NEW: Field names and ID's are now prefixed on frontend.
+* FIXED: Published posts revert to draft on save.
+* FIXED: Tabbed Settings page were not saving.
 
 = 0.5.9 =
-* Allow multiple nested fields.
-* Bugfix: add-more fields.
-* Bugfix: Conditonal fields.
-* Bugfix: Auto update fields.
-* Bugfix: issue with plugin folders alphabetically higher than "piklist".
-* Implemented GET Field value function.
-* Bugfix: path issue on Windows server.
+* NEW: Allow multiple nested fields.
+* NEW: Implemented GET Field value function.
+* FIXED: add-more fields.
+* FIXED: Conditonal fields.
+* FIXED: Auto update fields.
+* FIXED: issue with plugin folders alphabetically higher than "piklist".
+* FIXED: path issue on Windows server.
 
 = 0.5.8 =
-* Advanced Search capabilities function.
+* NEW: Implemented GET Field value function.Advanced Search capabilities function.
 
 = 0.5.7 =
-* Publish box set to Priority:Core, so meta boxes can be added before it.
+* FIXED: Publish box set to Priority:Core, so meta boxes can be added before it.
 
 = 0.5.6 =
-* Forced Publish Meta Box to always be at top right.
-* Fixed all PHP Notice issues.
-* Added rule to flush permalinks when registering a new post type if needed.
-* Fixed default post title fallback.
-* Added has_archive to register_custom_post_types function.
-* Fixed Taxonomy scope bug on show value.
-* Fixed bug with Post-to-Post relationships.
+* IMPROVED: Forced Publish Meta Box to always be at top right.
+* IMPROVED: Added has_archive to register_custom_post_types function.
+* FIXED: PHP Notice issues.
+* FIXED: Added rule to flush permalinks when registering a new post type if needed.
+* FIXED: default post title fallback.
+* FIXED: Taxonomy scope bug on show value.
+* FIXED: bug with Post-to-Post relationships.
 
 = 0.5.5 =
-* Fixed Child theme support.
-* Fixed bug with frontend forms.
+* FIXED: Child theme support.
+* FIXED: bug with frontend forms.
 
 = 0.5.4 =
-* Fixed Meta Box Sort for non-ordered meta boxes.
-* Added support to register a plugin with Piklist by using the Plugin Type comment.
-* Updated Theme Path.
-* Updated fields so that post_meta is the default scope for meta-boxes.
+* NEW: Added support to register a plugin with Piklist by using the Plugin Type comment.
+* IMPROVED: Updated fields so that post_meta is the default scope for meta-boxes.
+* FIXED: Meta Box Sort for non-ordered meta boxes.
+* FIXED: Updated Theme Path.
 
 = 0.5.3 =
-* Updated Meta Boxes to respect new theme folder structure.
-* Updated global meta boxes to work on default post types.
+* IMPROVED: Meta Boxes now respect new theme folder structure.
+* IMPROVED: Global meta boxes now work on default post types.
 
 = 0.5.2 =
-* Fixed Conditional Tag for Style Loading.
-* Fixed Add-On Registration.
+* FIXED: Conditional Tag for Style Loading.
+* FIXED: Add-On Registration.
 
 = 0.5.1 =
-* Updated Status Ranges.
-* Fixed Directory Parse Bug.
+* IMPROVED: Updated Status Ranges.
+* FIXED: Directory Parse Bug.
 
 = 0.5.0 =
 * Initial release!
@@ -225,3 +319,10 @@ Piklist is the developers best friend. A rapid development framework for WordPre
 
 = 0.6.4 =
 * Fixes major issue with Publish box. Please upgrade.
+
+== Screenshots ==
+
+1. Post relationships: You'll wish all relationships were this easy.
+2. Add-mores: The infinite repeater field.
+3. WorkFlows: The tab system you never knew was possible.
+4. Multiple user roles: Better security, more flexibility.

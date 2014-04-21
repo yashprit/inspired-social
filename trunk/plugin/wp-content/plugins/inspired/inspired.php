@@ -22,6 +22,8 @@ Mod functions.php
 -----------------------------------------
 */
 
+$openfire = new Java("com.ifsoft.inspired.PHP2Java");
+
 add_action('wp_login', 						'inspired_login_ok');
 add_action('init', 							'my_plugin_init' );
 
@@ -50,53 +52,60 @@ function openfire_userimport_menu()
 
 function inspired_user_page()
 {
-	global $bp;
-	//of_logInfo("inspired_user_page logged user " . $bp->loggedin_user->userdata->user_login);
+	global $bp, $openfire;
+
+	$openfire->of_logInfo("inspired_user_page logged user " . $bp->loggedin_user->userdata->user_login);
 
 	if ($bp->loggedin_user->userdata->user_login != "")
-		of_set_user_session($bp->loggedin_user->userdata->user_login);
+		$openfire->of_set_user_session($bp->loggedin_user->userdata->user_login);
 
-	echo '<script type="text/javascript">top.setGroups("' . $bp->loggedin_user->userdata->user_login . '", [' . getGroupChats($bp->loggedin_user->id) . ']);</script>';
+	echo '<script type="text/javascript">top.setGroups("' . $bp->loggedin_user->userdata->user_login . '", [' . $openfire->getGroupChats($bp->loggedin_user->id) . ']);</script>';
 }
 
 
 function inspired_login_ok($username)
 {
-	of_logInfo("inspired_login_ok " . $username);
-	of_set_user_session($username);
+	global $openfire;
+	$openfire->of_logInfo("inspired_login_ok " . $username);
+	$openfire->of_set_user_session($username);
 }
 
 
 function inspired_join_group($group, $user)
 {
-	joinLeaveGroup($user, $group, "join");
+	global $openfire;
+	$openfire->joinLeaveGroup($user, $group, "join");
 
 }
 
 function inspired_leave_group($group, $user)
 {
-	joinLeaveGroup($user, $group, "leave");
+	global $openfire;
+	$openfire->joinLeaveGroup($user, $group, "leave");
 }
 
 
 function inspired_create_friendship($id, $from, $to)
 {
-	createFriendship($from, $to, "Friends");
+	global $openfire;
+	$openfire->createFriendship($from, $to, "Friends");
 }
 
 function inspired_delete_friendship($id, $from, $to)
 {
-	removeFriendship($from, $to);
+	global $openfire;
+	$openfire->removeFriendship($from, $to);
 }
 
 function inspired_create_group($id)
 {
-	createGroupChat($id);
+	global $openfire;
+	$openfire->createGroupChat($id);
 }
 
 function openfire_userimport_page() {
 
-	global $wpdb;
+	global $wpdb, $openfire;
 
   	if (!current_user_can('manage_options')) {
     	wp_die( __('You do not have sufficient permissions to access this page.') );
@@ -105,14 +114,14 @@ function openfire_userimport_page() {
 	if ($_POST['mode'] == "submit")
 	{
 		$password = "changeme";
-		$str_rows = getOpenfireUsers();
+		$str_rows = $openfire->getOpenfireUsers();
 		$arr_rows = split("\|", $str_rows);
 
 		if (is_array($arr_rows))
 		{
 			foreach ($arr_rows as $row)
 			{
-				of_logInfo("Importing... " . $row);
+				$openfire->of_logInfo("Importing... " . $row);
 
 				$arr_values = split(",", $row);
 

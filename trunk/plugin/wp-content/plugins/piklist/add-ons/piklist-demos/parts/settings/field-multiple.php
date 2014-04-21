@@ -2,7 +2,8 @@
 /*
 Title: Radio, Checkbox and Nested Fields
 Setting: piklist_demo_fields
-Order: 30
+Tab: Lists
+Order: 20
 */
 
   piklist('field', array(
@@ -66,4 +67,10 @@ Order: 30
       )
     )
   ));
-  
+
+  piklist('shared/code-locater', array(
+    'location' => __FILE__
+    ,'type' => 'Settings Section'
+  ));
+
+?>

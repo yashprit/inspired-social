@@ -1,8 +1,9 @@
 <?php
 /*
-Title: Upload Fields <span class="piklist-title-right">Order 110</span>
+Title: Upload Fields <span class="piklist-title-right">Meta Box Removed</span>
 Post Type: piklist_demo
 Order: 110
+Meta Box: false
 Collapse: false
 */
   
@@ -14,70 +15,38 @@ Collapse: false
   // NOTE: If the post_status of an attachment is anything but inherit or private it will NOT be
   // shown on the Media page in the admin, but it is in the database and can be found using query_posts
   // or get_posts or get_post etc....  
-  
+?>
+
+<h3 class="demo-highlight">
+  <?php _e('Piklist comes standard with two upload fields: Basic and Media. The Media field works just like the standard WordPress media field, while the Basic uploader is great for simple forms.','piklist');?>
+  <?php _e('The metabox "look" can be removed to provide a different look.','piklist');?>
+</h3>
+
+<?php
   piklist('field', array(
-    'type' => 'text'
-    ,'field' => 'post_status'
-    ,'scope' => 'upload_simple'
-    ,'description' => 'This is set to pull in post status automatically'
-    ,'label' => 'Attachment Status'
-    ,'value' => $post->post_status
-  ));
-  
-  piklist('field', array(
-    'type' => 'textarea'
-    ,'field' => 'post_excerpt'
-    ,'scope' => 'upload_simple'
-    ,'label' => 'Attachment Notes'
-    ,'attributes' => array(
-      'class' => 'large-text'
+    'type' => 'file'
+    ,'field' => 'upload_basic'
+    ,'scope' => 'post_meta'
+    ,'label' => __('Add File(s)','piklist')
+    ,'description' => __('This is the basic upload field.','piklist')
+    ,'options' => array(
+      'basic' => false
     )
   ));
   
   piklist('field', array(
     'type' => 'file'
-    ,'field' => 'upload_simple'
-    ,'scope' => 'post'
-    ,'label' => 'Attach File'
-    ,'value' => 'Upload'
+    ,'field' => 'upload_media'
+    ,'scope' => 'post_meta'
+    ,'label' => __('Add File(s)','piklist')
+    ,'description' => __('This is the uploader seen in the admin by default.','piklist')
+    ,'options' => array(
+      'modal_title' => __('Add File(s)','piklist')
+      ,'button' => __('Add','piklist')
+    )
   ));
-
-
-
-  $args = array( 
-    'post_type' => 'attachment' 
-    ,'numberposts' => -1
-    ,'post_parent' => $post->ID 
-    ,'post_status' => 'all'
-  ); 
   
-  $attachments = get_posts( $args );
-  if ($attachments)
-  {
-    global $wp_post_statuses;
-    remove_all_filters('get_the_excerpt'); // Since we're using the_excerpt for notes, we need to keep it clean.
-
-    foreach ( $attachments as $post )
-    { 
-      setup_postdata($post); ?>
-
-      <div id="pik_post_attachment_<?php echo $post->ID; ?>" class="piklist-field-container">
-        <div class="piklist-label-container">
-          <?php echo wp_get_attachment_link( $attachment->ID, 'thumbnail', false, true ); ?>     
-        </div>
-        <div class="piklist-field">
-          <?php printf( __('%1$sOrder Status:%2$s %3$s','piklist'),'<strong>','</strong>',$wp_post_statuses[$post->post_status]->label); ?>
-          <?php the_excerpt(); ?>
-        </div>
-      </div>
-<?php
-    }
-
-  }
-
-  
-  piklist('shared/meta-box-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
-  
-?>

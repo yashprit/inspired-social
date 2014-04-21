@@ -2,6 +2,7 @@
 /*
 Title: Select Fields
 Setting: piklist_demo_fields
+Tab: Lists
 Order: 20
 */
 
@@ -18,3 +19,9 @@ Order: 20
     )
   ));
 
+  piklist('shared/code-locater', array(
+    'location' => __FILE__
+    ,'type' => 'Settings Section'
+  ));
+
+?>

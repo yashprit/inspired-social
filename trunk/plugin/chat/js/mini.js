@@ -40,8 +40,8 @@ function setupConMini(con) {
 	con.registerHandler('onerror', handleErrorMini);
 	con.registerHandler('onconnect', connectedMini);
 	
-	WebRtc.callback = {onReady: handleReady, onMute: handleMuteSignal};
-	WebRtc.init(con, {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]});	
+	//WebRtc.callback = {onReady: handleReady, onMute: handleMuteSignal};
+	//WebRtc.init(con, {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]});	
 	
 }
 
@@ -257,7 +257,7 @@ function disconnectMini() {
 	// Disconnect the user
 	con.disconnect();
 	
-	WebRtc.close();		
+	//WebRtc.close();		
 	
 	logThis('Jappix Mini is disconnecting...', 3);
 	
@@ -327,7 +327,7 @@ function handleMessageMini(msg)
 				
 		logThis('WebRtc message received from: ' + xid);	
 		
-		WebRtc.handleMessage(webrtcXml, xid, room);
+		//WebRtc.handleMessage(webrtcXml, xid, room);
 		
 		return;
 	}
@@ -757,7 +757,7 @@ function handlePresenceMini(pr) {
 
 		if(show == 'unavailable')
 		{
-			WebRtc.handleRoster(myXid, from, getXIDNick(from), "leave");
+			//WebRtc.handleRoster(myXid, from, getXIDNick(from), "leave");
 			console.log("WEBRTC ROSTER LEAVE " + myXid + " " + from);
 					
 			if(exists(groupchat_path)) 
@@ -767,7 +767,7 @@ function handlePresenceMini(pr) {
 
 		} else {
 
-			WebRtc.handleRoster(myXid, from, getXIDNick(from), "join");
+			//WebRtc.handleRoster(myXid, from, getXIDNick(from), "join");
 			console.log("WEBRTC ROSTER JOIN " + myXid + " " + from);
 			
 			if(exists(groupchat_path) && resource != unescape(jQuery(groupchat_path).attr('data-nick'))) 
@@ -1008,7 +1008,7 @@ function notifyAudioVideo(hash, xid, muc, videoRequested)
 	var tab = '#jappix_mini #chat-' + hash + ' a.jm_chat-tab';
 	var notify = tab + ' span.jm_media_notify';
 	var image = "chat/img/others/call_off.gif";
-	
+/*	
 	if (muc)
 	{
 		var room = xid.split("@")[0];
@@ -1020,7 +1020,8 @@ function notifyAudioVideo(hash, xid, muc, videoRequested)
 		} else {
 			image = "chat/img/others/call_off.gif";		
 		
-		}		
+		}
+		
 		
 	} else {
 	
@@ -1043,7 +1044,7 @@ function notifyAudioVideo(hash, xid, muc, videoRequested)
 		}
 		
 	}
-	
+*/	
 	if(!exists(notify))
 		jQuery(tab).append(
 			'<span class="jm_media_notify">' + 
@@ -1078,11 +1079,13 @@ function muteRemote(img, muc)
 		var mute = true;		
 	}		
 	
-		
+/*		
 	if (muc)
 		WebRtc.muteRemoteRoom(mute, img.id.split("@")[0])	
 	else
 		WebRtc.muteRemoteUser(mute, img.id)
+		
+*/		
 }
 
 
@@ -1665,13 +1668,13 @@ function doWebRtcAudioToggle(xid, type)
 	if (type == "groupchat")
 	{
 		var room = getXIDNick(xid); 
-		WebRtc.toggleRoomMute(room);
-		var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending audio";	
+		//WebRtc.toggleRoomMute(room);
+		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending audio";	
 		
 	} else {
 		var user = bareXID(xid);
-		WebRtc.toggleUserMute(user, false);
-		var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending audio";	
+		//WebRtc.toggleUserMute(user, false);
+		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending audio";	
 	}	
 	
 	displayThreadMessage(xid, type, message)	
@@ -1682,17 +1685,17 @@ function doWebRtcVideoToggle(xid, type)
 	if (type == "groupchat")
 	{
 		var room = getXIDNick(xid); 
-		WebRtc.toggleRoomMute(room);
-		var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";	
+		//WebRtc.toggleRoomMute(room);
+		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";	
 		
 	} else {
 		var user = bareXID(xid);
-		WebRtc.toggleUserMute(user, true);
-		var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
+		//WebRtc.toggleUserMute(user, true);
+		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
 	}	
 	
 	displayThreadMessage(xid, type, message)
-				
+/*				
 	if (WebRtc.isUserMuted(user) == false)
 	{
 		openWindow(380, 315);
@@ -1700,7 +1703,7 @@ function doWebRtcVideoToggle(xid, type)
 	
 		jQuery('#window').hide();
 	}
-	
+*/	
 	videoXid = xid;
 }
 
@@ -1746,7 +1749,7 @@ function chatMini(type, xid, nick, hash, pwd, show_pane)
 
 	if (type == 'chat') 
 	{
-		WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(xid), getXIDNick(xid), "chat", {audio:true, video:true});		
+		//WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(xid), getXIDNick(xid), "chat", {audio:true, video:true});		
 	}
 		
 	// Not yet added?
@@ -1837,7 +1840,7 @@ function chatMini(type, xid, nick, hash, pwd, show_pane)
 			'<div class="jm_received-messages" id="received-' + hash + '"></div>' + 
 				'<form action="#" method="post">' + 
 					'<div style="margin-left:auto;margin-right:auto;width:25%;"><table><tr>' + 					
-					webrtcHtml + 								
+					//webrtcHtml + 								
 					'</tr></table></div>' +
 					'<input type="text" class="jm_send-messages" name="body" autocomplete="off" />' + 
 					'<input type="hidden" name="xid" value="' + xid + '" />' + 
@@ -1905,17 +1908,17 @@ function changeAudioImage(img, xid, type)
 	if (type == "groupchat")
 	{
 		var room = getXIDNick(xid); 
-		WebRtc.toggleRoomMute(room);
-		var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending audio";	
+		//WebRtc.toggleRoomMute(room);
+		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending audio";	
 		
-		img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";		
+		//img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";		
 		
 	} else {
 		var user = bareXID(xid);
-		WebRtc.toggleUserMute(user, false);
-		var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending audio";	
+		//WebRtc.toggleUserMute(user, false);
+		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending audio";	
 		
-		img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";			
+		//img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";			
 	}
 	
 		
@@ -1928,21 +1931,21 @@ function changeVideoImage(img, xid, type)
 	if (type == "groupchat")
 	{
 		var room = getXIDNick(xid); 
-		WebRtc.toggleRoomMute(room);
-		var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";
+		//WebRtc.toggleRoomMute(room);
+		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";
 		
-		img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
+		//img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
 		
 	} else {
 		var user = bareXID(xid);
-		WebRtc.toggleUserMute(user, true);
-		var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
+		//WebRtc.toggleUserMute(user, true);
+		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
 		
-		img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
+		//img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
 	}	
 	
 	displayThreadMessage(xid, type, message)
-				
+/*				
 	if (WebRtc.isUserMuted(user) == false)
 	{
 		openWindow(380, 315);
@@ -1950,7 +1953,7 @@ function changeVideoImage(img, xid, type)
 	
 		jQuery('#window').hide();
 	}
-	
+*/	
 	videoXid = xid;
 
 }
@@ -2005,7 +2008,7 @@ function chatEventsMini(type, xid, hash) {
 				
 			} else {
 
-				WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(xid), getXIDNick(xid), "leave");
+				//WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(xid), getXIDNick(xid), "leave");
 				jQuery('#window').hide();
 			}
 		}
@@ -2342,6 +2345,8 @@ function launchMini(autoconnect, show_pane, domain, user, password)
 	
 	jQuery(window).bind('beforeunload', saveSessionMini);
 	
+	createMini(domain, user, password);	
+/*	
 	WebRtc.mediaHints = {audio:true, video:true};
 
 	navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.video}, function(stream) 
@@ -2354,7 +2359,7 @@ function launchMini(autoconnect, show_pane, domain, user, password)
 		logThis("WebRtc.onUserMediaError " + error.code);
 		createMini(domain, user, password);		
 	});
-	
+*/	
 	logThis('Welcome to Jappix Mini! Happy coding in developer mode!');
 }
 

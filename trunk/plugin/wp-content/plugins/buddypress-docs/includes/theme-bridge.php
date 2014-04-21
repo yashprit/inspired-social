@@ -42,7 +42,7 @@ function bp_docs_template_include( $template = '' ) {
 		return $template;
 	}
 
-	$do_theme_compat = class_exists( 'BP_Theme_Compat' ) && apply_filters( 'bp_docs_do_theme_compat', true, $template );
+	$do_theme_compat = bp_docs_do_theme_compat();
 
 	if ( $do_theme_compat ) {
 
@@ -64,6 +64,20 @@ function bp_docs_template_include( $template = '' ) {
 	return apply_filters( 'bp_docs_template_include', $template );
 }
 add_filter( 'template_include', 'bp_docs_template_include', 6 );
+
+/**
+ * Should we do theme compatibility?
+ *
+ * Do it whenever it's available in BuddyPress (whether enabled or not for the
+ * theme more generally)
+ *
+ * @since 1.5.6
+ *
+ * @return bool
+ */
+function bp_docs_do_theme_compat( $template = false ) {
+	return class_exists( 'BP_Theme_Compat' ) && apply_filters( 'bp_docs_do_theme_compat', true, $template );
+}
 
 /**
  * Theme Compat
@@ -96,7 +110,9 @@ class BP_Docs_Theme_Compat {
 
 		add_filter( 'bp_get_buddypress_template', array( $this, 'query_templates' ) );
 
-		if ( bp_docs_is_global_directory() ) {
+		add_filter( 'bp_use_theme_compat_with_current_theme', 'bp_docs_do_theme_compat' );
+
+		if ( bp_docs_is_global_directory() || bp_docs_is_mygroups_directory() ) {
 
 			bp_update_is_directory( true, 'docs' );
 			do_action( 'bp_docs_screen_index' );
@@ -115,6 +131,9 @@ class BP_Docs_Theme_Compat {
 			} else {
 				$this->single_content_template = 'docs/single/index';
 				add_filter( 'bp_docs_allow_comment_section', '__return_false' );
+
+				// Necessary as of BP 1.9.2
+				remove_action( 'bp_replace_the_content', 'bp_theme_compat_toggle_is_page', 9999 );
 			}
 
 			add_action( 'bp_template_include_reset_dummy_post_data', array( $this, 'single_dummy_post' ) );

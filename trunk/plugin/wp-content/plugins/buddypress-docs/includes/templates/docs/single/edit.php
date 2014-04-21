@@ -38,25 +38,37 @@
 		<?php if ( bp_docs_is_existing_doc() ) : ?>
 			<div id="doc-content-permalink">
 				<label for="doc[permalink]"><?php _e( 'Permalink', 'bp-docs' ) ?></label>
-				<code><?php echo trailingslashit( bp_get_root_domain() ) . BP_DOCS_SLUG . '/' ?></code><input type="text" id="doc-permalink" name="doc[permalink]" class="long" value="<?php bp_docs_edit_doc_slug() ?>" />
+				<code><?php echo trailingslashit( bp_get_root_domain() ) . bp_docs_get_docs_slug() . '/' ?></code><input type="text" id="doc-permalink" name="doc[permalink]" class="long" value="<?php bp_docs_edit_doc_slug() ?>" />
 			</div>
 		<?php endif ?>
+
+		<?php do_action( 'bp_docs_before_doc_edit_content' ) ?>
 
 		<div id="doc-content-textarea">
 			<label id="content-label" for="doc_content"><?php _e( 'Content', 'bp-docs' ) ?></label>
 			<div id="editor-toolbar">
 				<?php
 					if ( function_exists( 'wp_editor' ) ) {
-						wp_editor( bp_docs_get_edit_doc_content(), 'doc_content', array(
+						$wp_editor_args = apply_filters( 'bp_docs_wp_editor_args', array(
 							'media_buttons' => false,
-							'dfw'		=> false
+							'dfw'		=> false,
 						) );
+						wp_editor( bp_docs_get_edit_doc_content(), 'doc_content', $wp_editor_args );
 					} else {
 						the_editor( bp_docs_get_edit_doc_content(), 'doc_content', 'doc[title]', false );
 					}
 				?>
 			</div>
 		</div>
+
+		<?php do_action( 'bp_docs_after_doc_edit_content' ) ?>
+
+		<?php if ( bp_docs_enable_attachments() ) : ?>
+			<div id="doc-attachments">
+				<label for="insert-media-button"><?php _e( 'Attachments', 'bp-docs' ) ?></label>
+				<?php include ( bp_docs_locate_template( 'single/attachments.php' ) ) ?>
+			</div>
+		<?php endif ?>
 
 		<div id="doc-meta">
 			<?php if ( bp_is_active( 'groups' ) && bp_docs_current_user_can( 'manage' ) && apply_filters( 'bp_docs_allow_associated_group', true ) ) : ?>
@@ -73,7 +85,7 @@
 				</div>
 			<?php endif ?>
 
-			<?php if ( bp_is_active( 'groups' ) && bp_docs_current_user_can( 'manage' ) && apply_filters( 'bp_docs_allow_access_settings', true ) ) : ?>
+			<?php if ( bp_docs_current_user_can( 'manage' ) && apply_filters( 'bp_docs_allow_access_settings', true ) ) : ?>
 				<div id="doc-settings" class="doc-meta-box">
 					<div class="toggleable">
 						<p class="toggle-switch" id="settings-toggle"><?php _e( 'Access', 'bp-docs' ) ?></p>
@@ -137,12 +149,14 @@
 
 			<?php wp_nonce_field( 'bp_docs_save' ) ?>
 
-			<?php $doc_id = bp_docs_is_existing_doc() ? get_the_ID() : 0 ?>
+			<?php $doc_id = bp_docs_is_existing_doc() ? get_queried_object_id() : 0 ?>
 			<input type="hidden" id="doc_id" name="doc_id" value="<?php echo $doc_id ?>" />
 			<input type="submit" name="doc-edit-submit" id="doc-edit-submit" value="<?php _e( 'Save', 'bp-docs' ) ?>"> <a href="<?php bp_docs_cancel_edit_link() ?>" class="action safe"><?php _e( 'Cancel', 'bp-docs' ); ?></a>
 
 			<?php if ( bp_docs_is_existing_doc() ) : ?>
-				<?php if ( bp_docs_current_user_can( 'manage' ) ) : ?><a class="delete-doc-button confirm" href="<?php bp_docs_delete_doc_link() ?>"><?php _e( 'Delete', 'bp-docs' ) ?></a><?php endif ?>
+				<?php if ( bp_docs_current_user_can( 'manage', $doc_id ) ) : ?>
+					<?php bp_docs_delete_doc_button() ?>
+				<?php endif ?>
 			<?php endif ?>
 		</div>
 

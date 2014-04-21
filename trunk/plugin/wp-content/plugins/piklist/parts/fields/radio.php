@@ -6,7 +6,7 @@
 <?php endif; ?>
 
   <?php 
-    $index = 0;
+    $_index = 0;
     $value = is_array($value) && count($value) == 1 && !empty($value[0]) ? $value[0] : $value;
     foreach ($choices as $_value => $choice): 
   ?>
@@ -17,14 +17,14 @@
   
         <input 
           type="radio"
-          id="<?php echo piklist_form::get_field_id($field, $scope, $index, $prefix); ?>" 
+          id="<?php echo piklist_form::get_field_id($field, $scope, $_index, $prefix); ?>" 
           name="<?php echo piklist_form::get_field_name($field, $scope, false, $prefix);; ?>"
-          value="<?php echo $_value; ?>"
+          value="<?php echo esc_attr($_value); ?>"
           <?php echo $value == $_value ? 'checked="checked"' : ''; ?>
           <?php echo piklist_form::attributes_to_string($attributes); ?>
         />
   
-        <span>
+        <span class="piklist-list-item-label">
           <?php echo $choice; ?>
         </span>
     
@@ -32,7 +32,7 @@
 
     <?php echo $list ? '</li>' : ''; ?>
   
-    <?php $index++; ?>
+    <?php $_index++; ?>
   
   <?php endforeach; ?>
 

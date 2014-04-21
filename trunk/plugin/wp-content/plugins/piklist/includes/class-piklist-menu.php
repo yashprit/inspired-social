@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Menu
 {
   public static function _construct()
@@ -80,5 +85,3 @@ class PikList_Menu
     return $output;
   }
 }
-
-?>

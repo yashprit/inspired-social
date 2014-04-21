@@ -8,26 +8,16 @@ Order: 0
 
   piklist('field', array(
     'type' => 'text'
-    ,'field' => 'text_class_small'
-    ,'label' => 'Small'
-    ,'description' => 'class="small-text"'
+    ,'field' => 'text_class_regular'
+    ,'label' => 'Text'
+    ,'description' => 'class="regular-text"'
     ,'value' => 'Lorem'
+    ,'help' => 'You can easily add tooltips to your fields with the help parameter.'
     ,'attributes' => array(
-      'class' => 'small-text'
+      'class' => 'regular-text'
     )
   ));
-
-  piklist('field', array(
-    'type' => 'text'
-    ,'field' => 'text_columns_element'
-    ,'label' => 'Columns Element'
-    ,'description' => 'columns="6"'
-    ,'value' => 'Lorem'
-    ,'attributes' => array(
-      'columns' => 6
-    )
-  ));
-  
+ 
   piklist('field', array(
     'type' => 'text'
     ,'field' => 'text_add_more'
@@ -146,25 +136,10 @@ Order: 0
         ,'value' => date('M d, Y', time() + 604800)
         ,'columns' => 3
       )
-      ,array(
-        'type' => 'timepicker'
-        ,'field' => 'time'
-        ,'label' => 'Time'
-        ,'description' => 'Choose a time'
-        ,'options' => array(
-          'startTime' => date('H:m A')
-          ,'show24Hours' => false
-          ,'separator' => ':'
-          ,'step' => 15
-        )
-        ,'attributes' => array(
-          'size' => 12
-        )
-        ,'value' => date('H:m A')
-        ,'columns' => 3
-      )
     )
   ));
+
+
   
   piklist('field', array(
     'type' => 'colorpicker'
@@ -172,6 +147,7 @@ Order: 0
     ,'label' => 'Color Picker'
     ,'value' => '#03ADEF'
   ));
+
 
   piklist('field', array(
     'type' => 'select'
@@ -225,12 +201,14 @@ Order: 0
   piklist('field', array(
     'type' => 'text'
     ,'field' => 'update_field'
+    ,'value' => 'Hello World!' 
     ,'label' => 'Update This Field'
     ,'description' => 'This field is updated by the field above'
   ));
 
-  piklist('shared/meta-field-welcome', array(
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Term Meta Section'
   ));
   
 ?>

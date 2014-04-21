@@ -1,4 +1,7 @@
 <div id="buddypress">
+	<?php if ( ! did_action( 'template_notices' ) ) : ?>
+		<?php do_action( 'template_notices' ) ?>
+	<?php endif ?>
 
 	<?php include( apply_filters( 'bp_docs_header_template', bp_docs_locate_template( 'docs-header.php' ) ) ) ?>
 
@@ -19,11 +22,20 @@
 		<?php bp_docs_inline_toggle_js() ?>
 	<?php endif ?>
 
-	<?php /* Quirk: We only need this if not running theme compat */ ?>
+	<?php do_action( 'bp_docs_before_doc_content' ) ?>
 
 	<div class="doc-content">
 		<?php bp_docs_the_content() ?>
 	</div>
+
+	<?php do_action( 'bp_docs_after_doc_content' ) ?>
+
+	<?php if ( bp_docs_enable_attachments() && bp_docs_doc_has_attachments() ) : ?>
+		<div class="doc-attachments">
+			<h3><?php _e( 'Attachments', 'bp-docs' ) ?></h3>
+			<?php include ( bp_docs_locate_template( 'single/attachments.php' ) ) ?>
+		</div>
+	<?php endif ?>
 
 	<div class="doc-meta">
 		<?php do_action( 'bp_docs_single_doc_meta' ) ?>

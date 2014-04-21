@@ -19,10 +19,6 @@ add_action( 'bp_register_widgets', 'groups_register_widgets' );
 /*** GROUPS WIDGET *****************/
 
 class BP_Groups_Widget extends WP_Widget {
-	function bp_groups_widget() {
-		$this->_construct();
-	}
-
 	function __construct() {
 		$widget_ops = array(
 			'description' => __( 'A dynamic list of recently active, popular, and newest groups', 'buddypress' ),
@@ -32,8 +28,17 @@ class BP_Groups_Widget extends WP_Widget {
 
 		if ( is_active_widget( false, false, $this->id_base ) && !is_admin() && !is_network_admin() ) {
 			$min = defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ? '' : '.min';
-			wp_enqueue_script( 'groups_widget_groups_list-js', BP_PLUGIN_URL . "bp-groups/js/widget-groups{$min}.js", array( 'jquery' ), bp_get_version() );
+			wp_enqueue_script( 'groups_widget_groups_list-js', buddypress()->plugin_url . "bp-groups/js/widget-groups{$min}.js", array( 'jquery' ), bp_get_version() );
 		}
+	}
+
+	/**
+	 * PHP4 constructor
+	 *
+	 * For backward compatibility only
+	 */
+	function bp_groups_widget() {
+		$this->_construct();
 	}
 
 	function widget( $args, $instance ) {
@@ -64,7 +69,7 @@ class BP_Groups_Widget extends WP_Widget {
 
 			<ul id="groups-list" class="item-list">
 				<?php while ( bp_groups() ) : bp_the_group(); ?>
-					<li>
+					<li <?php bp_group_class(); ?>>
 						<div class="item-avatar">
 							<a href="<?php bp_group_permalink() ?>" title="<?php bp_group_name() ?>"><?php bp_group_avatar_thumb() ?></a>
 						</div>
@@ -164,10 +169,19 @@ function groups_ajax_widget_groups_list() {
 		break;
 	}
 
-	if ( bp_has_groups( 'type=' . $type . '&per_page=' . $_POST['max_groups'] . '&max=' . $_POST['max_groups'] ) ) : ?>
+	$per_page = isset( $_POST['max_groups'] ) ? intval( $_POST['max_groups'] ) : 5;
+
+	$groups_args = array(
+		'user_id'  => 0,
+		'type'     => $type,
+		'per_page' => $per_page,
+		'max'      => $per_page,
+	);
+
+	if ( bp_has_groups( $groups_args ) ) : ?>
 		<?php echo "0[[SPLIT]]"; ?>
 		<?php while ( bp_groups() ) : bp_the_group(); ?>
-			<li>
+			<li <?php bp_group_class(); ?>>
 				<div class="item-avatar">
 					<a href="<?php bp_group_permalink() ?>"><?php bp_group_avatar_thumb() ?></a>
 				</div>

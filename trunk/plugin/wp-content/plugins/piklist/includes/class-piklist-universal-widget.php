@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Universal_Widget extends WP_Widget 
 {
   public $widgets = array();
@@ -27,7 +32,7 @@ class PikList_Universal_Widget extends WP_Widget
       ,$control_options
     );
   }
-    
+  
   public function form($instance) 
   {
     $this->register_widgets();
@@ -66,17 +71,15 @@ class PikList_Universal_Widget extends WP_Widget
   {
     // NOTE: Add filter to block the display for perms, etc
     extract($arguments);
-   
+
+    $instance = piklist::object_value($instance);
+       
     $options = explode('--', $instance[$this->widget_name]);
     $this->widgets[$options[0]]['instance'] = $instance;
 
-    piklist_widget::$current_widget = $this->widget_name;
-    
     unset($instance[$this->widget_name]);
-    foreach ($instance as $setting => &$value)
-    {
-      $value = maybe_unserialize($value);
-    }
+
+    piklist_widget::$current_widget = $this->widget_name;
     
     piklist::render(piklist::$paths[$options[1]] . '/parts/widgets/' . $options[2], array(
       'instance' => $instance
@@ -121,5 +124,3 @@ class PikList_Universal_Widget extends WP_Widget
     }
   }
 }
-
-?>

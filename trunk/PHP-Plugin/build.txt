@@ -1,0 +1,24 @@
+Buildfile: C:\Projects\InspiredProject\inspired-social\PHP-Plugin\build.xml
+
+compile:
+    [javac] C:\Projects\InspiredProject\inspired-social\PHP-Plugin\build.xml:14: warning: 'includeantruntime' was not set, defaulting to build.sysclasspath=last; set to false for repeatable builds
+    [javac] Compiling 1 source file to C:\Projects\InspiredProject\inspired-social\PHP-Plugin
+    [javac] C:\Projects\InspiredProject\inspired-social\PHP-Plugin\com\ifsoft\inspired\PHPPlugin.java:26: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "["+ NAME + "] initialize " + NAME + " plugin resources");
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired-social\PHP-Plugin\com\ifsoft\inspired\PHPPlugin.java:41: warning: [deprecation] error(java.lang.String,java.lang.Throwable) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("Error initializing " + NAME + " Plugin", e);
+    [javac] 			   ^
+    [javac] C:\Projects\InspiredProject\inspired-social\PHP-Plugin\com\ifsoft\inspired\PHPPlugin.java:47: warning: [deprecation] info(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 		Log.info( "["+ NAME + "] destroy " + NAME + " plugin resources");
+    [javac] 		   ^
+    [javac] C:\Projects\InspiredProject\inspired-social\PHP-Plugin\com\ifsoft\inspired\PHPPlugin.java:53: warning: [deprecation] error(java.lang.String) in org.jivesoftware.util.Log has been deprecated
+    [javac] 			Log.error("["+ NAME + "] destroyPlugin exception " + e);
+    [javac] 			   ^
+    [javac] 4 warnings
+
+jar:
+      [jar] Building jar: C:\Projects\InspiredProject\inspired-social\PHP-Plugin\php.jar
+
+BUILD SUCCESSFUL
+Total time: 1 second

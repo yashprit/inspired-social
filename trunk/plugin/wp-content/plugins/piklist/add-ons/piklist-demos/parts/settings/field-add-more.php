@@ -20,13 +20,9 @@ Order: 30
         ,'columns' => 4
       )
       ,array(
-        'type' => 'datepicker'
-        ,'field' => 'date_add_more'
-        ,'options' => array(
-          'dateFormat' => 'M d, yy'
-        )
-        ,'value' => date('M d, Y', time() + 604800)
-        ,'columns' => 2
+        'type' => 'text'
+        ,'field' => 'text_add_more_2'
+        ,'columns' => 4
       )
       ,array(
         'type' => 'select'
@@ -37,7 +33,7 @@ Order: 30
           ,'second' => 'Second Choice'
           ,'third' => 'Third Choice'
         )
-        ,'columns' => 3
+        ,'columns' => 4
       )
     )
   ));
@@ -66,14 +62,6 @@ Order: 30
   ));
 
   piklist('field', array(
-    'type' => 'colorpicker'
-    ,'field' => 'demo_color_add_more'
-    ,'add_more' => true
-    ,'label' => __('Color Picker')
-    ,'description' => __('Lorem ipsum dolor sit amet, consectetur adipiscing elit.')
-  ));
-  
-  piklist('field', array(
     'type' => 'datepicker'
     ,'field' => 'demo_date_add_more'
     ,'add_more' => true
@@ -85,3 +73,9 @@ Order: 30
     ,'value' => date('M d, Y', time() + 604800)
   ));
 
+  piklist('shared/code-locater', array(
+    'location' => __FILE__
+    ,'type' => 'Settings Section'
+  ));
+
+  ?>

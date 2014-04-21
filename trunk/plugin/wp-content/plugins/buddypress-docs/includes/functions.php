@@ -157,7 +157,7 @@ function bp_docs_get_item_term_id( $item_id, $item_type, $item_name = '' ) {
 		}
 
 		$item_term_args = apply_filters( 'bp_docs_item_term_values', array(
-			'description' => sprintf( __( 'Docs associated with the %1$s %2$s', 'bp-docs' ), $item_type, $item_name ),
+			'description' => sprintf( _x( 'Docs associated with the %1$s %2$s', 'Description for the associated-item taxonomy term. Of the form "Docs associated with the [item-type] [item-name]" - item-type is group, user, etc', 'bp-docs' ), $item_type, $item_name ),
 			'slug'        => $item_term_slug,
 		) );
 
@@ -251,32 +251,38 @@ function bp_docs_current_user_can( $action = 'edit', $doc_id = false ) {
 function bp_docs_user_can( $action = 'edit', $user_id = false, $doc_id = false ) {
 	global $bp, $post;
 
-	if ( !$user_id )
+	if ( false === $user_id ) {
 		$user_id = bp_loggedin_user_id();
+	}
 
-	// Only certain actions are checked against doc_ids
-	$need_doc_ids_actions = apply_filters( 'bp_docs_need_doc_ids_actions', array( 'edit', 'manage', 'view_history', 'read', 'read_comments', 'post_comments' ) );
+	// Grant all permissions on documents being created, as long as the
+	// user is logged in
+	if ( $user_id && ( false === $doc_id ) && bp_docs_is_doc_create() ) {
+		return true;
+	}
 
-	$doc_id = false;
-
-	if ( in_array( $action, $need_doc_ids_actions ) ) {
-		if ( !$doc_id ) {
-			if ( !empty( $post->ID ) ) {
-				$doc_id = $post->ID;
-				$doc = $post;
-			} else {
-				$doc = bp_docs_get_current_doc();
-				if ( isset( $doc->ID ) ) {
-					$doc_id = $doc->ID;
-				}
+	if ( ! $doc_id ) {
+		if ( ! empty( $post->ID ) && bp_docs_get_post_type_name() === $post->post_type ) {
+			$doc_id = $post->ID;
+			$doc = $post;
+		} else {
+			$doc = bp_docs_get_current_doc();
+			if ( isset( $doc->ID ) ) {
+				$doc_id = $doc->ID;
 			}
 		}
 	}
 
 	$user_can = false;
 
-	if ( ! empty( $doc ) ) {
-		$doc_settings = get_post_meta( $doc_id, 'bp_docs_settings', true );
+	if ( 'create' === $action ) {
+
+		// In the case of Doc creation, this value gets passed through
+		// to other components
+		$user_can = 0 != $user_id;
+
+	} else if ( ! empty( $doc ) ) {
+		$doc_settings = bp_docs_get_doc_settings( $doc_id );
 		$the_setting  = isset( $doc_settings[ $action ] ) ? $doc_settings[ $action ] : '';
 
 		if ( empty( $the_setting ) ) {
@@ -289,7 +295,7 @@ function bp_docs_user_can( $action = 'edit', $user_id = false, $doc_id = false )
 				break;
 
 			case 'loggedin' :
-				$user_can = is_user_logged_in();
+				$user_can = 0 != $user_id;
 				break;
 
 			case 'creator' :
@@ -297,15 +303,10 @@ function bp_docs_user_can( $action = 'edit', $user_id = false, $doc_id = false )
 				break;
 			// Do nothing with other settings - they are passed through
 		}
-	} else if ( 'create' == $action ) {
-
-		// In the case of Doc creation, this value gets passed through
-		// to other components
-		$user_can = is_user_logged_in();
 	}
 
 	if ( $user_id ) {
-		if ( is_super_admin() ) {
+		if ( is_super_admin( $user_id ) ) {
 			// Super admin always gets to edit. What a big shot
 			$user_can = true;
 		} else {
@@ -317,6 +318,25 @@ function bp_docs_user_can( $action = 'edit', $user_id = false, $doc_id = false )
 	}
 
 	return $user_can;
+}
+
+/**
+ * Can the current user create a Doc in this context?
+ *
+ * Is sensitive to group contexts (and the "associated with" permissions
+ * levels)
+ *
+ * @since 1.5
+ * @return bool
+ */
+function bp_docs_current_user_can_create_in_context() {
+	if ( function_exists( 'bp_is_group' ) && bp_is_group() ) {
+		$can_create = bp_docs_current_user_can( 'associate_with_group' );
+	} else {
+		$can_create = bp_docs_current_user_can( 'create' );
+	}
+
+	return apply_filters( 'bp_docs_current_user_can_create_in_context', $can_create );
 }
 
 /**
@@ -365,7 +385,7 @@ function bp_docs_update_doc_count( $item_id = 0, $item_type = '' ) {
 			break;
 
 		case 'user' :
-			bp_update_user_meta( $item_id, 'bp_docs_count', $doc_count );
+			update_user_meta( $item_id, 'bp_docs_count', $doc_count );
 			break;
 
 		default :
@@ -388,7 +408,7 @@ function bp_docs_is_docs_component() {
 		$retval = true;
 	} else if ( isset( $p->post_type ) && bp_docs_get_post_type_name() == $p->post_type ) {
 		$retval = true;
-	} else if ( bp_is_current_component( bp_docs_get_slug() ) ) {
+	} else if ( bp_is_current_component( bp_docs_get_docs_slug() ) ) {
 		// This covers cases where we're looking at the Docs component of a user
 		$retval = true;
 	}
@@ -423,7 +443,8 @@ function bp_docs_get_doc_settings( $doc_id = 0 ) {
 		'edit'          => 'loggedin',
 		'read_comments' => 'anyone',
 		'post_comments' => 'anyone',
-		'view_history'  => 'anyone'
+		'view_history'  => 'anyone',
+		'manage'        => 'creator',
 	);
 
 	$doc_settings = wp_parse_args( $saved_settings, $default_settings );
@@ -454,6 +475,29 @@ function bp_docs_trash_doc( $doc_id = 0 ) {
 
 	if ( $deleted ) {
 		do_action( 'bp_docs_doc_deleted', $delete_args );
+		return true;
+	}
+
+	return false;
+}
+
+/**
+ * Remove a Doc from the Trash.
+ *
+ * @since 1.5.5
+ * @param int $doc_id ID of the Doc to be untrashed.
+ * @return bool True on success, otherwise false.
+ */
+function bp_docs_untrash_doc( $doc_id = 0 ) {
+	do_action( 'bp_docs_before_doc_untrash', $doc_id );
+
+	$untrashed = wp_update_post( array(
+		'ID' => $doc_id,
+		'post_status' => 'publish',
+	) );
+
+	if ( $untrashed ) {
+		do_action( 'bp_docs_doc_untrashed', $doc_id );
 		return true;
 	}
 
@@ -499,6 +543,42 @@ function bp_docs_get_access_options( $settings_field, $doc_id = 0, $group_id = 0
 	ksort( $options );
 
 	return $options;
+}
+/**
+ * Saves the settings associated with a given Doc
+ *
+ * @since 1.6.1
+ * @param int $doc_id The numeric ID of the doc
+ * @return null
+ */
+function bp_docs_save_doc_access_settings( $doc_id ) {
+	// Two cases:
+	// 1. User is saving a doc for which he can update the access settings
+	if ( isset( $_POST['settings'] ) ) {
+		$settings = ! empty( $_POST['settings'] ) ? $_POST['settings'] : array();
+		$verified_settings = bp_docs_verify_settings( $settings, $doc_id, bp_loggedin_user_id() );
+
+		$new_settings = array();
+		foreach ( $verified_settings as $verified_setting_name => $verified_setting ) {
+			$new_settings[ $verified_setting_name ] = $verified_setting['verified_value'];
+			if ( $verified_setting['verified_value'] != $verified_setting['original_value'] ) {
+				$result['message'] = __( 'Your Doc was successfully saved, but some of your access settings have been changed to match the Doc\'s permissions.', 'bp-docs' );
+			}
+		}
+		update_post_meta( $doc_id, 'bp_docs_settings', $new_settings );
+
+		// The 'read' setting must also be saved to a taxonomy, for
+		// easier directory queries
+		$read_setting = isset( $new_settings['read'] ) ? $new_settings['read'] : 'anyone';
+		bp_docs_update_doc_access( $doc_id, $read_setting );
+
+	// 2. User is saving a doc for which he can't manage the access settings
+	// isset( $_POST['settings'] ) is false; the access settings section
+	// isn't included on the edit form
+	} else {
+		// Do nothing.
+		// Leave the access settings intact.
+	}
 }
 
 /**
@@ -584,14 +664,10 @@ function bp_docs_get_access_term_user( $user_id = false ) {
  * Get the access term corresponding to group-members for a given group
  *
  * @since 1.2
- * @param int|bool $user_id Defaults to logged in user
+ * @param int $group_id
  * @return string The term slug
  */
 function bp_docs_get_access_term_group_member( $user_id = false ) {
-	if ( false === $user_id ) {
-		$user_id = bp_loggedin_user_id();
-	}
-
 	return apply_filters( 'bp_docs_get_access_term_group_member', 'bp_docs_access_group_member_' . intval( $user_id ) );
 }
 
@@ -599,14 +675,10 @@ function bp_docs_get_access_term_group_member( $user_id = false ) {
  * Get the access term corresponding to admins-mods for a given group
  *
  * @since 1.2
- * @param int|bool $user_id Defaults to logged in user
+ * @param int $group_id
  * @return string The term slug
  */
 function bp_docs_get_access_term_group_adminmod( $user_id = false ) {
-	if ( false === $user_id ) {
-		$user_id = bp_loggedin_user_id();
-	}
-
 	return apply_filters( 'bp_docs_get_access_term_group_adminmod', 'bp_docs_access_group_adminmod_' . intval( $user_id ) );
 }
 
@@ -674,31 +746,15 @@ function bp_docs_hide_sitewide_for_doc( $doc_id ) {
 	return apply_filters( 'bp_docs_hide_sitewide_for_doc', $hide_sitewide, $doc_id );
 }
 
-/**
- * Check to see if the post is currently being edited by another user.
- *
- * This is a verbatim copy of wp_check_post_lock(), which is only available
- * in the admin
- *
- * @since 1.2.8
- *
- * @param int $post_id ID of the post to check for editing
- * @return bool|int False: not locked or locked by current user. Int: user ID of user with lock.
- */
-function bp_docs_check_post_lock( $post_id ) {
-	if ( !$post = get_post( $post_id ) )
-		return false;
+function bp_docs_get_doc_ids_accessible_to_current_user() {
+	global $wpdb;
 
-	if ( !$lock = get_post_meta( $post->ID, '_edit_lock', true ) )
-		return false;
-
-	$lock = explode( ':', $lock );
-	$time = $lock[0];
-	$user = isset( $lock[1] ) ? $lock[1] : get_post_meta( $post->ID, '_edit_last', true );
-
-	$time_window = apply_filters( 'wp_check_post_lock_window', AUTOSAVE_INTERVAL * 2 );
-
-	if ( $time && $time > time() - $time_window && $user != get_current_user_id() )
-		return $user;
-	return false;
+	// Direct query for speeeeeeed
+	$exclude = bp_docs_access_query()->get_doc_ids();
+	if ( empty( $exclude ) ) {
+		$exclude = array( 0 );
+	}
+	$exclude_sql = '(' . implode( ',', $exclude ) . ')';
+	$items_sql = $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = %s AND ID NOT IN $exclude_sql", bp_docs_get_post_type_name() );
+	return $wpdb->get_col( $items_sql );
 }

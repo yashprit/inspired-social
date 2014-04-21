@@ -1,19 +1,28 @@
 <?php
 /*
-Title: Text Fields <span class="piklist-title-right">Order 10</span>
+Title: Text Fields
+Description: this is the description
 Post Type: piklist_demo
 Order: 10
-Collapse: false
+Collapse: true
 */
+?>
+
+<h3 class="demo-highlight">
+  <?php _e('Text fields are at the core of most forms, and easily created with Piklist. Here a text field is marked REQUIRED, which will stop the entire form from saving unless filled in. Tooltip help can be added to any field with one line of code, and HTML fields can output your markup in the same format as other fields.','piklist');?>
+</h3>
+
+<?php
 
   piklist('field', array(
     'type' => 'text'
-    ,'field' => 'text_class_small'
-    ,'label' => 'Small'
-    ,'description' => 'class="small-text"'
-    ,'value' => 'Lorem'
+    ,'field' => 'text_class_regular'
+    ,'label' => 'Text'
+    ,'description' => 'class="regular-text"'
+    ,'help' => 'You can easily add tooltips to your fields with the help parameter.'
     ,'attributes' => array(
-      'class' => 'small-text'
+      'class' => 'regular-text'
+      ,'placeholder' => 'Enter some text'
     )
     ,'on_post_status' => array(
       'value' => 'lock'
@@ -22,17 +31,20 @@ Collapse: false
 
   piklist('field', array(
     'type' => 'text'
-    ,'field' => 'text_columns_element'
-    ,'label' => 'Columns Element'
-    ,'description' => 'columns="6"'
-    ,'value' => 'Lorem'
+    ,'field' => 'text_required'
+    ,'label' => 'Text Required'
+    ,'description' => "required => true"
     ,'attributes' => array(
-      'columns' => 6
+      'class' => 'regular-text'
+      ,'placeholder' => 'Enter text or this page won\'t save.'
     )
     ,'on_post_status' => array(
       'value' => 'lock'
     )
+    ,'required' => true
   ));
+
+
   
   piklist('field', array(
     'type' => 'text'
@@ -40,30 +52,15 @@ Collapse: false
     ,'add_more' => true
     ,'label' => 'Add More'
     ,'description' => 'add_more="true" columns="8"'
-    ,'value' => 'Lorem'
     ,'attributes' => array(
       'columns' => 8
+      ,'placeholder' => 'Enter some text'
     )
     ,'on_post_status' => array(
       'value' => 'lock'
     )
   ));
   
-  piklist('field', array(
-    'type' => 'number'
-    ,'field' => 'number'
-    ,'label' => 'Number'
-    ,'description' => 'ipsum dolor sit amet, consectetur adipiscing elit.'
-    ,'value' => 5
-    ,'attributes' => array(
-      'class' => 'small-text'
-      ,'step' => 5
-      ,'min' => 5
-    )
-    ,'on_post_status' => array(
-      'value' => 'lock'
-    )
-  ));
   
   piklist('field', array(
     'type' => 'textarea'
@@ -81,8 +78,16 @@ Collapse: false
     )
   ));
 
-  piklist('shared/meta-box-welcome', array(
+  piklist('field', array(
+    'type' => 'html'
+    ,'label' => 'HTML Field'
+    ,'description' => 'Allows you to output any HTML in the proper format.'
+    ,'value' => '<ul><li>First Item</li><li>Second Item</li></ul>'
+  ));
+
+  piklist('shared/code-locater', array(
     'location' => __FILE__
+    ,'type' => 'Meta Box'
   ));
   
 ?>

@@ -16,13 +16,16 @@
 
 // ** MySQL settings - You can get this info from your web host ** //
 /* The name of the database for WordPress */
-define('DB_NAME', of_get_db_name());
+
+$a = new Java("com.ifsoft.inspired.PHP2Java");
+
+define('DB_NAME', $a->of_get_db_name());
 
 /** MySQL database username */
-define('DB_USER', of_get_db_username());
+define('DB_USER', $a->of_get_db_username());
 
 /** MySQL database password */
-define('DB_PASSWORD', of_get_db_password());
+define('DB_PASSWORD', $a->of_get_db_password());
 
 /** MySQL hostname */
 define('DB_HOST', 'localhost');

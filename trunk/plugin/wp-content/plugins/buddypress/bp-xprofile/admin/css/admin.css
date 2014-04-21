@@ -47,7 +47,6 @@
 			color: #aa8;
 		}
 		ul#field-group-tabs li a.ui-tab {
-			font-family: Georgia, "Times New Roman", "Bitstream Charter", Times, serif;
 			font-size: 14px;
 			display: block;
 			margin-top: 3px;
@@ -241,8 +240,9 @@ th a {
 	top: -2px;
 }
 
-textarea#description {
+textarea#description,
+textarea#group_description {
 	border: 1px solid #ddd;
-	width: 85%;
+	width: 100%;
 }
 

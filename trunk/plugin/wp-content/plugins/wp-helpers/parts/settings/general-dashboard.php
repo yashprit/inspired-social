@@ -5,6 +5,11 @@ Setting: piklist_wp_helpers
 Order: 110
 */
 
+
+//print_r(piklist_wordPress_helpers::$registered_widgets);
+
+
+
   piklist('field', array(
     'type' => 'select'
     ,'field' => 'screen_layout_columns_dashboard'
@@ -35,6 +40,7 @@ Order: 110
           ,'dashboard_recent_comments' => 'Recent Comments'
           ,'dashboard_incoming_links' => 'Incoming Links'
           ,'dashboard_quick_press' => 'QuickPress'
+          ,'dashboard_browser_nag' => 'Browser Upgrade Warning'
 
         )
         ,'columns' => 4

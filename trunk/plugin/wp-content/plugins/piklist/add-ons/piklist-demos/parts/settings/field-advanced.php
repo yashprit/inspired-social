@@ -3,7 +3,7 @@
 Title: Enhanced Fields
 Setting: piklist_demo_fields
 Tab: Advanced
-Order: 10
+Order: 40
 */
 
   piklist('field', array(
@@ -12,6 +12,7 @@ Order: 10
     ,'label' => __('Color Picker')
     ,'description' => __('Lorem ipsum dolor sit amet, consectetur adipiscing elit.')
   ));
+
   
   piklist('field', array(
     'type' => 'datepicker'
@@ -24,18 +25,10 @@ Order: 10
     ,'value' => date('M d, Y', time() + 604800)
   ));
   
-  piklist('field', array(
-    'type' => 'timepicker'
-    ,'field' => 'time'
-    ,'label' => __('Time')
-    ,'description' => __('Choose a time')
-    ,'options' => array(
-      'startTime' => date('H:m A')
-      ,'show24Hours' => false
-      ,'separator' => ':'
-      ,'step' => 15
-    )
-    ,'value' => date('H:m A')
-    ,'position' => 'end'
+
+  piklist('shared/code-locater', array(
+    'location' => __FILE__
+    ,'type' => 'Settings Section'
   ));
 
+?>

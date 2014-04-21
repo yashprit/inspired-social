@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Functions related to the BuddyPress Activity component and the WP Cache
+ * Functions related to the BuddyPress Activity component and the WP Cache.
  *
  * @since BuddyPress (1.6)
  */
@@ -10,17 +10,14 @@
 if ( !defined( 'ABSPATH' ) ) exit;
 
 /**
- * Slurps up activitymeta
+ * Slurp up activitymeta for a specified set of activity items.
  *
- * This function is called in two places in the BP_Groups_Group class:
- *   - in the populate() method, when single group objects are populated
- *   - in the get() method, when multiple groups are queried
+ * It grabs all activitymeta associated with all of the activity items passed
+ * in $activity_ids and adds it to the WP cache. This improves efficiency when
+ * using querying activitymeta inline.
  *
- * It grabs all groupmeta associated with all of the groups passed in $group_ids and adds it to
- * the WP cache. This improves efficiency when using groupmeta inline
- *
- * @param int|str|array $group_ids Accepts a single group_id, or a comma-separated list or array of
- *    group ids
+ * @param int|str|array $activity_ids Accepts a single activity ID, or a comma-
+ *        separated list or array of activity ids
  */
 function bp_activity_update_meta_cache( $activity_ids = false ) {
 	global $bp;
@@ -29,6 +26,7 @@ function bp_activity_update_meta_cache( $activity_ids = false ) {
 		'object_ids' 	   => $activity_ids,
 		'object_type' 	   => $bp->activity->id,
 		'object_column'    => 'activity_id',
+		'cache_group'      => 'activity_meta',
 		'meta_table' 	   => $bp->activity->table_name_meta,
 		'cache_key_prefix' => 'bp_activity_meta'
 	);
@@ -37,18 +35,27 @@ function bp_activity_update_meta_cache( $activity_ids = false ) {
 }
 
 /**
- * Clear the cache for all metadata of a given activity
+ * Clear a cached activity item when that item is updated.
  *
- * @param int $activity_id
+ * @since 2.0
+ *
+ * @param BP_Activity_Activity $activity
  */
-function bp_activity_clear_meta_cache_for_activity( $activity_id ) {
-	global $wp_object_cache;
+function bp_activity_clear_cache_for_activity( $activity ) {
+	wp_cache_delete( $activity->id, 'bp_activity' );
+}
+add_action( 'bp_activity_after_save', 'bp_activity_clear_cache_for_activity' );
 
-	if ( is_object( $wp_object_cache ) && ! empty( $wp_object_cache->cache['bp'] ) ) {
-		foreach ( $wp_object_cache->cache['bp'] as $ckey => $cvalue ) {
-			if ( 0 === strpos( $ckey, 'bp_activity_meta_' . $activity_id ) ) {
-				wp_cache_delete( $ckey, 'bp' );
-			}
-		}
+/**
+ * Clear cached data for deleted activity items.
+ *
+ * @since 2.0
+ *
+ * @param array $deleted_ids IDs of deleted activity items.
+ */
+function bp_activity_clear_cache_for_deleted_activity( $deleted_ids ) {
+	foreach ( (array) $deleted_ids as $deleted_id ) {
+		wp_cache_delete( $deleted_id, 'bp_activity' );
 	}
 }
+add_action( 'bp_activity_deleted_activities', 'bp_activity_clear_cache_for_deleted_activity' );

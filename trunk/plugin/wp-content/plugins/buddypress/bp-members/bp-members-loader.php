@@ -18,11 +18,14 @@ class BP_Members_Component extends BP_Component {
 	 *
 	 * @since BuddyPress (1.5)
 	 */
-	function __construct() {
+	public function __construct() {
 		parent::start(
 			'members',
 			__( 'Members', 'buddypress' ),
-			BP_PLUGIN_DIR
+			buddypress()->plugin_dir,
+			array(
+				'adminbar_myaccount_order' => 20
+			)
 		);
 	}
 
@@ -34,6 +37,7 @@ class BP_Members_Component extends BP_Component {
 	public function includes( $includes = array() ) {
 		$includes = array(
 			'actions',
+			'classes',
 			'filters',
 			'screens',
 			'template',
@@ -42,6 +46,11 @@ class BP_Members_Component extends BP_Component {
 			'functions',
 			'notifications',
 		);
+
+		if ( is_admin() ) {
+			$includes[] = 'admin';
+		}
+
 		parent::includes( $includes );
 	}
 
@@ -52,23 +61,27 @@ class BP_Members_Component extends BP_Component {
 	 * backwards compatibility.
 	 *
 	 * @since BuddyPress (1.5)
-	 * @global BuddyPress $bp The one true BuddyPress instance
 	 */
 	public function setup_globals( $args = array() ) {
-		global $bp;
+		$bp = buddypress();
 
 		// Define a slug, if necessary
 		if ( !defined( 'BP_MEMBERS_SLUG' ) )
 			define( 'BP_MEMBERS_SLUG', $this->id );
 
-		$globals = array(
+		$members_globals = array(
 			'slug'          => BP_MEMBERS_SLUG,
 			'root_slug'     => isset( $bp->pages->members->slug ) ? $bp->pages->members->slug : BP_MEMBERS_SLUG,
 			'has_directory' => true,
+			'directory_title' => _x( 'Members', 'component directory title', 'buddypress' ),
+			'global_tables' => array(
+				'table_name_last_activity' => bp_core_get_table_prefix() . 'bp_activity',
+				'table_name_signups'       => bp_core_get_table_prefix() . 'signups',
+			),
 			'search_string' => __( 'Search Members...', 'buddypress' ),
 		);
 
-		parent::setup_globals( $globals );
+		parent::setup_globals( $members_globals );
 
 		/** Logged in user ****************************************************/
 
@@ -95,6 +108,9 @@ class BP_Members_Component extends BP_Component {
 		// Fetch the full name displayed user
 		$bp->displayed_user->fullname = bp_core_get_user_displayname( bp_displayed_user_id() );
 
+		/** Signup ***************************************************/
+		$bp->signup = new stdClass;
+
 		/** Profiles Fallback *************************************************/
 
 		if ( !bp_is_active( 'xprofile' ) ) {
@@ -104,11 +120,13 @@ class BP_Members_Component extends BP_Component {
 		}
 
 		/** Default Profile Component *****************************************/
+
 		if ( !defined( 'BP_DEFAULT_COMPONENT' ) ) {
-			if ( bp_is_active( 'activity' ) && isset( $bp->pages->activity ) )
+			if ( bp_is_active( 'activity' ) && isset( $bp->pages->activity ) ) {
 				$bp->default_component = bp_get_activity_slug();
-			else
-				$bp->default_component = ( 'xprofile' == $bp->profile->id ) ? 'profile' : $bp->profile->id;
+			} else {
+				$bp->default_component = ( 'xprofile' === $bp->profile->id ) ? 'profile' : $bp->profile->id;
+			}
 
 		} else {
 			$bp->default_component = BP_DEFAULT_COMPONENT;
@@ -135,25 +153,33 @@ class BP_Members_Component extends BP_Component {
 				// The canonical URL will not contain the default component
 				unset( $bp->canonical_stack['component'] );
 			}
+
+			// if we're on a spammer's profile page, only users with the 'bp_moderate' cap
+			// can view subpages on the spammer's profile
+			//
+			// users without the cap trying to access a spammer's subnav page will get
+			// redirected to the root of the spammer's profile page.  this occurs by
+			// by removing the component in the canonical stack.
+			if ( bp_is_user_spammer( bp_displayed_user_id() ) && ! bp_current_user_can( 'bp_moderate' ) ) {
+				unset( $bp->canonical_stack['component'] );
+			}
 		}
 	}
 
 	/**
 	 * Setup BuddyBar navigation
-	 *
-	 * @global BuddyPress $bp The one true BuddyPress instance
 	 */
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
-		global $bp;
+		$bp = buddypress();
 
 		// Add 'Profile' to the main navigation
 		if ( !bp_is_active( 'xprofile' ) ) {
 
 			// Don't set up navigation if there's no user
-			if ( !is_user_logged_in() && !bp_is_user() )
+			if ( !is_user_logged_in() && !bp_is_user() ) {
 				return;
+			}
 
-			$sub_nav  = array();
 			$main_nav = array(
 				'name'                => __( 'Profile', 'buddypress' ),
 				'slug'                => $bp->profile->slug,
@@ -164,8 +190,8 @@ class BP_Members_Component extends BP_Component {
 			);
 
 			// User links
-			$user_domain   = bp_displayed_user_domain() ? bp_displayed_user_domain() : bp_loggedin_user_domain();
-			$profile_link  = trailingslashit( $user_domain . $bp->profile->slug );
+			$user_domain  = bp_displayed_user_domain() ? bp_displayed_user_domain() : bp_loggedin_user_domain();
+			$profile_link = trailingslashit( $user_domain . $bp->profile->slug );
 
 			// Add the subnav items to the profile
 			$sub_nav[] = array(
@@ -186,8 +212,8 @@ class BP_Members_Component extends BP_Component {
 	 *
 	 * @global BuddyPress $bp The one true BuddyPress instance
 	 */
-	function setup_title() {
-		global $bp;
+	public function setup_title() {
+		$bp = buddypress();
 
 		if ( bp_is_my_profile() ) {
 			$bp->bp_options_title = __( 'You', 'buddypress' );
@@ -205,7 +231,6 @@ class BP_Members_Component extends BP_Component {
 }
 
 function bp_setup_members() {
-	global $bp;
-	$bp->members = new BP_Members_Component();
+	buddypress()->members = new BP_Members_Component();
 }
 add_action( 'bp_setup_components', 'bp_setup_members', 1 );

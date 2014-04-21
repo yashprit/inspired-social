@@ -1,7 +1,7 @@
 <?php
 /*
 Title: Piklist Deactivation
-Setting: piklist
+Setting: piklist_core
 Order: 10
 */
 
@@ -23,7 +23,7 @@ if (isset( $_GET['referer']) && $_GET['referer'] == 'plugins.php'): ?>
         <ol>
           <li><?php _e('Change the setting below to: Allow Deactivation.', 'piklist'); ?></li>
           <li><?php _e('SAVE the Settings.', 'piklist'); ?></li>
-          <li><?php printf(__('Return to the %1$sPlugins page%2$s and disable Piklist normally.','piklist'),'<a href="wp-admin/plugins.php">','</a>');?></li>
+          <li><?php printf(__('Return to the %1$sPlugins page%2$s and disable Piklist normally.','piklist'),'<a href="plugins.php">','</a>');?></li>
         <ol>
     </p>
 
@@ -46,14 +46,17 @@ if (isset( $_GET['referer']) && $_GET['referer'] == 'plugins.php'): ?>
   piklist('field', array(
     'type' => 'select'
     ,'field' => 'deactivation_link'
-    ,'label' => 'Piklist Deactivation'
+    ,'label' => __('Piklist Deactivation', 'piklist')
+    ,'help' => __('Deactivating Piklist may disable functionality on this website.', 'piklist')
     ,'attributes' => array(
       'class' => 'text'
     )
     ,'choices' => array(
-      'unlock' => 'Allow Deactivation'
-      ,'lock' => 'Lock'
+      'unlock' => __('Allow Deactivation', 'piklist')
+      ,'lock' => __('Lock', 'piklist')
     )
   ));
+
+
   
 ?>

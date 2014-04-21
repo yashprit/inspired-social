@@ -1,5 +1,10 @@
 <?php
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 class PikList_Meta
 {
   private static $reset_meta = array(
@@ -66,5 +71,3 @@ class PikList_Meta
     return $query;
   }
 }
-
-?>

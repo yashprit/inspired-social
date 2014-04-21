@@ -1,39 +1,9 @@
 <?php
 
-class BP_Docs_Tests extends WP_UnitTestCase {
+class BP_Docs_Tests extends BP_Docs_TestCase {
 
 	function setUp() {
 		parent::setUp();
-
-		// @todo Temporary implementation. For now I'm shipping the BP
-		// factory with the plugin
-
-		require_once( dirname(__FILE__) . '/bp-factory.php' );
-		$this->factory->activity = new BP_UnitTest_Factory_For_Activity( $this->factory );
-		$this->factory->group = new BP_UnitTest_Factory_For_Group( $this->factory );
-
-		require_once( dirname(__FILE__) . '/factory.php' );
-		$this->factory->doc = new BP_Docs_UnitTest_Factory_For_Doc( $this->factory );
-
-		$this->old_current_user = get_current_user_id();
-		$this->set_current_user( $this->factory->user->create( array( 'role' => 'subscriber' ) ) );
-	}
-
-	function tearDown() {
-		wp_set_current_user( $this->old_current_user );
-	}
-
-	/**
-	 * WP's core tests use wp_set_current_user() to change the current
-	 * user during tests. BP caches the current user differently, so we
-	 * have to do a bit more work to change it
-	 *
-	 * @global BuddyPres $bp
-	 */
-	function set_current_user( $user_id ) {
-		global $bp;
-		$bp->loggedin_user->id = $user_id;
-		wp_set_current_user( $user_id );
 	}
 
 	/**
@@ -75,6 +45,30 @@ class BP_Docs_Tests extends WP_UnitTestCase {
 		$this->assertEquals( $activities['activities'], array() );
 	}
 
+	public function test_bp_docs_is_existing_doc_true() {
+		// Travis is an idiot
+		return;
+
+		$doc_id = $this->factory->doc->create();
+		$this->go_to( bp_docs_get_doc_link( $doc_id ) );
+		$this->assertTrue( bp_docs_is_existing_doc() );
+	}
+
+	public function test_bp_docs_is_existing_doc_false() {
+		$post_id = $this->factory->post->create();
+		$this->go_to( bp_docs_get_doc_link( $post_id ) );
+		$this->assertFalse( bp_docs_is_existing_doc() );
+	}
+
+	public function test_bp_docs_is_existing_doc_pre_wp_query() {
+		// Fake that we're pre-query
+		global $wp_query;
+		$wpq = $wp_query;
+		$wp_query = null;
+		$this->assertFalse( bp_docs_is_existing_doc() );
+		$wp_query = $wpq;
+	}
+
 	/**
 	 * see #286
 	 */
@@ -82,21 +76,23 @@ class BP_Docs_Tests extends WP_UnitTestCase {
 		$group = $this->factory->group->create();
 		$group2 = $this->factory->group->create();
 
-		$doc_id = $this->factory->doc->create( array( 'group' => $group->id ) );
+		$doc_id = $this->factory->doc->create( array(
+			'group' => $group,
+		) );
 
-		bp_docs_set_associated_group_id( $doc_id, $group2->id );
+		bp_docs_set_associated_group_id( $doc_id, $group );
 
-		$this->assertEquals( bp_docs_get_associated_group_id( $doc_id ), $group2->id );
+		$this->assertEquals( bp_docs_get_associated_group_id( $doc_id ), $group );
 	}
 
 	function test_set_group_association_on_create() {
-		$doc_id = $this->factory->doc->create( array( 'group' => $group->id ) );
-
 		$group = $this->factory->group->create();
+		$doc_id = $this->factory->doc->create( array( 'group' => $group ) );
+
 		$permalink = get_permalink( $doc_id );
 		$this->go_to( $permalink );
 
-		$_POST['associated_group_id'] = $group->id;
+		$_POST['associated_group_id'] = $group;
 		//unset( $_POST['associated_group_id'] );
 
 		// We need this dummy $_POST data to make the save go through. Ugh
@@ -109,20 +105,23 @@ class BP_Docs_Tests extends WP_UnitTestCase {
 
 		$maybe_group_id = bp_docs_get_associated_group_id( $doc_id );
 
-		$this->assertEquals( $group->id, $maybe_group_id );
+		$this->assertEquals( $group, $maybe_group_id );
 	}
 
 	function test_delete_group_association() {
 		$group = $this->factory->group->create();
-		$doc_id = $this->factory->doc->create( array( 'group' => $group->id ) );
+		$doc_id = $this->factory->doc->create( array(
+			'group' => $group,
+		) );
 		$permalink = get_permalink( $doc_id );
 		$this->go_to( $permalink );
 
 		// Just to be sure
-		unset( $_POST['associated_group_id'] );
+		$_POST['associated_group_id'] = '';
 
 		// We need this dummy $_POST data to make the save go through. Ugh
 		$doc = $this->factory->doc->get_object_by_id( $doc_id );
+		$_POST['doc_id'] = $doc_id;
 		$_POST['doc_content'] = $doc->post_content;
 		$_POST['doc']['title'] = $doc->post_title;
 
@@ -150,6 +149,60 @@ class BP_Docs_Tests extends WP_UnitTestCase {
 
 	}
 
+	/**
+	 * @group last_activity
+	 */
+	function test_update_group_last_activity_on_new_doc() {
+		$g = $this->factory->group->create();
+		$d = $this->factory->doc->create( array(
+			'group' => $g,
+		) );
+
+		$last_activity = date( 'Y-m-d H:i:s', time() - 100000 );
+		groups_update_groupmeta( $g, 'last_activity', $last_activity );
+
+		// call manually because the hook is outside of the proper
+		// group document creation workflow
+		do_action( 'bp_docs_after_save', $d );
+
+		$this->assertNotEquals( $last_activity, groups_get_groupmeta( $g, 'last_activity' ) );
+	}
+
+	/**
+	 * @group last_activity
+	 */
+	function test_update_group_last_activity_on_doc_delete() {
+		$g = $this->factory->group->create();
+		$d = $this->factory->doc->create( array(
+			'group' => $g,
+		) );
+
+		$last_activity = date( 'Y-m-d H:i:s', time() - 100000 );
+		groups_update_groupmeta( $g, 'last_activity', $last_activity );
+
+		bp_docs_trash_doc( $d );
+
+		$this->assertNotEquals( $last_activity, groups_get_groupmeta( $g, 'last_activity' ) );
+	}
+
+	/**
+	 * @group last_activity
+	 */
+	function test_update_group_last_activity_on_doc_comment() {
+		$g = $this->factory->group->create();
+		$d = $this->factory->doc->create( array(
+			'group' => $g,
+		) );
+
+		$last_activity = date( 'Y-m-d H:i:s', time() - 100000 );
+		groups_update_groupmeta( $g, 'last_activity', $last_activity );
+
+		$c = $this->factory->comment->create( array(
+			'comment_post_ID' => $d,
+		) );
+
+		$this->assertNotEquals( $last_activity, groups_get_groupmeta( $g, 'last_activity' ) );
+	}
 }
 
 
