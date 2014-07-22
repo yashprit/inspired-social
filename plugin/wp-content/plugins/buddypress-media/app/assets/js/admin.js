@@ -561,7 +561,7 @@ jQuery(document).ready(function($) {
         return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
     }
 
-    jQuery('#submit-request').click(function(){
+    jQuery('#rtmedia-submit-request').click(function(){
 	var flag = true;
 	var name = jQuery('#name').val();
 	var email = jQuery('#email').val();
@@ -645,6 +645,22 @@ jQuery(document).ready(function($) {
 	    }
 	});
     }
+
+    if (jQuery('.rtm_enable_masonry_view input[type=checkbox]').is(":checked")) {
+        jQuery('.rtm_enable_masonry_view' ).parents('.metabox-holder' ).find('.rtmedia-info' ).show();
+    } else {
+        jQuery('.rtm_enable_masonry_view' ).parents('.metabox-holder' ).find('.rtmedia-info' ).hide();
+    }
+    jQuery('.rtm_enable_masonry_view input[type=checkbox]').on("click", function (e) {
+        if (jQuery(this).is(":checked")) {
+            jQuery('.rtm_enable_masonry_view' ).parents('.metabox-holder' ).find('.rtmedia-info' ).show();
+        } else {
+            jQuery('.rtm_enable_masonry_view' ).parents('.metabox-holder' ).find('.rtmedia-info' ).hide();
+        }
+    });
+    jQuery("#rtm-masonry-change-thumbnail-info").click(function(e) {
+        jQuery("html, body").animate( {scrollTop:0}, '500', 'swing' );
+    });
 });
 
 function rtmedia_addon_do_not_show() {

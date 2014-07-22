@@ -29,7 +29,7 @@ class PikList_User
     if ($use_multiple_user_roles)
     {
       add_action('profile_update', array('piklist_user', 'multiple_roles'));
-      add_action('user_register', array('piklist_user', 'multiple_roles'));
+      add_action('user_register', array('piklist_user', 'multiple_roles'), 9);
       add_action('admin_footer', array('piklist_user', 'multiple_roles_field'));
       
       add_filter('additional_capabilities_display', array('piklist_user', 'additional_capabilities_display'));

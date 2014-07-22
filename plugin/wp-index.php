@@ -78,7 +78,19 @@
 	}
 
 
-	function openWindow(width, height)
+	function closeWindow()
+	{
+		jQuery('#webrtcframe').hide();
+		jQuery('#window').hide();
+
+		if (videoXid)
+		{
+			jQuery('#videobridge').attr("src", 'about:blank');
+			videoXid = null;
+		}
+	}
+
+	function openWindow(url, width, height)
 	{
 		if(jQuery('#window').css('display') == 'none')
 		{
@@ -89,6 +101,7 @@
 
 			jQuery('#window').show();
 			jQuery('#webrtcframe').show();
+			jQuery('#videobridge').attr("src", url);
 		}
 	}
 
@@ -113,14 +126,7 @@
 			'click',
 			function()
 			{
-				jQuery('#webrtcframe').hide();
-				jQuery('#window').hide();
-
-				if (videoXid)
-				{
-					//WebRtc.handleRoster(MINI_USER + "@" + MINI_DOMAIN, bareXID(videoXid), getXIDNick(videoXid), "leave");
-					jQuery('#jappix_mini #chat-' + hex_md5(videoXid)).remove();
-				}
+				closeWindow();
 			}
 		);
 
@@ -191,28 +197,7 @@
 		jQuery('#wordpress').css('width',  myWidth +  'px');
 	}
 
-	function toggleFullScreen()
-	{
-		var videoElement = document.getElementById("remoteVideo");
 
-		if (!document.mozFullScreen && !document.webkitFullScreen)
-		{
-		  if (videoElement.mozRequestFullScreen) {
-			videoElement.mozRequestFullScreen();
-
-		  } else {
-			videoElement.webkitRequestFullScreen(Element.ALLOW_KEYBOARD_INPUT);
-		  }
-
-		} else {
-
-		  if (document.mozCancelFullScreen) {
-			document.mozCancelFullScreen();
-		  } else {
-			document.webkitCancelFullScreen();
-		  }
-		}
-	}
 </script>
 </head>
 <body topmargin="0" leftmargin="0" onload="setupWindow()" onunload="disconnectMini()" style="border-width:0px; overflow: hidden;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px">
@@ -220,7 +205,7 @@
 
 <div id="window" style="display:none">
 	<div id="windowTop">
-		<div id="windowTopContent"><span>Inspired (double click for full screen)</span></div>
+		<div id="windowTopContent"><span>Inspired Social</span></div>
 		<img src="chat/img/window/window_min.jpg" id="windowMin" />
 		<img src="chat/img/window/window_max.jpg" id="windowMax" />
 		<img src="chat/img/window/window_close.jpg" id="windowClose" />
@@ -228,12 +213,8 @@
 	<div id="windowBottom"><div id="windowBottomContent">&nbsp;</div></div>
 	<div id="windowContent" style="overflow: hidden;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
 		<div id='webrtcframe' style='display:none'>
-			<div style="position:relative;width:330px;height:250px;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
-			  <video id="remoteVideo" onDblClick="toggleFullScreen();" style="width:320px;height:240px"></video>
-			  <div style="position:absolute;bottom:0;left:0;right:0:width:64px;height:48px">
-				<video id="localVideoPreview" autoplay="autoplay" style="width:64px;height:48px" muted="true"/>
-			  </div>
-			</div>
+			<iframe id="videobridge" style="position:relative;width:780px;height:600px;margin-left: 0px; margin-top: 0px; margin-right: 0px; margin-bottom: 0px;">
+			</iframe>
 		</div>
 	</div>
 	<img src="chat/img/window/window_resize.gif" id="windowResize" />

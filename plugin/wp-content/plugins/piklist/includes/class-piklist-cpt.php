@@ -435,13 +435,16 @@ class PikList_CPT
   public static function post_row_actions($actions, $post)
   {
     global $current_screen;
-    
-    if (isset(self::$post_types[$current_screen->post_type]) && isset(self::$post_types[$current_screen->post_type]['hide_post_row_actions']))
-    {
-      foreach (self::$post_types[$current_screen->post_type]['hide_post_row_actions'] as $action)
+
+    if(isset($current_screen))
+    {    
+      if (isset(self::$post_types[$current_screen->post_type]) && isset(self::$post_types[$current_screen->post_type]['hide_post_row_actions']))
       {
-        unset($actions[$action == 'quick-edit' ? 'inline hide-if-no-js' : $action]);
-      }
+        foreach (self::$post_types[$current_screen->post_type]['hide_post_row_actions'] as $action)
+        {
+          unset($actions[$action == 'quick-edit' ? 'inline hide-if-no-js' : $action]);
+        }
+      }    
     }
 
     return $actions;

@@ -33,15 +33,17 @@ if (!class_exists('RTMediaSettings')) {
                 'general_downloadButton' => 0,
                 'general_enableLightbox' => 0,
                 'general_perPageMedia' => 10,
+                'general_display_media' => 'load_more',
                 'general_enableMediaEndPoint' => 0,
                 'general_showAdminMenu' => 0,
                 'general_videothumbs' => 2,
-		'general_uniqueviewcount' => 0,
-		'general_viewcount' => 0,
-		'general_AllowUserData' => 1,
-		'rtmedia_add_linkback' => 0,
-		'rtmedia_affiliate_id' => '',
-		'rtmedia_enable_api' => 0,
+				'general_uniqueviewcount' => 0,
+				'general_viewcount' => 0,
+				'general_AllowUserData' => 1,
+				'rtmedia_add_linkback' => 0,
+				'rtmedia_affiliate_id' => '',
+				'rtmedia_enable_api' => 0,
+				'general_masonry_layout' => 0,
             );
 
             $defaults = apply_filters('rtmedia_general_content_default_values', $defaults);
@@ -119,6 +121,7 @@ if (!class_exists('RTMediaSettings')) {
                 $options = apply_filters("rtmedia_pro_options_save_settings", $options);
 		$is_rewrite_rule_flush = apply_filters('rtmedia_flush_rewrite_rule',false);
                 rtmedia_update_site_option('rtmedia-options', $options);
+				do_action ( 'rtmedia_save_admin_settings', $options );
 		if( $is_rewrite_rule_flush ) {
 		    flush_rewrite_rules(false);
 		}

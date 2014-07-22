@@ -12,8 +12,10 @@
 
   $legacy_table = $wpdb->prefix . 'piklist_cpt_relate';
 
+  $count = $wpdb->get_var("SHOW TABLES LIKE '{$legacy_table}'");
+
   // Does the legacy table exist?
-  if ($wpdb->get_var("SHOW TABLES LIKE {$legacy_table}") == $legacy_table)
+  if (!empty($count))
   {
     // Grab data from legacy table
     $data = $wpdb->get_results("SELECT * FROM {$legacy_table}", ARRAY_A);

@@ -23,6 +23,7 @@ Meta box: false
       ,'dfw' => false
       ,'tinymce' => true
       ,'quicktags' => true
+      ,'drag_drop_upload' => true
     )
     ,'on_post_status' => array(
       'value' => 'lock'
@@ -40,6 +41,7 @@ Meta box: false
       'media_buttons' => true
       ,'teeny' => true
       ,'textarea_rows' => 5
+      ,'drag_drop_upload' => true
     )
   ));
 
@@ -59,6 +61,7 @@ Meta box: false
       ,'dfw' => false
       ,'tinymce' => true
       ,'quicktags' => true
+      ,'drag_drop_upload' => true
     )
     ,'on_post_status' => array(
       'value' => 'lock'

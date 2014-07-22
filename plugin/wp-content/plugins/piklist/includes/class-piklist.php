@@ -100,7 +100,7 @@ class PikList
 
     self::$version = current(get_file_data(self::$paths['piklist'] . '/piklist.php', array('version' => 'Version')));
 
-    load_plugin_textdomain('piklist', false, self::$paths['piklist'] . '/languages');
+    load_plugin_textdomain('piklist', false, 'piklist/languages/');
     
     // TODO: what if included in theme?
     register_activation_hook('piklist/piklist.php', array('piklist', 'activate'));

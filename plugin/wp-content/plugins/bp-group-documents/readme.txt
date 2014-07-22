@@ -2,8 +2,8 @@
 Contributors: lenasterg
 Tags: wpms, buddypress, group, document, plugin, file, media, storage, upload, widget
 Requires at least: WP 3.5, BuddyPress 1.7
-Tested up to: 3.7.1, BuddyPress 1.8.1
-Stable tag: 1.6 (Requires at least: WP 3.5, BuddyPress 1.7)
+Tested up to: 3.7.1, BuddyPress 1.9
+Stable tag: 1.7 (Requires at least: WP 3.5, BuddyPress 1.7)
 License: GNU General Public License 3.0 or newer (GPL) http://www.gnu.org/licenses/gpl.html
 Donate link: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Q4VCLDW4BFW6L
 
@@ -64,6 +64,11 @@ If you run a windows server and you get errors about mb_convert_case  function w
 
 
 == Changelog ==
+= Version 1.7 (April 22, 2014) =
+* Add new widget: BP_Group_Documents_CurrentGroup_Widget. If the theme support different sidebars for group pages, it can be used to show current group's documents.
+* Fix some minor issues in widgets
+* Fix Document upload notification bug, props to @jreeve
+
 = Version 1.6 (March 17, 2014) =
 * Language files update
 
@@ -127,4 +132,4 @@ Please leave a comment  with any bugs, improvements, or comments at http://lenas
 == Donate ==
 You can  say "Thank You" via my Amazon wish list
 http://www.amazon.co.uk/registry/wishlist/7HYK62UCVCDI
-or donate at paypal https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Q4VCLDW4BFW6L 
+or donate at paypal https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=Q4VCLDW4BFW6L

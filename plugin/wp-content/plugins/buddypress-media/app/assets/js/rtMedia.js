@@ -1,4 +1,5 @@
 var rtMagnificPopup;
+var rtm_masonry_container;
 function apply_rtMagnificPopup(selector){
     jQuery('document').ready(function($) {
 	var rt_load_more = "";
@@ -28,12 +29,12 @@ function apply_rtMagnificPopup(selector){
                         return item.el.attr('title') + '<small>by Marsel Van Oosten</small>';
                     }
                 },
-                disableOn: function() {
-                    if (jQuery(window).width() < 600) {
-                        return false;
-                    }
-                    return true;
-                },
+//                disableOn: function() {
+//                    if (jQuery(window).width() < 600) {
+//                        return false;
+//                    }
+//                    return true;
+//                },
                 callbacks: {
                     ajaxContentAdded: function() {
 
@@ -143,12 +144,21 @@ var rtMediaHook = {
 
 //drop-down js
 function rtmedia_init_action_dropdown() {
+    var all_ul;
+    var curr_ul;
     jQuery('.click-nav > span').toggleClass('no-js js');
     jQuery('.click-nav .js ul').hide();
     jQuery('.click-nav .clicker').click(function(e) {
-	jQuery(this).next('ul').toggle();
-	//$('.click-nav ul').toggle();
-	e.stopPropagation();
+        all_ul = jQuery('#rtm-media-options .click-nav .clicker').next('ul');
+        curr_ul = jQuery(this).next('ul');
+        jQuery.each( all_ul, function ( index, value ) {
+            if( jQuery(value ).html() != curr_ul.html() ) {     // check clicked option with other options
+                jQuery(value).hide();
+            }
+        });
+        jQuery(curr_ul).toggle();
+        //$('.click-nav ul').toggle();
+        e.stopPropagation();
     });
 }
 
@@ -392,13 +402,26 @@ jQuery('document').ready(function($) {
         jQuery('.mfp-arrow-left').on('click', function(e) {
             rtm_mfp.prev();
         });
+
+       jQuery('.mfp-content .rtmedia-media').swipe({
+           //Generic swipe handler for all directions
+           swipeLeft:function(event, direction, distance, duration, fingerCount) 	// bind leftswipe
+           {
+               rtm_mfp.next();
+           },
+           swipeRight:function(event, direction, distance, duration, fingerCount) 	// bind rightswipe
+           {
+               rtm_mfp.prev();
+           },
+           threshold:0
+       });
    }
 
     function rtmedia_disable_popup_navigation_comment_focus() {
-        jQuery('#comment_content').live('focusin',function(){
+        jQuery(document).on('focusin','#comment_content', function(){
             jQuery(document).unbind('keydown');
         });
-        jQuery('#comment_content').live('focusout',function(){
+        jQuery(document).on('focusout','#comment_content',function(){
             var rtm_mfp = jQuery.magnificPopup.instance;
             jQuery(document).on('keydown',function(e) {
                 if (e.keyCode === 37) {
@@ -419,7 +442,7 @@ jQuery('document').ready(function($) {
            .on('dragover', function(e) {
                jQuery('#rtm-media-gallery-uploader').show();
                 activityArea.addClass('rtm-drag-drop-active');
-                activityArea.css('height','150px');
+//                activityArea.css('height','150px');
                 dragArea.addClass('rtm-drag-drop-active');
                 jQuery('#rtm-drop-files-title').css('display', 'block');
                 })
@@ -485,6 +508,23 @@ jQuery('document').ready(function($) {
 	$(".rtm-more").shorten({ // shorten the media description to 100 characters
 	    "showChars" : 200
 	});
+    }
+
+//    masonry code
+    if( typeof rtmedia_masonry_layout != "undefined" && rtmedia_masonry_layout == "true" ) {
+        rtm_masonry_container = jQuery('.rtmedia-container .rtmedia-list')
+        rtm_masonry_container.masonry({
+            itemSelector: '.rtmedia-list-item'
+        });
+        setInterval( function(){
+            jQuery.each( jQuery('.rtmedia-list.masonry .rtmedia-item-title' ), function( i, item ) {
+                jQuery(item ).width( jQuery(item).siblings('.rtmedia-item-thumbnail' ).children('img').width());
+            });
+            rtm_masonry_reload( rtm_masonry_container );
+        } , 1000);
+        jQuery.each( jQuery('.rtmedia-list.masonry .rtmedia-item-title' ), function( i, item ) {
+            jQuery(item ).width( jQuery(item).siblings('.rtmedia-item-thumbnail' ).children('img').width());
+        });
     }
 });
 
@@ -566,3 +606,24 @@ function rtmedia_version_compare( left, right ) {
     }
     return true;
 }
+
+function rtm_is_element_exist( el ) {
+    if( jQuery( el ).length > 0 ) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+function rtm_masonry_reload( el ) {
+    setTimeout(function(){
+        // we make masonry recalculate the element based on their current state.
+        el.masonry('reload');
+    }, 250);
+}
+
+window.onload=function(){
+    if( typeof rtmedia_masonry_layout != "undefined" && rtmedia_masonry_layout == "true" ) {
+        rtm_masonry_reload( rtm_masonry_container );
+    }
+};
