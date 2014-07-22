@@ -1,7 +1,7 @@
 <?php
 /*
  * Piklist Checker
- * Version: 0.4.2
+ * Version: 0.5.0
  *
  * Verifies that Piklist is installed and activated.
  * If not, plugin will be deactivated and user will be notifed.
@@ -14,57 +14,75 @@
  * http://s-plugins.wordpress.org/piklist/assets/class-piklist-checker.php
  */
 
+if (!defined('ABSPATH'))
+{
+  exit;
+}
+
 if (!class_exists('Piklist_Checker'))
 {
   class Piklist_Checker
   {
     private static $plugins = array();
 
-    public static function init()
+    public static function admin_notices()
     {
-      
-      add_action('admin_init', array('piklist_checker', 'show_message'));
+      add_action('network_admin_notices', array('piklist_checker', 'show_message'));
+      add_action('admin_notices', array('piklist_checker', 'show_message'));
     }
 
-    public static function check($check_plugin)
+    public static function check($this_plugin)
     {
       global $pagenow;
 
       if ($pagenow == 'update.php' || $pagenow == 'update-core.php')
       {
-          return true;
+        return true;
       }
 
-      if (is_multisite() && function_exists('is_plugin_active_for_network'))
-      {
-        if (!function_exists('is_plugin_active_for_network'))
-        {
-          require_once(ABSPATH . '/wp-admin/includes/plugin.php'); 
-        }
+      require_once(ABSPATH . '/wp-admin/includes/plugin.php'); 
 
-        if (is_plugin_active_for_network(plugin_basename($check_plugin)))
+      if (is_multisite())
+      {
+        if (is_plugin_active_for_network(plugin_basename($this_plugin)))
         {
-          if (!is_plugin_active_for_network('piklist/piklist.php'))
+          if (is_plugin_active_for_network('piklist/piklist.php'))
           {
-            self::deactivate_plugins($check_plugin, 'network');  
+            return true; 
           }
-          return true;
+          else
+          {
+              self::deactivate_plugins($this_plugin, 'network');
+          }
+        }
+        else
+        {
+          if(is_plugin_active('piklist/piklist.php'))
+          {
+            return true; 
+          }
+          else
+          {
+            self::deactivate_plugins($this_plugin, 'single-network');
+          }
         }
       }
-
-      if (!function_exists('piklist'))
+      else
       {
-        self::deactivate_plugins($check_plugin, 'single');       
+        if(is_plugin_active('piklist/piklist.php'))
+        {
+          return true; 
+        }
+        else
+        {
+          self::deactivate_plugins($this_plugin, 'single');
+        }
       }
-      
-      return true;
     }
 
-    public static function deactivate_plugins($check_plugin, $type)
+    public static function deactivate_plugins($this_plugin, $type)
     {
-      require_once(ABSPATH . 'wp-admin/includes/plugin.php');
-
-      if ($type == "single")
+      if ($type == "single" || $type == "single-network")
       {
         $plugins = get_option('active_plugins', array()); 
       }
@@ -77,9 +95,9 @@ if (!class_exists('Piklist_Checker'))
 
       foreach ($plugins as $plugin)
       {
-        if (strstr($check_plugin, $plugin))
+        if (strstr($this_plugin, $plugin))
         {
-          array_push(self::$plugins, $check_plugin);
+          array_push(self::$plugins, $this_plugin);
           
           deactivate_plugins($plugin);
           
@@ -90,93 +108,101 @@ if (!class_exists('Piklist_Checker'))
 
     public static function message()
     {
-      ob_start();
-    
-        $url_install = 'plugin-install.php?tab=search&s=piklist&plugin-search-input=Search+Plugins';
-        $url_activate = 'plugins.php#piklist';
-        $url_proper_dashboard = TYPE == 'network' ? network_admin_url() : admin_url();
-?>
- 
-        <h3>
-          <?php _e('Piklist Required','piklist'); ?>
-          <?php TYPE == 'network' ? _e('for Network Activation') : ''; ?>
-        </h3>
-     
-        <p>
+      $piklist_file = 'piklist/piklist.php';
+      $piklist_installed = false;
 
-          <?php
-          if (TYPE == 'network')
-          {
-            _e('To Network Activate a Piklist plugin, you must first Network Activate Piklist.') . PHP_EOL;
-          }
-          else
-          {
-            _e('The plugin(s) listed below require the Piklist plugin to be installed and activated.') . PHP_EOL;
-          }
-          ?>
+      if (array_key_exists($piklist_file, get_plugins()))
+      {
+        $piklist_installed = true;
+      }
 
-          <?php _e('You can:'); ?>
+      $url_proper_dashboard = (TYPE == 'network' ? network_admin_url() : admin_url()) . 'plugins.php'; ?>
 
-          <ol>
-            <?php
-            $all_plugins = get_plugins();
-            if (array_key_exists('piklist/piklist.php', $all_plugins))
-            {
-              if (TYPE == 'single')
-              {
-                _e(sprintf('%1$s %2$s on this site.%3$s', '<li>', '<a href="' . admin_url() . $url_activate . '">Activate Piklist</a>','</li>'));
-              }
-              
-              if (is_multisite() && is_super_admin())
-              {
-                _e(sprintf('%1$s %2$s on all sites.%3$s', '<li>', '<a href="' . network_admin_url() . $url_activate . '">Network Activate Piklist</a>','</li>'));
-              }
-            }
-            else
-            {
-              _e(sprintf('%1$sDownload and %2$s to run the plugin(s).%3$s', '<li>', '<a href="' . network_admin_url() . $url_install . '">Install Piklist</a>', '</li>'));
-            }
-              _e(sprintf('%1$sReturn to your %2$s.%3$s', '<li>', '<a href="' . $url_proper_dashboard . '">Dashboard</a>', '</li>'));
-            ?>
-          </ol>
-        </p>
+      <?php ob_start(); ?>
 
-
-        <h4><?php _e('The following plugin(s) have been deactivated.'); ?></h4>
+        <h3><?php _e('The following plugin(s) require Piklist, and have been deactivated:', 'piklist'); ?></h3>
 
         <ul>
           <?php foreach(self::$plugins as $plugin): $data = get_plugin_data($plugin); ?>
             <li>
-              <?php echo $data['Title']; ?>
+              <strong><?php echo $data['Title']; ?></strong>
               <br />
               <?php echo $data['Description']; ?>
             </li>
           <?php endforeach; ?>
         </ul>
+     
+        <h3><?php _e('You can:', 'piklist'); ?></h3>
 
-  <?php
-        $message = ob_get_contents();
+        <ol>
 
-      ob_end_clean();
+          <?php
+
+            if ($piklist_installed)
+            {
+              global $s;
+              $context = 'all';
+
+              if (TYPE == 'single' || TYPE == 'single-network')
+              {
+                $activate = '<a href="' . wp_nonce_url(admin_url() . 'plugins.php?action=activate&amp;plugin=' . $piklist_file . '&amp;plugin_status=' . $context . '&amp;s=' . $s, 'activate-plugin_' . $piklist_file) . '" title="' . esc_attr__('Activate Piklist for this site', 'piklist') . '" class="edit">' . __('Activate Piklist for this site', 'piklist') . '</a>';
+                echo '<li>' . $activate . '</li>';
+              }
+              
+              if ((TYPE == 'network' || TYPE == 'single-network') && is_multisite() && is_super_admin())
+              {
+                $activate = '<a href="' . wp_nonce_url(network_admin_url() . 'plugins.php?action=activate&amp;plugin=' . $piklist_file . '&amp;plugin_status=' . $context . '&amp;s=' . $s, 'activate-plugin_' . $piklist_file) . '" title="' . esc_attr__('Network Activate Piklist for all sites.', 'piklist') . '" class="edit">' . __('Network Activate Piklist for all sites.', 'piklist') . '</a>';
+                echo '<li>' . $activate . '</li>';
+              }
+            }
+            else
+            {
+              $install = '<a href="' . wp_nonce_url(network_admin_url() . 'update.php?action=install-plugin&amp;plugin=piklist', 'install-plugin_' . 'piklist') . '"title="' . esc_attr__('Install Piklist', 'piklist') . '" class="edit">' . __('Install Piklist', 'piklist') . '</a>';
+              echo '<li>' . $install . '</li>';
+
+            }
+            printf(__('%1$s %2$sDismiss this message.', 'piklist'),'<li>', '<a href="' . $url_proper_dashboard . '">','</a>', '</li>');
+            
+          ?>
+
+        </ol>
+
+
+        <?php
+          $message = ob_get_contents();
+
+          ob_end_clean();
     
-      return $message;
+          return $message;
     }
     
-    public static function show_message()
+    public static function show_message($message, $errormsg = true)
     {
-      if (!empty(self::$plugins))
-      {
-        wp_die(self::message());
-      }
+      if (!empty(self::$plugins)) : ?>
+
+        <div class="error">
+
+            <p>
+              <?php echo self::message(); ?>
+            </p>
+
+        </div>
+
+
+      <?php endif;
     }
   }
   
-  piklist_checker::init();
+  piklist_checker::admin_notices();
 
 
 /*
  * Changelog
  *
+   
+   = 0.5.0 =
+ * Now runs in the WordPress admin for a better user experience.
+
    = 0.4.2 =
  * Check if is_plugin_active_for_network function exists
  * Updated to Text Domain: Piklist

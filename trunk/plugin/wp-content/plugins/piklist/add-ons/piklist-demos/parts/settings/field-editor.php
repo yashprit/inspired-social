@@ -22,6 +22,7 @@ Order: 20
       ,'dfw' => false
       ,'tinymce' => true
       ,'quicktags' => true
+      ,'drag_drop_upload' => true
     )
   ));
 

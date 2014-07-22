@@ -1637,32 +1637,6 @@ function closeOfferRequest()
 }
 
 
-function doScreenShareImage(img, xid, type)
-{
-	console.log("doScreenShareImage " + img.src + " " + xid + " " + type)
-	
-	if (img.src.indexOf("share_on.png") > -1)
-	{
-		img.src = "chat/img/others/share_off.png";
-		
-		var stream = "screen___share" + Math.random().toString(36).substr(2,9);
-
-		var aMsg = new JSJaCMessage();
-		aMsg.setTo(xid);
-		aMsg.setType(type);
-		aMsg.setBody(getRedfireURL() + "video/screenviewer.html?stream=" + stream + "&url=rtmp:/xmpp");
-		con.send(aMsg);	
-
-		var url = getRedfireURL() + "video/screenshare?stream=" + stream + "&app=xmpp";	
-		jQuery('body').append('<iframe height="0" width="0" src="' + url + '"></iframe>');
-		
-		displayThreadMessage(xid, type, "started screen share")
-	}
-	
-	else img.src = "chat/img/others/share_on.png";	
-}
-
-
 function doWebRtcAudioToggle(xid, type)
 {
 	if (type == "groupchat")
@@ -1678,33 +1652,6 @@ function doWebRtcAudioToggle(xid, type)
 	}	
 	
 	displayThreadMessage(xid, type, message)	
-}
-
-function doWebRtcVideoToggle(xid, type)
-{
-	if (type == "groupchat")
-	{
-		var room = getXIDNick(xid); 
-		//WebRtc.toggleRoomMute(room);
-		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";	
-		
-	} else {
-		var user = bareXID(xid);
-		//WebRtc.toggleUserMute(user, true);
-		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
-	}	
-	
-	displayThreadMessage(xid, type, message)
-/*				
-	if (WebRtc.isUserMuted(user) == false)
-	{
-		openWindow(380, 315);
-	} else {
-	
-		jQuery('#window').hide();
-	}
-*/	
-	videoXid = xid;
 }
 
 function displayThreadMessage(xid, type, message)
@@ -1724,21 +1671,6 @@ function displayThreadMessage(xid, type, message)
 	displayMessageMini(type, message, thread, name, hex_md5(xid), time, stamp, 'user-message');			
 }
 
-function getRedfireURL()
-{
-	var port_number = "7070";
-	
-	var url = window.location.href;
-	var url_parts = url.split('/');	
-	var domain_name_parts = url_parts[2].split(':');
-	
-	if (domain_name_parts.length == 1)
-		port_number = "80";
-	else
-		port_number = domain_name_parts[1];
-	
-	return url_parts[0] + "//" + domain_name_parts[0] + ":" + port_number + "/inspired/"
-}
 
 // Manages and creates a chat
 
@@ -1826,21 +1758,14 @@ function chatMini(type, xid, nick, hash, pwd, show_pane)
 		if(type != 'groupchat' || (type == 'groupchat' && !groupchat_exists && !workgroup_exists))
 			html += '<a class="jm_one-action jm_close jm_images" title="' + _e("Close") + '" href="#"></a>';
 
-		var webrtcHtml = '<td><a title="Add voice to conversation" href="#"><img style="width:24px;" onclick="changeAudioImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/call_on.png"/></a></td>';
-		
-		if (type != 'groupchat')
-		{
-			webrtcHtml = webrtcHtml + '<td><a title="Add video to conversation" href="#"><img style="width:24px;" onclick="changeVideoImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/video_on.png"/></a></td>';
-		}
-		
-		webrtcHtml = webrtcHtml + '<td><a title="Add screen share to conversation"><img style="width:24px;" onclick="doScreenShareImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/share_on.png"/></a></td>';
+		var webrtcHtml = '<td><a title="Add video to conversation" href="#"><img style="width:24px;" onclick="changeVideoImage(this, &quot;' + xid + '&quot;,&quot;' + type + '&quot;)" src="chat/img/others/video_on.png"/></a></td>';
 		
 		html += '</div>' + 
 			
 			'<div class="jm_received-messages" id="received-' + hash + '"></div>' + 
 				'<form action="#" method="post">' + 
 					'<div style="margin-left:auto;margin-right:auto;width:25%;"><table><tr>' + 					
-					//webrtcHtml + 								
+					webrtcHtml + 								
 					'</tr></table></div>' +
 					'<input type="text" class="jm_send-messages" name="body" autocomplete="off" />' + 
 					'<input type="hidden" name="xid" value="' + xid + '" />' + 
@@ -1901,61 +1826,33 @@ function chatMini(type, xid, nick, hash, pwd, show_pane)
 	return false;
 }
 
-function changeAudioImage(img, xid, type)
-{
-	console.log("changeAudioImage " + img.src + " " + xid + " " + type)
-	
-	if (type == "groupchat")
-	{
-		var room = getXIDNick(xid); 
-		//WebRtc.toggleRoomMute(room);
-		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending audio";	
-		
-		//img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";		
-		
-	} else {
-		var user = bareXID(xid);
-		//WebRtc.toggleUserMute(user, false);
-		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending audio";	
-		
-		//img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/call_off.gif" : "chat/img/others/call_on.png";			
-	}
-	
-		
-}
 
 function changeVideoImage(img, xid, type)
 {
 	console.log("changeVideoImage " + img.src + " " + xid + " " + type)
 
-	if (type == "groupchat")
+	if (videoXid)
 	{
-		var room = getXIDNick(xid); 
-		//WebRtc.toggleRoomMute(room);
-		//var message = (!WebRtc.isRoomMuted(room) ? "Started" : "Stopped") + " sending video";
-		
-		//img.src = !WebRtc.isRoomMuted(room) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
-		
-	} else {
-		var user = bareXID(xid);
-		//WebRtc.toggleUserMute(user, true);
-		//var message = (!WebRtc.isUserMuted(user) ? "Started" : "Stopped") + " sending video";	
-		
-		//img.src = !WebRtc.isUserMuted(user) ? "chat/img/others/video_off.gif" : "chat/img/others/video_on.png";			
-	}	
+		closeWindow();
+		img.src = "chat/img/others/video_on.png";
 	
-	displayThreadMessage(xid, type, message)
-/*				
-	if (WebRtc.isUserMuted(user) == false)
-	{
-		openWindow(380, 315);
 	} else {
 	
-		jQuery('#window').hide();
-	}
-*/	
-	videoXid = xid;
+		if (type == "groupchat")
+		{
+			var room = getXIDNick(xid); 
 
+		} else {
+			var user = getXIDNick(xid);
+			var room = MINI_NICKNAME > user ? MINI_NICKNAME + user : user + MINI_NICKNAME;
+		}	
+
+		var url = window.location.protocol + "//" + window.location.host + "/jitsi/apps/ofmeet/?r=" + room	
+		openWindow(url, 800, 640);
+		
+		videoXid = xid;
+		img.src = "chat/img/others/video_off.gif";		
+	}
 }
 
 // Events on the chat tool
@@ -2346,20 +2243,7 @@ function launchMini(autoconnect, show_pane, domain, user, password)
 	jQuery(window).bind('beforeunload', saveSessionMini);
 	
 	createMini(domain, user, password);	
-/*	
-	WebRtc.mediaHints = {audio:true, video:true};
-
-	navigator.webkitGetUserMedia({audio:WebRtc.mediaHints.audio, video:WebRtc.mediaHints.video}, function(stream) 
-	{
-		WebRtc.localStream = stream;	
-		createMini(domain, user, password);
-		
-	}, function(error) {
 	
-		logThis("WebRtc.onUserMediaError " + error.code);
-		createMini(domain, user, password);		
-	});
-*/	
 	logThis('Welcome to Jappix Mini! Happy coding in developer mode!');
 }
 

@@ -5,10 +5,10 @@
   Plugin URI: wordpress.org/plugins/bp-group-documents/
 
   Description: BP Group Documents creates a page within each BuddyPress group to upload and any type of file or document.
-  Version: 1.6
-  Revision Date: March 17, 2017
-  Requires at least: WP 3.5.1, BuddyPress 1.7
-  Tested up to: WP 3.7.1, BuddyPress 1.8.1
+  Version: 1.7
+  Revision Date: April 22, 2014
+  Requires at least: WP 3.5.1, BuddyPress 1.6.5
+  Tested up to: WP 3.7.1, BuddyPress 1.9
   License:  GNU General Public License 3.0 or newer (GPL) http://www.gnu.org/licenses/gpl.html
   Author: <a href="http://lenasterg.wordpress.com">lenasterg</a>, since v. 0.4.3.3. with additional bug fixing and improvements by <a href="http://keeblesmith.com">Keeble Smith</a>. Original plugin author Peter Anselmo, Studio66.
 
@@ -21,7 +21,7 @@
 
 //some constants that can be checked when extending this plugin
 define('BP_GROUP_DOCUMENTS_IS_INSTALLED', 1);
-define('BP_GROUP_DOCUMENTS_VERSION', '1.5');
+define('BP_GROUP_DOCUMENTS_VERSION', '1.7');
 define('BP_GROUP_DOCUMENTS_DB_VERSION', '5');
 define('BP_GROUP_DOCUMENTS_VALID_FILE_FORMATS', 'odt,rtf,txt,doc,docx,xls,xlsx,ppt,pps,pptx,pdf,jpg,jpeg,gif,png,zip,tar,gz');
 define('BP_GROUP_DOCUMENTS_ITEMS_PER_PAGE', 20);
@@ -65,11 +65,13 @@ define('BP_GROUP_DOCUMENTS_DIR', $bp_gr_dir); //the name of the directory that b
  */
 function bp_group_documents_init() {
     global $wpdb;
-    if (is_multisite() && BP_ROOT_BLOG != $wpdb->blogid)
-        return;
-    if (!bp_is_active('groups'))
-        return;
-    // Because our loader file uses BP_Component, it requires BP 1.5 or greater.
+    if ( is_multisite() && BP_ROOT_BLOG != $wpdb->blogid ) {
+        return ;
+    }
+    if ( ! bp_is_active( 'groups' ) ) {
+        return ;
+    }
+    // Because our loader file uses BP_Component, it requires BP 1.6.5 or greater.
     if (version_compare(BP_VERSION, '1.6.5', '>')) {
         bp_group_documents_set_constants();
         require( dirname(__FILE__) . '/buddypress-group-documents.php' );

@@ -203,7 +203,19 @@ class RTMediaFormHandler {
 	}
 
 	static function display_render_options($options) {
-
+                $radios = array();
+                $radios[ 'load_more' ] = "<strong>Load More</strong>";
+                $radios[ 'pagination' ] = "<strong>Pagination</strong>";
+            
+		if (is_plugin_active('regenerate-thumbnails/regenerate-thumbnails.php')) {
+			$regenerate_link = admin_url('/tools.php?page=regenerate-thumbnails');
+		}
+		elseif (array_key_exists('regenerate-thumbnails/regenerate-thumbnails.php', get_plugins())) {
+			$regenerate_link = admin_url('/plugins.php#regenerate-thumbnails');
+		}
+		else {
+			$regenerate_link = wp_nonce_url(admin_url('update.php?action=install-plugin&plugin=regenerate-thumbnails'), 'install-plugin_regenerate-thumbnails');
+		}
 		$render = array(//
 			'general_enableComments' => array(
 				'title' => __('Allow user to comment on uploaded media','rtmedia'),
@@ -236,7 +248,31 @@ class RTMediaFormHandler {
 					'min' => 1
 				),
 				'group' => "15"
-			)
+			),
+			'general_display_media' => array(
+				'title' => __('Media display pagination option','rtmedia'),
+				'callback' => array('RTMediaFormHandler', 'radio'),
+				'args' => array(
+					'key' => 'general_display_media',
+					'radios' => $radios,
+					'default' => $options['general_display_media'],
+					'desc' => __('Choose whether you want load more button or pagination buttons.','rtmedia'),
+					'class' => array( 'rtmedia-load-more-radio' )
+				),
+				'group' => "15"
+			),
+			'general_masonry_layout' => array(
+				'title' => __('Enable','rtmedia') . ' <a href="http://masonry.desandro.com/" target="_blank">Masonry</a> '. __( 'Cascading grid layout', 'rtmedia'),
+				'callback' => array('RTMediaFormHandler', 'checkbox'),
+				'args' => array(
+					'key' => 'general_masonry_layout',
+					'value' => $options['general_masonry_layout'],
+					'desc' => __('Masonry works by placing elements in optimal position based on available vertical space, sort of like a mason fitting stones in a wall.','rtmedia'),
+					'class' => array('rtm_enable_masonry_view'),
+				),
+				'group' => "18",
+				'after_content' => __( 'You might need to', 'rtmedia') . ' <a id="rtm-masonry-change-thumbnail-info" href="' . get_admin_url() . 'admin.php?page=rtmedia-settings#rtmedia-sizes">' . __( 'change thumbnail size', 'rtmedia' ) . '</a> ' . __( 'and uncheck the crop box for thumbnails.', 'rtmedia' ) . '<br />' . __( 'If you enable masonry view, it is advisable to', 'rtmedia' ) . ' <a href="'.$regenerate_link.'">regenerate thumbnail</a> ' . __( 'for masonry view.', 'rtmedia' ) . '<br />' . __( 'To set gallery for fixed width, set image height to 0 and width as per your requirement and vice-versa.', 'rtmedia'),
+			),
 		);
 
 		return $render;
@@ -252,6 +288,7 @@ class RTMediaFormHandler {
 		$general_group = array();
 		$general_group[10] = "Single Media View";
 		$general_group[15] = "List Media View";
+		$general_group[18] = "Masonry View";
 		$general_group = apply_filters("rtmedia_display_content_groups", $general_group);
 		ksort($general_group);
 		$html = '';
@@ -280,6 +317,17 @@ class RTMediaFormHandler {
 				</div>
 			</div>
 		    <?php
+				if( isset( $option['after_content'] ) ) {
+					?>
+					<div class="row">
+						<div class="columns large-12">
+							<p class="rtmedia-info rtmedia-admin-notice">
+								<?php echo $option['after_content']; ?>
+							</p>
+						</div>
+					</div>
+				<?php
+				}
 		    }
 		    ?>
 			</div>
@@ -300,7 +348,7 @@ class RTMediaFormHandler {
 				)
 			),
 			'general_showAdminMenu' => array(
-				    'title' => __('Admin bar menu intergation','rtmedia'),
+				    'title' => __('Admin bar menu integration','rtmedia'),
 				    'callback' => array('RTMediaFormHandler', 'checkbox'),
 				    'args' => array(
 					    'key' => 'general_showAdminMenu',
@@ -375,10 +423,10 @@ class RTMediaFormHandler {
 			}
 		?>
 			<div class="row section">
-			    <div class="columns large-6">
+			    <div class="columns large-7">
 				<?php echo $option['title']; ?>
 			    </div>
-			    <div class="columns large-6">
+			    <div class="columns large-5">
 				<?php call_user_func($option['callback'], $option['args']); ?>
 				<span data-tooltip class="has-tip" title="<?php echo (isset($option['args']['desc'])) ? $option['args']['desc'] : "NA"; ?>"><i class="rtmicon-info-circle"></i></span>
 			    </div>

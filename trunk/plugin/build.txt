@@ -2,3 +2,6 @@ Buildfile: C:\Projects\InspiredProject\inspired-social\plugin\build.xml
 
 war:
       [jar] Building jar: C:\Projects\InspiredProject\inspired-social\plugin\inspired.war
+
+BUILD SUCCESSFUL
+Total time: 49 seconds

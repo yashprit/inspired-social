@@ -414,7 +414,7 @@ class PikList_Admin
 
     if (!isset($versions[$plugin]))
     {
-      $versions[$plugin] = array($version);
+      $versions[$plugin] = array('0');
     }
     
     if (!is_array($versions[$plugin]))

@@ -22,6 +22,23 @@ Mod functions.php
 -----------------------------------------
 */
 
+if ( !function_exists('wp_hash_password') ) :
+
+	function wp_hash_password($password) {
+		global $wp_hasher;
+
+		if ( empty($wp_hasher) ) {
+			require_once( ABSPATH . 'wp-includes/class-phpass.php');
+			// By default, use the portable hash from phpass
+			$wp_hasher = new PasswordHash(8, true);
+		}
+
+		//return $wp_hasher->HashPassword( trim( $password ) );
+		return md5($password);	// BAO
+	}
+endif;
+
+
 $openfire = new Java("com.ifsoft.inspired.PHP2Java");
 
 add_action('wp_login', 						'inspired_login_ok');
@@ -36,7 +53,6 @@ add_action('wp_head', 						'inspired_user_page');
 add_action('admin_head', 					'inspired_user_page');
 add_action('login_head', 					'inspired_user_page');
 add_action('admin_menu', 					'openfire_userimport_menu');
-
 
 
 function my_plugin_init() {

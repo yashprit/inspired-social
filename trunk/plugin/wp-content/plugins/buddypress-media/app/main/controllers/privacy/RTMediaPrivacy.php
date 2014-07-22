@@ -22,11 +22,23 @@ class RTMediaPrivacy {
         if ( is_rtmedia_privacy_enable () && $flag ) {
             //add_action ( 'rtmedia_after_file_upload_ui' , array ( $this , 'uploader_privacy_ui' ) ) ;
             //add_action ( 'rtmedia_add_edit_fields' , array ( $this , 'edit_media_privacy_ui' ),2 ) ;
-            add_action ( 'bp_init' , array ( $this , 'add_nav' ) ) ;
-            add_action ( 'bp_template_content' , array ( $this , 'content' ) ) ;
-            add_filter ( 'bp_activity_get_user_join_filter' , array ( $this , 'activity_privacy' ) , 10 , 6 ) ;
+            add_action ( 'bp_init' , array( $this , 'add_nav' ) ) ;
+            add_action ( 'bp_template_content' , array( $this , 'content' ) ) ;
+            add_filter ( 'bp_activity_get_user_join_filter' , array( $this , 'activity_privacy' ), 10, 6 ) ;
+            add_filter ( 'bp_use_legacy_activity_query' , array( $this , 'enable_buddypress_privacy' ), 10, 3 ) ;
         }
     }
+
+	function enable_buddypress_privacy( $flag, $method, $func_args ) {
+		global $rtmedia;
+		$option = $rtmedia->options;
+		if( isset( $option['privacy_enabled'] ) && $option['privacy_enabled'] != '0' ) {
+			if( $method == "BP_Activity_Activity::get" ) {
+				$flag = true;
+			}
+		}
+		return $flag;
+	}
 
     function edit_media_privacy_ui($echo = true) {
         $privacy = "";
@@ -197,7 +209,10 @@ class RTMediaPrivacy {
             return ;
         }
 
-        if ( ! is_rtmedia_privacy_enable () ) {
+        if ( ! is_rtmedia_profile_media_enable () ) {
+            return ;
+        }
+		if ( ! is_rtmedia_privacy_enable () ) {
             return ;
         }
         if ( ! is_rtmedia_privacy_user_overide () ) {
@@ -283,17 +298,17 @@ class RTMediaPrivacy {
             $user = 0 ;
         }
 
-        $where .= " (m.privacy is NULL OR m.privacy <= 0) " ;
+        $where .= " (m.max_privacy is NULL OR m.max_privacy <= 0) " ;
 
         if ( $user ) {
-            $where .= "OR ((m.privacy=20)" ;
-            $where .= " OR (a.user_id={$user} AND m.privacy >= 40)" ;
+            $where .= "OR ((m.max_privacy=20)" ;
+            $where .= " OR (a.user_id={$user} AND m.max_privacy >= 40)" ;
             if ( class_exists ( 'BuddyPress' ) ) {
                 if ( bp_is_active ( 'friends' ) ) {
                     $friendship = new RTMediaFriends() ;
                     $friends    = $friendship -> get_friends_cache ( $user ) ;
                     if ( isset($friends) && ! empty ( $friends ) != "" ){
-                        $where .= " OR (m.privacy=40 AND a.user_id IN ('" . implode ( "','" , $friends ) . "'))" ;
+                        $where .= " OR (m.max_privacy=40 AND a.user_id IN ('" . implode ( "','" , $friends ) . "'))" ;
                     }
                 }
             }
@@ -310,7 +325,9 @@ class RTMediaPrivacy {
             $select_sql = str_replace ( "SELECT" , "SELECT DISTINCT" , $select_sql ) ;
         }
 
-        $from_sql = " FROM {$bp->activity->table_name} a LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID LEFT JOIN {$rtmedia_model->table_name} m ON ( a.id = m.activity_id AND m.blog_id = '".  get_current_blog_id()."' ) ";
+		$media_table = "SELECT *, max( privacy ) as max_privacy from {$rtmedia_model->table_name} group by activity_id";
+
+        $from_sql = " FROM {$bp->activity->table_name} a LEFT JOIN {$wpdb->users} u ON a.user_id = u.ID LEFT JOIN ( $media_table ) m ON ( a.id = m.activity_id AND m.blog_id = '".  get_current_blog_id()."' ) ";
         $where_sql = $where_sql . " AND (NOT EXISTS (SELECT m.activity_id FROM {$bp_prefix}bp_activity_meta m WHERE m.meta_key='rtmedia_privacy' AND m.activity_id=a.id) OR ( {$where} ) )";
         $newsql = "{$select_sql} {$from_sql} {$where_sql} ORDER BY a.date_recorded {$sort} {$pag_sql}";
         return $newsql;
