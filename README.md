@@ -22,7 +22,7 @@ Inspired Social Software Profile
 * BuddyPress Album+ 0.1.8.14 By The BP-Media Team
 * TDLC Birthdays 0.4 by Tom Granger
 * BP-Album 0.1.8.14 By The BP-Media Team
-BuddyMobile 1.6.9 By modemlooper
+* BuddyMobile 1.6.9 By modemlooper
 BuddyPress Hovercards 1.1.3 by Mike Martel
 BuddyShare 1.2.1 by BuddyShare
 Piklist 0.7.2 by Piklist
