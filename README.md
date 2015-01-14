@@ -26,7 +26,7 @@ Inspired Social Software Profile
 * BuddyPress Hovercards 1.1.3 by Mike Martel
 * BuddyShare 1.2.1 by BuddyShare
 * Piklist 0.7.2 by Piklist
-Wordpress Helpers 1.4.8 by PikList
+* Wordpress Helpers 1.4.8 by PikList
 Inspired Communication Toolbar
 
 XMPP Webclient (http://www.jappix.com)
