@@ -27,7 +27,7 @@ Inspired Social Software Profile
 * BuddyShare 1.2.1 by BuddyShare
 * Piklist 0.7.2 by Piklist
 * Wordpress Helpers 1.4.8 by PikList
-Inspired Communication Toolbar
+* Inspired Communication Toolbar
 
 XMPP Webclient (http://www.jappix.com)
 WebRTC Video/Audio Conferencing (http://webrtc.org)
