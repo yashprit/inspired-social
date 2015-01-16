@@ -29,7 +29,7 @@ Inspired Social Software Profile
 * Wordpress Helpers 1.4.8 by PikList
 * Inspired Communication Toolbar
 
-XMPP Webclient (http://www.jappix.com)
+## XMPP Webclient (http://www.jappix.com)
 WebRTC Video/Audio Conferencing (http://webrtc.org)
 Worgroups (Fastpath live chat) support
 RTMP Screen Share (red5-screenshare)
