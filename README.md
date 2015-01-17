@@ -30,7 +30,7 @@ Inspired Social Software Profile
 * Inspired Communication Toolbar
 
 ## XMPP Webclient (http://www.jappix.com)
-WebRTC Video/Audio Conferencing (http://webrtc.org)
+* WebRTC Video/Audio Conferencing (http://webrtc.org)
 Worgroups (Fastpath live chat) support
 RTMP Screen Share (red5-screenshare)
 Embedded RTMP Server (Milenia Grafter 64K RTMP Server)
