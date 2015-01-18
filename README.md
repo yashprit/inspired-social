@@ -31,7 +31,7 @@ Inspired Social Software Profile
 
 ## XMPP Webclient (http://www.jappix.com)
 * WebRTC Video/Audio Conferencing (http://webrtc.org)
-Worgroups (Fastpath live chat) support
+* Worgroups (Fastpath live chat) support
 RTMP Screen Share (red5-screenshare)
 Embedded RTMP Server (Milenia Grafter 64K RTMP Server)
 Requirements
