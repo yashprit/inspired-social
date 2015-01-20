@@ -33,7 +33,7 @@ Inspired Social Software Profile
 * WebRTC Video/Audio Conferencing (http://webrtc.org)
 * Worgroups (Fastpath live chat) support
 * RTMP Screen Share (red5-screenshare)
-Embedded RTMP Server (Milenia Grafter 64K RTMP Server)
+* Embedded RTMP Server (Milenia Grafter 64K RTMP Server)
 Requirements
 
 Openfire Server 3.8.0 and above configured with MySQL (Needed by WordPress)
