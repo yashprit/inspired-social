@@ -34,7 +34,8 @@ Inspired Social Software Profile
 * Worgroups (Fastpath live chat) support
 * RTMP Screen Share (red5-screenshare)
 * Embedded RTMP Server (Milenia Grafter 64K RTMP Server)
-Requirements
+
+## Requirements
 
 Openfire Server 3.8.0 and above configured with MySQL (Needed by WordPress)
 Openfire Jingle Relay Nodes plugin to relay WebRTC audio/video behind firewalls.
