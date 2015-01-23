@@ -38,7 +38,7 @@ Inspired Social Software Profile
 ## Requirements
 
 * Openfire Server 3.8.0 and above configured with MySQL (Needed by WordPress)
-Openfire Jingle Relay Nodes plugin to relay WebRTC audio/video behind firewalls.
+* Openfire Jingle Relay Nodes plugin to relay WebRTC audio/video behind firewalls.
 Openfire WebSockets plugin
 Nothing else required. No Apache, No PHP, No Asterisk and No Red5. The Inspired-Social plugin has embedded servers.
 http://inspired-social.googlecode.com/files/inspired-social.jpg
