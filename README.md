@@ -10,7 +10,7 @@ A User Guide can be found at http://inspired-social.googlecode.com/files/Inspire
 
 An Admin Guide can be found at http://inspired-social.googlecode.com/files/Inspired%20Social%20admin%20guide%20_Revised.pdf
 
-Inspired Social Software Profile
+## Inspired Social Software Profile
 
 * WordPress 3.5.1
 * BuddyPress 1.7.0
@@ -40,10 +40,11 @@ Inspired Social Software Profile
 * Openfire Server 3.8.0 and above configured with MySQL (Needed by WordPress)
 * Openfire Jingle Relay Nodes plugin to relay WebRTC audio/video behind firewalls.
 * Openfire WebSockets plugin
-Nothing else required. No Apache, No PHP, No Asterisk and No Red5. The Inspired-Social plugin has embedded servers.
+* Nothing else required. No Apache, No PHP, No Asterisk and No Red5. The Inspired-Social plugin has embedded servers.
+
 http://inspired-social.googlecode.com/files/inspired-social.jpg
 
-How to Install
+## How to Install
 
 Unzip inspired-x.x.x.x.zip and copy the inspired.war file to the OPENFIRE_HOME/plugins directory
 From a browser, go to http://your_openfire-server:7070/inspired/wp-admin and complete the installation of WordPress. Login as admin with default password admin. Make sure you change the default password from the WordPress dashboard.
