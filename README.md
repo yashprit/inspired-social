@@ -48,7 +48,7 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 
 * Unzip `inspired-x.x.x.x.zip` and copy the inspired.war file to the `OPENFIRE_HOME/plugins` directory
 * From a browser, go to `http://your_openfire-server:7070/inspired/wp-admin` and complete the installation of WordPress. Login as admin with default password admin. Make sure you change the default password from the WordPress dashboard.
-Go to WordPress Dashboard, activate BuddyPress.
+* Go to WordPress Dashboard, activate BuddyPress.
 Do a bulk activate of all other plugins and configure them from dashboard.
 Go to appearance and configure your widgets. Add birthdays and events if required.
 Create a new user with username and password of choice.
