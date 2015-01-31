@@ -51,8 +51,8 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 * Go to WordPress Dashboard, activate BuddyPress.
 * Do a bulk activate of all other plugins and configure them from dashboard.
 * Go to appearance and configure your widgets. Add birthdays and events if required.
-Create a new user with username and password of choice.
-Go to Openfire admin web console and change HTTP bind ports from 7070/7443 to 80/443.
+* Create a new user with username and password of choice.
+* Go to Openfire admin web console and change HTTP bind ports from 7070/7443 to 80/443.
 Configure Openfire email and run the test to make sure it works.
 Go to http://your_openfire-server/inspired/social and login with your new user details.
 Openfire is auto-configured as follows
