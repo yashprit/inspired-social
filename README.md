@@ -54,7 +54,7 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 * Create a new user with username and password of choice.
 * Go to Openfire admin web console and change HTTP bind ports from 7070/7443 to 80/443.
 * Configure Openfire email and run the test to make sure it works.
-Go to http://your_openfire-server/inspired/social and login with your new user details.
+* Go to http://your_openfire-server/inspired/social and login with your new user details.
 Openfire is auto-configured as follows
 
 All Openfire users are WordPress users and Openfire admin console cannot add or modify users
