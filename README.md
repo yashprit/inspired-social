@@ -59,8 +59,8 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 
 * All Openfire users are WordPress users and Openfire admin console cannot add or modify users
 * All Openfire user groups are read from BuddyPress groups Openfire admin console cannot add or modify user groups
-Group Chat rooms are auto-created every time a BuddyPress group is created
-User Rosters are updated every time a BuddyPress friendship is made or broken.
+* Group Chat rooms are auto-created every time a BuddyPress group is created
+* User Rosters are updated every time a BuddyPress friendship is made or broken.
 How to Use Communication Toolbar
 
 Roster of Friendships showing Presence
