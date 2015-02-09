@@ -59,7 +59,7 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 * User Rosters are updated every time a BuddyPress friendship is made or broken.
 
 ### How to Use Communication Toolbar
-Roster of Friendships showing Presence
+* Roster of Friendships showing Presence
 IM chat with friends or MUC chats with BuddyPress group members
 Audio/Video conference with friends
 Audio conference only with BuddyPress group members
