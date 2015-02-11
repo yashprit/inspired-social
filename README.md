@@ -60,7 +60,7 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 
 ### How to Use Communication Toolbar
 * Roster of Friendships showing Presence
-IM chat with friends or MUC chats with BuddyPress group members
+* IM chat with friends or MUC chats with BuddyPress group members
 Audio/Video conference with friends
 Audio conference only with BuddyPress group members
 Live chat (including audio) with anonymous visitors on another web site
