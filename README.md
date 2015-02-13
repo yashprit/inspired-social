@@ -6,12 +6,11 @@ http://inspired-social.googlecode.com/files/Image4.jpg
 
 Please note that Only Openfire and MySQL required. No Apache, No PHP. The Inspired-Social plugin has embedded Quercus PHP Engine and RTMP server for screenshare only. You will also need Openfire Jingle Relay Nodes plugin in order to relay WebRTC audio and video when users are behind restrictive firewalls or home routers
 
-A User Guide can be found at http://inspired-social.googlecode.com/files/Inspired%20Social%20user%20guide.pdf
+A User Guide can be found at `http://inspired-social.googlecode.com/files/Inspired%20Social%20user%20guide.pdf`
 
-An Admin Guide can be found at http://inspired-social.googlecode.com/files/Inspired%20Social%20admin%20guide%20_Revised.pdf
+An Admin Guide can be found at `http://inspired-social.googlecode.com/files/Inspired%20Social%20admin%20guide%20_Revised.pdf`
 
-## Inspired Social Software Profile
-
+### Inspired Social Software Profile
 * WordPress 3.5.1
 * BuddyPress 1.7.0
 * BuddyPress Docs 1.3.3 by Boone B Gorges
@@ -29,14 +28,13 @@ An Admin Guide can be found at http://inspired-social.googlecode.com/files/Inspi
 * Wordpress Helpers 1.4.8 by PikList
 * Inspired Communication Toolbar
 
-## XMPP Webclient (http://www.jappix.com)
+### XMPP Webclient (http://www.jappix.com)
 * WebRTC Video/Audio Conferencing (http://webrtc.org)
 * Worgroups (Fastpath live chat) support
 * RTMP Screen Share (red5-screenshare)
 * Embedded RTMP Server (Milenia Grafter 64K RTMP Server)
 
-## Requirements
-
+### Requirements
 * Openfire Server 3.8.0 and above configured with MySQL (Needed by WordPress)
 * Openfire Jingle Relay Nodes plugin to relay WebRTC audio/video behind firewalls.
 * Openfire WebSockets plugin
@@ -44,8 +42,7 @@ An Admin Guide can be found at http://inspired-social.googlecode.com/files/Inspi
 
 http://inspired-social.googlecode.com/files/inspired-social.jpg
 
-## How to Install
-
+### How to Install
 * Unzip `inspired-x.x.x.x.zip` and copy the inspired.war file to the `OPENFIRE_HOME/plugins` directory
 * From a browser, go to `http://your_openfire-server:7070/inspired/wp-admin` and complete the installation of WordPress. Login as admin with default password admin. Make sure you change the default password from the WordPress dashboard.
 * Go to WordPress Dashboard, activate BuddyPress.
@@ -56,13 +53,12 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 * Configure Openfire email and run the test to make sure it works.
 * Go to `http://your_openfire-server/inspired/social` and login with your new user details.
 * Openfire is auto-configured as follows
-
 * All Openfire users are WordPress users and Openfire admin console cannot add or modify users
 * All Openfire user groups are read from BuddyPress groups Openfire admin console cannot add or modify user groups
 * Group Chat rooms are auto-created every time a BuddyPress group is created
 * User Rosters are updated every time a BuddyPress friendship is made or broken.
-How to Use Communication Toolbar
 
+### How to Use Communication Toolbar
 Roster of Friendships showing Presence
 IM chat with friends or MUC chats with BuddyPress group members
 Audio/Video conference with friends
