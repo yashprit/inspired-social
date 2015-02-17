@@ -63,5 +63,5 @@ http://inspired-social.googlecode.com/files/inspired-social.jpg
 * IM chat with friends or MUC chats with BuddyPress group members
 * Audio/Video conference with friends
 * Audio conference only with BuddyPress group members
-Live chat (including audio) with anonymous visitors on another web site
+* Live chat (including audio) with anonymous visitors on another web site
 Screen share to friends or a group. Requires Java for publisher and Flash for viewer.
